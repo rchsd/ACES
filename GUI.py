@@ -30,7 +30,7 @@ class Window(QMainWindow):
     def runAcetabularAnalysis(self):
         sender = self.sender()
         self.statusBar().showMessage(sender.text() + ' Running Acetabular Analysis')
-        acetabular_analysis.AnalysisQTTest()
+        acetabular_analysis.RunAnalysis()
 
 
     def resizeEvent(self, event):
