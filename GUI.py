@@ -1,9 +1,11 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget, QVBoxLayout, QLabel, QLineEdit
-from random import randint
 import acetabular_analysis
+import spine_analysis
 
 class SpineAnalysisWindow(QWidget):
+
+    displayViewIndex = 0
 
     def __init__(self):
         super().__init__()
@@ -11,7 +13,12 @@ class SpineAnalysisWindow(QWidget):
         self.setLayout(layout)
         self.setGeometry(600, 600, 600, 300)
         self.btn3 = QPushButton('Analysis', self)
+        self.btn3.clicked.connect(self.displaySpineView)
         self.setWindowTitle('Spine Analysis') 
+
+    def displaySpineView(self):
+        if self.displayViewIndex is 0:
+            spine_analysis.RunAnalysis(self.displayViewIndex)
 
 class MainWindow(QMainWindow):
 
@@ -19,7 +26,7 @@ class MainWindow(QMainWindow):
          super().__init__()
          self.w = None
          self.initUI()
-         self.i = 0
+         self.isWindowOpen = False
 
     def initUI(self):
         self.btn_1 = QPushButton('Spine Analysis', self)
@@ -31,7 +38,6 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('Matlab Analysis') 
         self.btn_1.resize(100, 100)
         self.btn_2.resize(100, 100)
-        self.show()
         self.show()
 
     def runSpineAnalysis(self):
@@ -51,12 +57,12 @@ class MainWindow(QMainWindow):
         QMainWindow.resizeEvent(self, event)
 
     def show_new_window(self):
-        self.w = SpineAnalysisWindow()
-        self.i += 1
-        print(self.i)
-        self.w.show()
-        self.w.show()
-        print('displayed')
+        if self.isWindowOpen is False:
+                self.isWindowOpen = True
+                self.w = SpineAnalysisWindow()
+                self.w.show()
+
+        else: return
 
 app = QApplication(sys.argv)
 w = MainWindow()

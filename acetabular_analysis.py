@@ -1,6 +1,4 @@
 import matlab.engine
-'''from PyInstaller.utils.hooks import collect_all
-datas, binaries, hiddenimports = collect_all('matlab')'''
 
 eng = matlab.engine.start_matlab()
 
