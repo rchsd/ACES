@@ -36,13 +36,6 @@ class SpineAnalysisWindow(QWidget):
         for x in spinePosition:
             spinePositionComboBox.addItem(x)
 
-        '''combobox1.addItem('Anterior')
-        combobox1.addItem('Posterior')
-        combobox1.addItem('Left')
-        combobox1.addItem('Right')
-        combobox1.addItem('Superior')
-        combobox1.addItem('Inferior')'''
-
         layout = QVBoxLayout()
         layout.addWidget(spinePositionComboBox)
 
@@ -52,15 +45,9 @@ class SpineAnalysisWindow(QWidget):
 
         # Connect checkboxes to slots (functions to be called when checked/unchecked)
         self.toggleSnapshotWithDiscs.stateChanged.connect(self.toggleSnapshotWithDiscs_changed)
-        #self.vertebralDiscBoxes.stateChanged.connect(self.vertebralDiscBoxes_changed(1))
 
         # Add checkboxes to layout
         layout.addWidget(self.toggleSnapshotWithDiscs)
-        '''for i in range(18):
-            if i > 0:
-                spineDisc[i] = spineDisc[i] + str(i)
-                self.vertebralDiscBoxes[i] = QCheckBox(spineDisc[i])
-                layout.addWidget(self.vertebralDiscBoxes[i])'''
         
         for i in range(18):
             if i > 0:
@@ -80,7 +67,6 @@ class SpineAnalysisWindow(QWidget):
             print("Checkbox 1 is unchecked")
 
     def vertebralDiscBoxes_changed(self, index, state):
-        #checkbox = self.sender
 
         if index is 1:
             if state == 2:
