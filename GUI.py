@@ -72,72 +72,87 @@ class SpineAnalysisWindow(QWidget):
 
         if index is 1:
             if state == 2:
-                print(index)
                 spine_analysis.alphas[0] = 1
+            else:
+                spine_analysis.alphas[0] = 0
         elif index is 2:
             if state == 2:
-                print(index)
                 spine_analysis.alphas[1] = 1
+            else:
+                spine_analysis.alphas[1] = 0
         elif index is 3:
             if state == 2:
-                print(index)
                 spine_analysis.alphas[2] = 1
+            else:
+                spine_analysis.alphas[2] = 0
         elif index is 4:
             if state == 2:
-                print(index)
                 spine_analysis.alphas[3] = 1
+            else:
+                spine_analysis.alphas[3] = 0
         elif index is 5:
             if state == 2:
-                print(index)
                 spine_analysis.alphas[4] = 1
+            else:
+                spine_analysis.alphas[4] = 0
         elif index is 6:
             if state == 2:
-                print(index)
                 spine_analysis.alphas[5] = 1
+            else:
+                spine_analysis.alphas[5] = 0
         elif index is 7:
             if state == 2:
-                print(index)
                 spine_analysis.alphas[6] = 1
+            else:
+                spine_analysis.alphas[6] = 0
         elif index is 8:
             if state == 2:
-                print(index)
                 spine_analysis.alphas[7] = 1
+            else:
+                spine_analysis.alphas[7] = 0
         elif index is 9:
             if state == 2:
-                print(index)
                 spine_analysis.alphas[8] = 1
         elif index is 10:
             if state == 2:
-                print(index)
                 spine_analysis.alphas[9] = 1
+            else:
+                spine_analysis.alphas[9] = 0
         elif index is 11:
             if state == 2:
-                print(index)
                 spine_analysis.alphas[10] = 1
+            else:
+                spine_analysis.alphas[10] = 0
         elif index is 12:
             if state == 2:
-                print(index)
                 spine_analysis.alphas[11] = 1
+            else:
+                spine_analysis.alphas[11] = 0
         elif index is 13:
             if state == 2:
-                print(index)
                 spine_analysis.alphas[12] = 1
+            else:
+                spine_analysis.alphas[12] = 0
         elif index is 14:
             if state == 2:
-                print(index)
                 spine_analysis.alphas[13] = 1
+            else:
+                spine_analysis.alphas[13] = 0
         elif index is 2:
             if state == 15:
-                print(index)
                 spine_analysis.alphas[14] = 1
+            else:
+                spine_analysis.alphas[14] = 0
         elif index is 16:
             if state == 2:
-                print(index)
                 spine_analysis.alphas[15] = 1
+            else:
+                spine_analysis.alphas[15] = 0
         elif index is 17:
             if state == 2:
-                print(index)
                 spine_analysis.alphas[16] = 1
+            else:
+                spine_analysis.alphas[16] = 0
         
 class MainWindow(QMainWindow):
 
