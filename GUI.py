@@ -16,16 +16,15 @@ class SpineAnalysisWindow(QWidget):
         self.setGeometry(600, 600, 600, 300)
         self.btn3 = QPushButton('Analysis', self)
         self.btn3.clicked.connect(self.displaySpineView)
-        self.setWindowTitle('Spine Analysis') 
-
-    def displaySpineView(self):
-        if self.displayViewIndex is 0:
-            spine_analysis.RunAnalysis(self.displayViewIndex)'''
+        self.setWindowTitle('Spine Analysis') '''
     
     def __init__(self):
         super().__init__()
 
         self.setWindowTitle("PyQt Checkboxes")
+
+        self.btn3 = QPushButton('Analysis', self)
+        self.btn3.clicked.connect(self.displaySpineView)
 
         spinePosition = ['Anterior', 'Posterior', 'Left', 'Right', 'Superior', 'Inferior']
         spineDisc = ['Spine Disc '] * 18
@@ -59,6 +58,9 @@ class SpineAnalysisWindow(QWidget):
 
         self.setLayout(layout)
 
+    def displaySpineView(self):
+        spine_analysis.RunAnalysis()
+
     def toggleSnapshotWithDiscs_changed(self, state):
         if state is 1:
             if state == 2:  # 2 means checked
@@ -71,54 +73,71 @@ class SpineAnalysisWindow(QWidget):
         if index is 1:
             if state == 2:
                 print(index)
+                spine_analysis.alphas[0] = 1
         elif index is 2:
             if state == 2:
                 print(index)
+                spine_analysis.alphas[1] = 1
         elif index is 3:
             if state == 2:
                 print(index)
+                spine_analysis.alphas[2] = 1
         elif index is 4:
             if state == 2:
                 print(index)
+                spine_analysis.alphas[3] = 1
         elif index is 5:
             if state == 2:
                 print(index)
+                spine_analysis.alphas[4] = 1
         elif index is 6:
             if state == 2:
                 print(index)
+                spine_analysis.alphas[5] = 1
         elif index is 7:
             if state == 2:
                 print(index)
+                spine_analysis.alphas[6] = 1
         elif index is 8:
             if state == 2:
                 print(index)
+                spine_analysis.alphas[7] = 1
         elif index is 9:
             if state == 2:
                 print(index)
+                spine_analysis.alphas[8] = 1
         elif index is 10:
             if state == 2:
                 print(index)
+                spine_analysis.alphas[9] = 1
         elif index is 11:
             if state == 2:
                 print(index)
+                spine_analysis.alphas[10] = 1
         elif index is 12:
             if state == 2:
                 print(index)
+                spine_analysis.alphas[11] = 1
         elif index is 13:
             if state == 2:
                 print(index)
+                spine_analysis.alphas[12] = 1
         elif index is 14:
             if state == 2:
                 print(index)
+                spine_analysis.alphas[13] = 1
         elif index is 2:
             if state == 15:
                 print(index)
+                spine_analysis.alphas[14] = 1
         elif index is 16:
             if state == 2:
                 print(index)
+                spine_analysis.alphas[15] = 1
         elif index is 17:
             if state == 2:
                 print(index)
+                spine_analysis.alphas[16] = 1
         
 class MainWindow(QMainWindow):
 

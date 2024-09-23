@@ -2,7 +2,9 @@ import matlab.engine
 
 eng = matlab.engine.start_matlab()
 
-def RunAnalysis(index):
+alphas = [0] * 17
+
+def RunAnalysis():
 
     eng.cd(r'C:/MATLAB', nargout=0)
 
@@ -14,4 +16,6 @@ def RunAnalysis(index):
 
     eng.Py_StartHere(nargout = 0)
 
-    eng.SpineAnalysisScript(folderPath, customFileName, customPosition[index], nargout=0)
+    eng.SpineAnalysisScript(folderPath, customFileName, customPosition[0], alphas[0], alphas[1], alphas[2], alphas[3], alphas[4], alphas[5], alphas[6],alphas[7],
+    alphas[8], alphas[9], alphas[10], alphas[11], alphas[12], alphas[13], alphas[14],
+    alphas[15], alphas[16], nargout=0)
