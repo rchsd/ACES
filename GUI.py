@@ -8,22 +8,13 @@ import spine_analysis
 class SpineAnalysisWindow(QWidget):
 
     displayViewIndex = 0
-
-    '''def __init__(self):
-        super().__init__()
-        layout = QVBoxLayout()
-        self.setLayout(layout)
-        self.setGeometry(600, 600, 600, 300)
-        self.btn3 = QPushButton('Analysis', self)
-        self.btn3.clicked.connect(self.displaySpineView)
-        self.setWindowTitle('Spine Analysis') '''
     
     def __init__(self):
         super().__init__()
 
         self.setWindowTitle("PyQt Checkboxes")
 
-        self.btn3 = QPushButton('Analysis', self)
+        self.btn3 = QPushButton('Run Spine Analysis', self)
         self.btn3.clicked.connect(self.displaySpineView)
 
         spinePosition = ['Anterior', 'Posterior', 'Left', 'Right', 'Superior', 'Inferior']
@@ -36,6 +27,8 @@ class SpineAnalysisWindow(QWidget):
             spinePositionComboBox.addItem(x)
 
         layout = QVBoxLayout()
+        self.setGeometry(600, 600, 600, 300)
+        layout.addWidget(self.btn3)
         layout.addWidget(spinePositionComboBox)
 
         # Create checkboxes
