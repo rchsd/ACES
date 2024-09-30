@@ -1,4 +1,6 @@
 import matlab.engine
+'''from PyInstaller.utils.hooks import collect_all
+datas, binaries, hiddenimports = collect_all('matlab')'''
 
 eng = matlab.engine.start_matlab()
 
@@ -33,5 +35,3 @@ def RunAnalysis():
 
     # test for ui, use for console input
     eng.AcetabularAnalysisScript(folderPath, leftSTLIdx, rightSTLIdx, customFileName, rotatedPelvisName, rotatedPelvisIdx, nargout=0)
-
-#AnalysisQTTest()

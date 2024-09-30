@@ -1,7 +1,8 @@
 import sys
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QPushButton, QWidget, QVBoxLayout, 
-                             QLabel, QLineEdit, QVBoxLayout, QCheckBox, QComboBox)
+                             QVBoxLayout, QCheckBox, QComboBox, QFileDialog)
 from functools import partial
+from pathlib import Path
 import acetabular_analysis
 import spine_analysis
 
@@ -14,22 +15,22 @@ class SpineAnalysisWindow(QWidget):
 
         self.setWindowTitle("PyQt Checkboxes")
 
-        self.btn3 = QPushButton('Run Spine Analysis', self)
-        self.btn3.clicked.connect(self.displaySpineView)
+        self.spineButton = QPushButton('Run Spine Analysis', self)
+        self.spineButton.clicked.connect(self.setDicomFileDirectory)
 
-        spinePosition = ['Anterior', 'Posterior', 'Left', 'Right', 'Superior', 'Inferior']
+        self.spinePosition = ['Anterior', 'Posterior', 'Left', 'Right', 'Superior', 'Inferior']
         spineDisc = ['Spine Disc '] * 18
 
 
-        spinePositionComboBox = QComboBox()
+        self.spinePositionComboBox = QComboBox()
 
-        for x in spinePosition:
-            spinePositionComboBox.addItem(x)
+        for x in self.spinePosition:
+            self.spinePositionComboBox.addItem(x)
 
         layout = QVBoxLayout()
         self.setGeometry(600, 600, 600, 300)
-        layout.addWidget(self.btn3)
-        layout.addWidget(spinePositionComboBox)
+        layout.addWidget(self.spineButton)
+        layout.addWidget(self.spinePositionComboBox)
 
         # Create checkboxes
         self.toggleSnapshotWithDiscs = QCheckBox("Snapshot With Vertebral Discs")
@@ -51,7 +52,31 @@ class SpineAnalysisWindow(QWidget):
 
         self.setLayout(layout)
 
+    def setDicomFileDirectory(self):
+        # file dialog
+        dir_name = QFileDialog.getExistingDirectory(self, "Select a Directory")
+        if dir_name:
+            path = Path(dir_name)
+            # will prompt user to select director for dicoms before creating images
+            spine_analysis.folderPath = str(path)
+            self.displaySpineView()
+
+
+#not working
     def displaySpineView(self):
+        '''if self.spinePositionComboBox.currentText() is self.spinePosition[0]:
+            spine_analysis.customSpinePosition = str(self.spinePosition[0])
+        elif self.spinePositionComboBox.currentText() is self.spinePosition[1]:
+            spine_analysis.customSpinePosition = self.spinePosition[1]
+        elif self.spinePositionComboBox.currentText() is self.spinePosition[2]:
+            spine_analysis.customSpinePosition = self.spinePosition[2]
+        elif self.spinePositionComboBox.currentText() is self.spinePosition[3]:
+            spine_analysis.customSpinePosition = self.spinePosition[3]
+        elif self.spinePositionComboBox.currentText() is self.spinePosition[4]:
+            spine_analysis.customSpinePosition = self.spinePosition[4]
+        elif self.spinePositionComboBox.currentText() is self.spinePosition[5]:
+            spine_analysis.customSpinePosition = self.spinePosition[5]'''
+
         spine_analysis.RunAnalysis()
 
     def toggleSnapshotWithDiscs_changed(self, state):
@@ -156,6 +181,7 @@ class MainWindow(QMainWindow):
          self.isWindowOpen = False
 
     def initUI(self):
+        scriptSelectionComboBox = QComboBox()
         self.btn_1 = QPushButton('Spine Analysis', self)
         self.btn_2 = QPushButton('Acetabular Analysis', self)
         self.btn_1.clicked.connect(self.runSpineAnalysis)
@@ -166,6 +192,8 @@ class MainWindow(QMainWindow):
         self.btn_1.resize(100, 100)
         self.btn_2.resize(100, 100)
         self.show()
+
+        
 
     def runSpineAnalysis(self):
         sender = self.sender()
