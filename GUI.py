@@ -23,12 +23,12 @@ class SpineAnalysisWindow(QWidget):
 
 
         self.spinePositionComboBox = QComboBox()
+        self.spinePositionComboBox.activated.connect(self.setSpineView)
 
         for x in self.spinePosition:
             self.spinePositionComboBox.addItem(x)
 
         layout = QVBoxLayout()
-        self.setGeometry(600, 600, 600, 300)
         layout.addWidget(self.spineButton)
         layout.addWidget(self.spinePositionComboBox)
 
@@ -59,25 +59,25 @@ class SpineAnalysisWindow(QWidget):
             path = Path(dir_name)
             # will prompt user to select director for dicoms before creating images
             spine_analysis.folderPath = str(path)
-            self.displaySpineView()
+            #function that creates the images, also setting initial combox index so that default analysis can run
+            if spine_analysis.customSpinePosition is None:
+                spine_analysis.customSpinePosition = 'Anterior'
+                spine_analysis.RunAnalysis()
+                #SpineAnalysisWindow.close()
 
-
-#not working
-    def displaySpineView(self):
-        '''if self.spinePositionComboBox.currentText() is self.spinePosition[0]:
-            spine_analysis.customSpinePosition = str(self.spinePosition[0])
-        elif self.spinePositionComboBox.currentText() is self.spinePosition[1]:
-            spine_analysis.customSpinePosition = self.spinePosition[1]
-        elif self.spinePositionComboBox.currentText() is self.spinePosition[2]:
-            spine_analysis.customSpinePosition = self.spinePosition[2]
-        elif self.spinePositionComboBox.currentText() is self.spinePosition[3]:
-            spine_analysis.customSpinePosition = self.spinePosition[3]
-        elif self.spinePositionComboBox.currentText() is self.spinePosition[4]:
-            spine_analysis.customSpinePosition = self.spinePosition[4]
-        elif self.spinePositionComboBox.currentText() is self.spinePosition[5]:
-            spine_analysis.customSpinePosition = self.spinePosition[5]'''
-
-        spine_analysis.RunAnalysis()
+    def setSpineView(self, index):
+        if index is 0:
+            spine_analysis.customSpinePosition = 'Anterior'
+        elif index is 1:
+            spine_analysis.customSpinePosition = 'Posterior'
+        elif index is 2:
+            spine_analysis.customSpinePosition = 'Left'
+        elif index is 3:
+            spine_analysis.customSpinePosition = 'Right'
+        elif index is 4:
+            spine_analysis.customSpinePosition = 'Superior'
+        elif index is 4:
+            spine_analysis.customSpinePosition = 'Inferior'
 
     def toggleSnapshotWithDiscs_changed(self, state):
         if state is 1:
@@ -131,6 +131,8 @@ class SpineAnalysisWindow(QWidget):
         elif index is 9:
             if state == 2:
                 spine_analysis.alphas[8] = 1
+            else:
+                spine_analysis.alphas[8] = 0
         elif index is 10:
             if state == 2:
                 spine_analysis.alphas[9] = 1
@@ -156,8 +158,8 @@ class SpineAnalysisWindow(QWidget):
                 spine_analysis.alphas[13] = 1
             else:
                 spine_analysis.alphas[13] = 0
-        elif index is 2:
-            if state == 15:
+        elif index is 15:
+            if state == 2:
                 spine_analysis.alphas[14] = 1
             else:
                 spine_analysis.alphas[14] = 0
