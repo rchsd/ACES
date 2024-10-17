@@ -4,7 +4,7 @@ datas, binaries, hiddenimports = collect_all('matlab')'''
 
 eng = matlab.engine.start_matlab()
 
-def RunAnalysis():
+def run_analysis():
 
     eng.cd(r'C:/MATLAB', nargout=0)
 
@@ -13,15 +13,15 @@ def RunAnalysis():
     fileNameInput = input("Please enter the name you'd like to call your new pelvis.")
     rotateddPelvisInput = input("Please enter the name of your new rotated pelvis.")'''
 
-    folderPath = "C:/MATLAB"
-    leftSTLIdx = 1
-    rightSTLIdx = 2
-    customFileName = 'pelvisCombined.stl'
-    rotatedPelvisName = 'pelvisRotated.stl'
+    folder_path = "C:/MATLAB"
+    left_stl_index = 1
+    right_stl_index = 2
+    custom_file_name = 'pelvisCombined.stl'
+    rotated_pelvis_name = 'pelvisRotated.stl'
     # temporarily disabled for ui test, use for console input
     #customNames = [fileNameInput, rotateddPelvisInput]
 
-    rotatedPelvisIdx = 4
+    rotated_pelvis_index = 4
 
     # temporarily disabled for ui test, use for console input
     '''for x in customNames:
@@ -34,4 +34,4 @@ def RunAnalysis():
     #eng.AcetabularAnalysisScript(folderInput, leftSTLIdx, rightSTLIdx, customNames[0], customNames[1], rotatedPelvisIdx, nargout=0)
 
     # test for ui, use for console input
-    eng.AcetabularAnalysisScript(folderPath, leftSTLIdx, rightSTLIdx, customFileName, rotatedPelvisName, rotatedPelvisIdx, nargout=0)
+    eng.AcetabularAnalysisScript(folder_path, left_stl_index, right_stl_index, custom_file_name, rotated_pelvis_name, rotated_pelvis_index, nargout=0)
