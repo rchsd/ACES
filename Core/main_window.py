@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QPushButton)
-import acetabular_analysis
 import spine_analysis_window
+import acetabular_analysis_window
         
 class main_window(QMainWindow):
 
@@ -28,12 +28,12 @@ class main_window(QMainWindow):
     def runSpineAnalysis(self):
         sender = self.sender()
         self.statusBar().showMessage(sender.text() + ' Running Spine Analysis')
-        self.show_new_window()
+        self.show_spine_window()
 
     def runAcetabularAnalysis(self):
         sender = self.sender()
         self.statusBar().showMessage(sender.text() + ' Running Acetabular Analysis')
-        acetabular_analysis.run_analysis()
+        self.show_hip_selection_window()
 
 
     def resizeEvent(self, event):
@@ -41,10 +41,18 @@ class main_window(QMainWindow):
         self.btn_2.move(self.rect().center()-self.btn_2.rect().topLeft())
         QMainWindow.resizeEvent(self, event)
 
-    def show_new_window(self):
+    def show_spine_window(self):
         if self.isWindowOpen is False:
                 self.isWindowOpen = True
                 self.w = spine_analysis_window.spine_analysis_window()
+                self.w.show()
+
+        else: return
+
+    def show_hip_selection_window(self):
+        if self.isWindowOpen is False:
+                self.isWindowOpen = True
+                self.w = acetabular_analysis_window.acetabular_analysis_window()
                 self.w.show()
 
         else: return
