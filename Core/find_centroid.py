@@ -6,9 +6,10 @@ def find_centroid(file_path):
     # Load the mesh
     mesh = trimesh.load_mesh(file_path)
 
-    centroid_of_volume = np.round(mesh.center_mass, 4)
+    #centroid_of_volume = np.round(mesh.center_mass, 4)
+    centroid_of_volume = mesh.center_mass
 
-    print(centroid_of_volume)
+    #print(centroid_of_volume)
 
     matrix = matlab.double(centroid_of_volume.tolist())
 

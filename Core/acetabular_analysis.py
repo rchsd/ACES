@@ -14,13 +14,13 @@ def run_analysis():
     custom_file_name = 'pelvis_combined.stl'
     rotated_pelvis_name = 'pelvis_rotated.stl'
 
-    rotated_pelvis_index = 3
+    rotated_pelvis_index = 4
 
     eng.Py_StartHere(nargout = 0)
 
     # combines left and right halves
-    wm.combine_pelvis(model_list[0], model_list[1], file_path, custom_file_name)
-    #eng.Py_CombinePelvis(model_list[0], model_list[1], custom_file_name, nargout=0)
+    #wm.combine_pelvis(model_list[0], model_list[1], file_path, custom_file_name)
+    eng.Py_CombinePelvis(model_list[0], model_list[1], custom_file_name, nargout=0)
     # finds center of volume after pelvis have been combined
     centroid = fc.find_centroid(file_path + custom_file_name)
 
