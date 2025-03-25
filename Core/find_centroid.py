@@ -17,7 +17,7 @@ def find_centroid(file_path):
 
 def find_centroid_of_surface_area(meshFilePath):
     # Load the mesh
-    mesh = trimesh.load_mesh(meshFilePath) # Replace 'your_mesh.stl' with your mesh file
+    mesh = trimesh.load_mesh(meshFilePath)
 
     # Calculate surface area
     surface_area = mesh.area

@@ -16,7 +16,7 @@ class acetabular_analysis_window(QWidget):
     def getModels(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        model_names, _ = QFileDialog.getOpenFileNames(self, "Open File", "", "STL Files (*.stl)", options=options)
+        model_names, _ = QFileDialog.getOpenFileNames(self, "Open File", 'C:\MATLAB',"STL Files (*.stl)", options=options)
         if model_names:
             acetabular_analysis.model_list = model_names
             acetabular_analysis.run_analysis()

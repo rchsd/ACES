@@ -10,6 +10,7 @@ class main_window(QMainWindow):
          self.w = None
          self.initUI()
          self.isWindowOpen = False
+         self.check = None
 
     def initUI(self):
         self.btn_1 = QPushButton('Spine Analysis', self)
@@ -42,20 +43,12 @@ class main_window(QMainWindow):
         QMainWindow.resizeEvent(self, event)
 
     def show_spine_window(self):
-        if self.isWindowOpen is False:
-                self.isWindowOpen = True
-                self.w = spine_analysis_window.spine_analysis_window()
-                self.w.show()
-
-        else: return
+        self.w = spine_analysis_window.spine_analysis_window()
+        self.w.show()
 
     def show_hip_selection_window(self):
-        if self.isWindowOpen is False:
-                self.isWindowOpen = True
-                self.w = acetabular_analysis_window.acetabular_analysis_window()
-                self.w.show()
-
-        else: return
+        self.w = acetabular_analysis_window.acetabular_analysis_window()
+        self.w.show()
 
 app = QApplication(sys.argv)
 w = main_window()
