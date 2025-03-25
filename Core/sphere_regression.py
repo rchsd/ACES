@@ -1,6 +1,7 @@
 import numpy as np
 import math
 from scipy.io import loadmat
+import plot_sphere as ps
 
 def sphereFit(points):
     # Ensure the input is a numpy array
@@ -22,6 +23,8 @@ def sphereFit(points):
     # Extract the center and calculate the radius
     center = C[:3]
     radius = math.sqrt(C[3] + np.sum(center**2))
+
+    ps.plotSphere(points, center, radius, 'c:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\py_Rotated_Pelvis.stl')
     
     return center, radius
 
