@@ -27,8 +27,9 @@ def sphereFit(points):
     return center, radius
 
 # for testing
-'''
+
 points = loadmat('c:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Tests\\points.mat')
+print(points)
 points_metadata_keys = {'__header__', '__version__', '__globals__'}
 points_data_dict = {key: value for key, value in points.items() if key not in points_metadata_keys}
 points_data = points_data_dict.get('points')
@@ -42,5 +43,4 @@ points_2_data = points_2_data_dict.get('points_2')
 
 center_1, radius_1 = sphereFit(points_data)
 center_2, radius_2 = sphereFit(points_2_data)
-ps.plotSphere(points_data, points_2_data, center_1, center_2, radius_1, radius_2, 'c:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Tests\\py_Rotated_Pelvis.stl')
-'''
+#ps.plotSphere(points_data, points_2_data, center_1, center_2, radius_1, radius_2, 'c:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Tests\\py_Rotated_Pelvis.stl')

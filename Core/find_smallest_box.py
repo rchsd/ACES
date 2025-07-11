@@ -1,81 +1,84 @@
 import numpy as np
-import pyvista as pv
+import trimesh
 from scipy.spatial.transform import Rotation as R
 
-def find_smallest_box(mesh, angles_selection, axis):
+def find_smallest_box(tform, faces, vertices, angles_selection, axis):
     """
-    Find the transformation matrix that rotates the mesh into its smallest bounding box.
+    Finds the transformation that results in the smallest axis-aligned bounding box
+    for a mesh rotated around a given axis.
 
     Parameters:
-    - mesh: A PyVista PolyData object representing the polygonal mesh.
-    - angles_selection: Selection for angle range.
-    - axis: The axis around which to rotate the mesh (e.g., [0, 0, 1] for the Z-axis).
+    - tform: 4x4 transformation matrix to apply to the mesh initially.
+    - faces: Mesh face indices.
+    - vertices: Mesh vertex coordinates.
+    - angles_selection: 0 for full rotation (0 to 2π), 1 for fine rotation (-5 to 5 steps of π/45).
+    - axis: Axis of rotation (e.g., [0, 1, 0]).
 
     Returns:
-    - smallest_rotation_rounded: The 3x3 rotation matrix, rounded to the nearest whole number.
-    - offset_rounded: The translation offset vector, rounded to the nearest whole number.
+    - smallest_tform: 4x4 transformation matrix that minimizes the bounding box volume.
     """
 
-    angles = None
-
+    # Select angles based on the mode
     if angles_selection == 0:
-        angles = np.arange(0, 18) * np.pi / 9
+        angles = np.arange(0, 18) * np.pi / 9  # 0 to 2π in 18 steps
     else:
-        angles = np.arange(-5, 6) * np.pi / 45
+        angles = np.arange(-5, 6) * np.pi / 45  # -5π/45 to 5π/45
 
-    pelvis = pv.read(mesh)
-    print(pelvis)
+    # Create and transform the mesh
+    pelvis = trimesh.Trimesh(vertices=vertices, faces=faces)
+    pelvis.apply_transform(tform)
 
-    # Ensure the mesh is a PyVista PolyData object
-    if not isinstance(pelvis, pv.PolyData):
-        raise ValueError("The input must be a PyVista PolyData object.")
+    if not isinstance(pelvis, trimesh.Trimesh):
+        raise ValueError("The input must be a Trimesh object.")
 
     box_sizes = np.zeros(len(angles))
     transformations = []
 
-    # Calculate the original center of the mesh
-    original_center = np.array(pelvis.center)
+    original_center = pelvis.centroid
 
     for i, angle in enumerate(angles):
-        # Create a rotation matrix for the given angle and axis using scipy
+        # Rotation matrix using scipy
         rotation = R.from_rotvec(angle * np.array(axis))
-        rotation_matrix = rotation.as_matrix()
 
-        # Apply the transformation to the mesh
+        # Rotate around the centroid
+        T1 = trimesh.transformations.translation_matrix(-original_center)
+        R_mat = trimesh.transformations.rotation_matrix(angle, axis)
+        T2 = trimesh.transformations.translation_matrix(original_center)
+        #full_transform = T2 @ R_mat @ T1
+        full_transform = R_mat
+
+        # Apply transformation
         transformed_mesh = pelvis.copy()
-        transformed_mesh.rotate_vector(axis, np.degrees(angle), inplace=True)
+        transformed_mesh.apply_transform(full_transform)
 
-        # Calculate the new center of the transformed mesh
-        new_center = np.array(transformed_mesh.center)
-
-        # Calculate the difference in translation
-        translation_difference = new_center - original_center
-
-        # Calculate the axis-aligned bounding box
+        # Compute bounding box volume
         bounds = transformed_mesh.bounds
-        aabb_size = (bounds[1] - bounds[0]) * (bounds[3] - bounds[2]) * (bounds[5] - bounds[4])
+        aabb_size = np.prod(bounds[1] - bounds[0])
         box_sizes[i] = aabb_size
 
-        # Create the 4x4 transformation matrix
-        transformation_matrix = np.eye(4)
-        transformation_matrix[:3, :3] = rotation_matrix
-        transformation_matrix[:3, 3] = translation_difference
+        # Store transformation
+        transformations.append(full_transform)
 
-        transformations.append(transformation_matrix)
-
-    # Find the index of the smallest bounding box
+    # Return the transformation with the smallest bounding box
     i = np.argmin(box_sizes)
     smallest_tform = transformations[i]
 
-    # Extract the 3x3 rotation matrix and the offset
-    smallest_rotation = smallest_tform[:3, :3]
-    offset = smallest_tform[:3, 3]
+    return smallest_tform
 
-    # Round both to the nearest whole number
-    smallest_rotation_rounded = np.round(smallest_rotation, decimals=0)
-    offset_rounded = np.round(offset, decimals=0)
+def find_bounding_box(faces, vertices, transform = []):
+    pelvis = trimesh.Trimesh(faces=faces, vertices=vertices)
+    if (len(transform) != 0):
+        pelvis.apply_transform(transform)
 
-    return smallest_rotation_rounded, offset_rounded
+    return pelvis.bounds
 
-# for testing
+def rotate_mesh(degrees, axis):
+    radians = np.radians(degrees)
+    rotation_matrix = trimesh.transformations.rotation_matrix(radians, axis)
+    return rotation_matrix
+
+
 #print(find_smallest_box('py_Rotated_Pelvis.stl', 0, [0, 1, 0]))
+'''combined_mesh = trimesh.load('Schmitz\\quad_1.stl')
+tform2 = find_smallest_box(combined_mesh.faces, combined_mesh.vertices, 0, [1, 0, 0])
+print(tform2)'''
