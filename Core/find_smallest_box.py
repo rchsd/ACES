@@ -65,9 +65,9 @@ def find_smallest_box(tform, faces, vertices, angles_selection, axis):
 
     return smallest_tform
 
-def find_bounding_box(faces, vertices, transform = []):
+def find_bounding_box(faces, vertices, transform = None):
     pelvis = trimesh.Trimesh(faces=faces, vertices=vertices)
-    if (len(transform) != 0):
+    if transform is not None:
         pelvis.apply_transform(transform)
 
     return pelvis.bounds

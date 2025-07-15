@@ -8,6 +8,7 @@ import find_smallest_box as fsb
 import reflection as r
 import unitize
 import split_mesh
+import generate_random_points as grp
 
 # 0 = volume, 1 = centroid, 2 = faces, 3 = vertices, 4 = mesh_copy
 
@@ -40,52 +41,66 @@ def align_pelvis(combined_pelvis, left_pelvis, right_pelvis):
     if np.dot([-1, 0, 1], difference.T) < 0:
         tform = np.dot(fsb.rotate_mesh(np.pi/2, [0, 1, 0]), tform)
 
-    # Divide into quadrants
+    # divide into quadrants
     _, lp = mesh_analysis.find_centroid(left_pelvis)
     _, rp = mesh_analysis.find_centroid(right_pelvis)
     left = r.apply_transform(lp, tform)
-    #dot_prod = np.dot(r.reflection_simpl([0, 1, 0]), tform)
-    dot_prod = np.dot(r.reflection_simpl([0, 1, 0]), tform)
+    dot_prod = np.dot(r.reflection_simple([0, 1, 0]), tform)
     right = r.apply_transform(rp, dot_prod)
     temp = mp.pgon_merge(left, right)
     temp2, i1, _ = split_mesh.pgon_split(temp, [1, 0, 0], 0)
-    #i1 = np.array(i1)
     temp3, i2, i1i2 = split_mesh.pgon_split(temp2, [0, 0, 1], 0)
-    #i2 = np.array(i2)
-    #i1i2 = np.array(i1i2)
-    #i2[i1i2] = i1[i1i2] * 2 + i2[i1i2] + 1
     i2 = (i1[i1i2].astype(int) * 2 + i2.astype(int) + 1)
-
-
     temp4 = pgonsep.create_meshes_with_quadrants(temp3, i2)
-
     quads = mesh_analysis.find_surface_area_centroid(temp4)
 
-    # Divide into quadrants
-    '''
-    temp = pgonmerge(tform * lp, Reflection([0, 1, 0]) * tform * rp)
-    [temp, i1] = pgonsplit_(temp, [1, 0, 0], 0)
-    [temp, i2, i1i2] = pgonsplit_(temp, [0, 0, 1], 0)
-    i2 = i1(i1i2) * 2 + i2 + 1; reidx = [3, 2, 4, 1]
-    temp = pgonsep(temp, reidx(i2))
-    quads = pgonacent(temp);=
-    
-    #Take absolute value
-    if mean(quads(:, 2)) < 0
-        temp = Reflection([0, 1, 0]) * temp
-    end
-    quads = abs(quads)'''
+    # take absolute value
+    quads = np.array(quads)
+    if np.mean(quads[:, 1]) < 0:
+        temp4 = r.reflection_simple([0, 1, 0]) @ temp4
+    quads = np.abs(quads)
 
-    #return np.round(temp.center_mass)
-    #temp_copy.export('temp_copy.stl')
-    #tform2 = fsb.find_smallest_box(combined_mesh.faces, combined_mesh.vertices, 1, [0, 1, 0])
-    return quads
+    boxes = []
+    for i in range(len(temp4)):
+        box = fsb.find_bounding_box(temp4[i].faces, temp4[i].vertices, None)
+        boxes.append(box)
+    # stack and reshape to match MATLAB's 2x3x4 format
+    aabb = np.stack(boxes, axis=2)
+
+    # find pubic symphysis
+    temp = temp4
+    s = [grp.sample_points_on_mesh(t, 500)[:, 1] for t in temp[:4]]
+    s1, s2, s3, s4 = s
+    cutoff = aabb[0, 1, 1] * 0.90 + aabb[1, 1, 1] * 0.10
+    s = [np.sum(s1 < cutoff), np.sum(s2 < cutoff), np.sum(s3 < cutoff), np.sum(s4 < cutoff)]
+
+    # perform quadrant voting
+    im = s.index(max(s))  
+    rotate_about = [int(im == 0), int(im == 1), int(im == 2)]
+    im = np.argmax(quads[:, 1])
+    rotate_about[0] = rotate_about[0] + (im == 3)
+
+    rotate_about[1] = rotate_about[1] + (im == 2)
+    rotate_about[2] = rotate_about[2] + (im == 1)
+    im = np.argmax(quads[:, 2])
+    rotate_about[0] = rotate_about[0] + (im == 1)
+    rotate_about[1] = rotate_about[1] + (im == 0)
+    rotate_about[2] = rotate_about[2] + (im == 3)
+
+    # perform series of checks to see if pelvis is upside down
+    aabb = fsb.find_bounding_box(combined_mesh.faces, combined_mesh.vertices, tform)
+    '''sample = (4 : 4 : 96)' / 100 * diff(aabb(:, 3)) + aabb(1, 3);
+    [ctour, ~, ii] = pgonctour(tform * pgon, [0, 0, 1], sample);
+    ctour = pgonsep(ctour, ii);'''
+
+    return rotate_about
 
 test_file_path = 'C:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Tests\\Schmitz\\'
 combined_pelvis = test_file_path + '\\1_Combined_Pelvis.stl'
 left_pelvis = test_file_path + 'l hip 1.stl'
 right_pelvis = test_file_path + 'r hip 1.stl'
-print(align_pelvis(combined_pelvis, left_pelvis, right_pelvis))
+s = align_pelvis(combined_pelvis, left_pelvis, right_pelvis)
+print(s)
 #print(mesh_separation.find_centroid())
 #print(mesh_separation.analyze_mesh('Schmitz/r hip 1.stl')[1])
 #align_pelvis('Schmitz/1_Combined_Pelvis.stl', 'Schmitz\parts_1.stl', 'Schmitz\parts_2.stl')

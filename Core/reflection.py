@@ -25,11 +25,8 @@ def reflection(vector):
         ])
     else:
         raise ValueError("Invalid vector")
-    
 
-import numpy as np
-
-def reflection_simpl(vector):
+def reflection_simple(vector):
     vector = np.asarray(vector)
     if not np.all(np.isin(vector, [0, 1])) or np.sum(vector) != 1:
         raise ValueError("Vector must be one of [1, 0, 0], [0, 1, 0], or [0, 0, 1]")
