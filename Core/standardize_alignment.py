@@ -9,12 +9,19 @@ import reflection as r
 import unitize
 import split_mesh
 import generate_random_points as grp
+import test_ctour
+import test_pgonsep_by_plane_index
+import test_aabb
+import pgon_parts
+import test_ctour_2
 
 # 0 = volume, 1 = centroid, 2 = faces, 3 = vertices, 4 = mesh_copy
 
 def align_pelvis(combined_pelvis, left_pelvis, right_pelvis):
 
-    center, combined_mesh = mesh_analysis.find_centroid(combined_pelvis)
+    #center, _ = mesh_analysis.find_centroid(combined_pelvis)
+    combined_mesh = mp.pgon_merge(None, None, left_pelvis, right_pelvis)
+    center = combined_mesh.center_mass
     tform = translation.translate(-center)
 
     # gets ref to volumes of temp meshes
@@ -78,22 +85,46 @@ def align_pelvis(combined_pelvis, left_pelvis, right_pelvis):
     im = s.index(max(s))  
     rotate_about = [int(im == 0), int(im == 1), int(im == 2)]
     im = np.argmax(quads[:, 1])
-    rotate_about[0] = rotate_about[0] + (im == 3)
 
+    rotate_about[0] = rotate_about[0] + (im == 3)
     rotate_about[1] = rotate_about[1] + (im == 2)
     rotate_about[2] = rotate_about[2] + (im == 1)
+
     im = np.argmax(quads[:, 2])
+
     rotate_about[0] = rotate_about[0] + (im == 1)
     rotate_about[1] = rotate_about[1] + (im == 0)
     rotate_about[2] = rotate_about[2] + (im == 3)
 
     # perform series of checks to see if pelvis is upside down
     aabb = fsb.find_bounding_box(combined_mesh.faces, combined_mesh.vertices, tform)
-    '''sample = (4 : 4 : 96)' / 100 * diff(aabb(:, 3)) + aabb(1, 3);
-    [ctour, ~, ii] = pgonctour(tform * pgon, [0, 0, 1], sample);
-    ctour = pgonsep(ctour, ii);'''
+    steps = np.arange(4, 100, 4) / 100  
+    z_range = aabb[1, 2] - aabb[0, 2]   
+    sample = steps * z_range + aabb[0, 2]
+    transformed_mesh = combined_mesh.apply_transform(tform)
+    ctour, _, ii = test_ctour.main_compute_all_contours(transformed_mesh, (0, 0, 1), sample)
+    #ctour_faces, ctour_vertices, _, ii = test_ctour_2.pgonctour(transformed_mesh, (0, 0, 1), sample)
+    plane_slices = test_pgonsep_by_plane_index.separate_by_plane(ctour, ii)
 
-    return rotate_about
+    # bounds of top slices cover more area
+    aabb = test_aabb.compute_aabb_slices(plane_slices)
+    aabb_slices = np.zeros((2, 3, 24))
+    for i in range(24):
+        aabb_slices[0, :, i] = aabb[i]['min']
+        aabb_slices[1, :, i] = aabb[i]['max']
+    area = np.prod(np.squeeze(np.diff(aabb_slices[:, 0:2, :], axis=0)), axis=0)
+    upside_down = float(np.dot(sample, area) / np.sum(area) < 0)        
+
+    # bottom slices have more distinct contours
+    nctours = np.zeros(len(plane_slices))
+    for i, (plane_idx, poly) in enumerate(plane_slices.items()):
+        parts = pgon_parts.find_parts(poly)
+        nctours[i] = max(parts)
+    upside_down = upside_down + float(np.dot(sample, nctours) / np.sum(nctours) > 0)
+    print('hello')
+
+
+    return tform
 
 test_file_path = 'C:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Tests\\Schmitz\\'
 combined_pelvis = test_file_path + '\\1_Combined_Pelvis.stl'
@@ -101,8 +132,8 @@ left_pelvis = test_file_path + 'l hip 1.stl'
 right_pelvis = test_file_path + 'r hip 1.stl'
 s = align_pelvis(combined_pelvis, left_pelvis, right_pelvis)
 print(s)
-#print(mesh_separation.find_centroid())
-#print(mesh_separation.analyze_mesh('Schmitz/r hip 1.stl')[1])
-#align_pelvis('Schmitz/1_Combined_Pelvis.stl', 'Schmitz\parts_1.stl', 'Schmitz\parts_2.stl')
-#print(mesh_separation.find_centroid('Schmitz\parts_1.stl'))
-#align_pelvis('Schmitz/1_Combined_Pelvis.stl', 'Schmitz\l hip 1.stl', 'Schmitz\\r hip 1.stl')
+
+
+
+'''for i, item in enumerate(s):
+    print(f"Index {i}: type={type(item)}, length={len(item) if hasattr(item, '__len__') else 'N/A'}")'''

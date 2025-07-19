@@ -55,15 +55,16 @@ def create_submeshes_with_mask(mesh=None, mask=None, faces=None, vertices=None):
     return submeshes
 
 # Separate mesh into submeshes based on reindexed labels
-def create_meshes_with_quadrants(mesh, quadrants):
-    #py_quadrants = np.array(quadrants).flatten()
-    py_quadrants = quadrants
-    # Reindex using [3, 2, 4, 1]
-    re_index = np.array([3, 2, 4, 1])
-    reindexed_quadrants = re_index[py_quadrants - 1]
+def create_meshes_with_quadrants(mesh, quadrants, isReindexed=True):
+    py_quadrants = np.array(quadrants)
+    if isReindexed:
+        re_index = np.array([3, 2, 4, 1])
+        labels = re_index[py_quadrants - 1]
+    else:
+        labels = py_quadrants
     submeshes = []
-    for label in np.unique(reindexed_quadrants):
-        face_indices = np.where(reindexed_quadrants == label)[0]
+    for label in np.unique(labels):
+        face_indices = np.where(labels == label)[0]
         submesh = mesh.submesh([face_indices], append=True)
         submeshes.append(submesh)
     return submeshes

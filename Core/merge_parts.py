@@ -28,7 +28,15 @@ def merge_parts_with_inv_transform(faces, vertices, transform):
     
     return pelvis.center_mass
 
-def pgon_merge(left, right):
-    combined_mesh = trimesh.util.concatenate([left, right])
+def pgon_merge(left = None, right = None, left_file_path = None, right_file_path = None):
+    combined_mesh = None
+    # assumes that left and right pelvis are already trimesh objects
+    # if they aren't, objects will be created before combining meshes
+    if left is not None:
+        combined_mesh = trimesh.util.concatenate([left, right])
+    else:
+        left = trimesh.load(left_file_path)
+        right = trimesh.load(right_file_path)
+        combined_mesh = trimesh.util.concatenate([left, right])
 
     return combined_mesh
