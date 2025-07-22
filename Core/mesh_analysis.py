@@ -27,6 +27,11 @@ def find_surface_area_centroid(mesh_list):
 def create_new_mesh(vertices, faces):
     return trimesh.Trimesh(vertices=vertices, faces=faces)
 
+def load_mesh(file_path):
+    mesh = trimesh.load(file_path)
+
+    return mesh
+
 # for testing
 '''
 left_mesh = 'Schmitz/l hip 1.stl'

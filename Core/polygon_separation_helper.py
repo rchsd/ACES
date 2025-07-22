@@ -38,9 +38,10 @@ def separate(faces, mask):
     return list(groups.values())
 
 def create_submeshes(mesh, transform = None):
-    if transform != None:
+    print('hello')
+    if transform.all() != None:
         # assuming mesh is a trimesh object
-        mesh.apply_transform
+        mesh.apply_transform(transform)
     faces = mesh.faces
     vertices = mesh.vertices
     mask = identify_parts(faces)
