@@ -55,22 +55,92 @@ def create_submeshes_with_mask(mesh=None, mask=None, faces=None, vertices=None):
     return submeshes
 
 # Separate mesh into submeshes based on reindexed labels
-def create_meshes_with_quadrants(mesh, quadrants):
-    #py_quadrants = np.array(quadrants).flatten()
-    py_quadrants = quadrants
-    # Reindex using [3, 2, 4, 1]
-    re_index = np.array([3, 2, 4, 1])
-    reindexed_quadrants = re_index[py_quadrants - 1]
+def create_meshes_with_quadrants(mesh, quadrants, isReindexed=True):
+    py_quadrants = np.array(quadrants)
+    if isReindexed:
+        re_index = np.array([3, 2, 4, 1])
+        labels = re_index[py_quadrants - 1]
+    else:
+        labels = py_quadrants
     submeshes = []
-    for label in np.unique(reindexed_quadrants):
-        face_indices = np.where(reindexed_quadrants == label)[0]
+    for label in np.unique(labels):
+        face_indices = np.where(labels == label)[0]
         submesh = mesh.submesh([face_indices], append=True)
         submeshes.append(submesh)
     return submeshes
 
 # calls helper function
-def create_submeshes(mesh, transform = None):
-    psh.create_submeshes(mesh, transform)
+'''def create_submeshes(mesh, transform = None):
+    psh.create_submeshes(mesh, transform)'''
+
+def identify_parts(faces):
+    parent = {}
+    
+    def find(v):
+        if parent[v] != v:
+            parent[v] = find(parent[v])  # Path compression
+        return parent[v]
+    
+    def union(u, v):
+        root_u = find(u)
+        root_v = find(v)
+        if root_u != root_v:
+            parent[root_v] = root_u
+    
+    # Initialize parent for each vertex
+    for face in faces:
+        for v in face:
+            if v not in parent:
+                parent[v] = v
+    
+    # Union faces based on connectivity
+    for face in faces:
+        for i in range(1, len(face)):
+            union(face[0], face[i])
+    
+    # Map each vertex to a group ID
+    group_map = {}
+    group_id = 0
+    for v in parent:
+        root = find(v)
+        if root not in group_map:
+            group_map[root] = group_id
+            group_id += 1
+    
+    # Assign group IDs to faces
+    face_groups = [group_map[find(face[0])] for face in faces]
+    return face_groups
+
+def separate(faces, mask):
+    groups = defaultdict(list)
+    for face, group_id in zip(faces, mask):
+        groups[group_id].append(face)
+    return list(groups.values())
+
+def create_submeshes(mesh, transform=None):
+    if transform is not None and transform.any():
+        mesh.apply_transform(transform)
+    
+    faces = mesh.faces
+    vertices = mesh.vertices
+    mask = identify_parts(faces)
+    separated_faces = separate(faces, mask)
+    submeshes = []
+    
+    for group in separated_faces:
+        # Sort unique indices to ensure consistent ordering
+        unique_indices = sorted(set(i for face in group for i in face))
+        index_map = {old: new for new, old in enumerate(unique_indices)}
+        
+        # Create new faces using the index map
+        new_faces = np.array([[index_map[i] for i in face] for face in group], dtype=np.uint32)
+        new_vertices = vertices[unique_indices].astype(np.float64)
+        
+        # Create submesh with consistent indexing
+        submesh = trimesh.Trimesh(vertices=new_vertices, faces=new_faces, process=False)
+        submeshes.append(submesh)
+    
+    return submeshes
 
 # Test with contour
 '''mesh = trimesh.load("temp_mesh.stl")

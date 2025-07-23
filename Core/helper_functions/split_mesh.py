@@ -91,7 +91,8 @@ def pgon_split(mesh, normal, coefficient, tol=1e-8):
                                    faces=np.array(new_faces),
                                    process=False)
 
-    return refined_mesh, np.array(over_plane_mask), np.array(original_face_indices)    
+    return refined_mesh, np.array(over_plane_mask), np.array(original_face_indices)   
+
 
 # for testing  
 '''mesh = trimesh.load('1_Combined_Pelvis.stl')

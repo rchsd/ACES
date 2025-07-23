@@ -35,10 +35,3 @@ def reflection_simple(vector):
     axis = np.argmax(vector)
     reflection_matrix[axis, axis] = -1
     return reflection_matrix
-
-    
-def apply_transform(mesh, transform):
-    pelvis = trimesh.Trimesh(vertices=mesh.vertices, faces=mesh.faces)
-    pelvis.apply_transform(transform)
-    
-    return mesh.apply_transform(transform)

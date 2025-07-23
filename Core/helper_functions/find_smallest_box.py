@@ -65,17 +65,58 @@ def find_smallest_box(tform, faces, vertices, angles_selection, axis):
 
     return smallest_tform
 
-def find_bounding_box(faces, vertices, transform = None):
-    pelvis = trimesh.Trimesh(faces=faces, vertices=vertices)
+def find_bounding_box(mesh, transform = None):
+    pelvis = trimesh.Trimesh(faces=mesh.faces, vertices=mesh.vertices)
     if transform is not None:
         pelvis.apply_transform(transform)
-
+        
     return pelvis.bounds
 
 def rotate_mesh(degrees, axis):
     radians = np.radians(degrees)
     rotation_matrix = trimesh.transformations.rotation_matrix(radians, axis)
     return rotation_matrix
+
+def calculate_rotation_transform(angle, axis=None, about=None):
+    """
+    Calculate rotation transform matrix and offset.
+
+    Parameters:
+    angle (float): Angle of rotation (must be numeric scalar).
+    axis (array-like, optional): Axis of rotation.
+    about (array-like, optional): Rotation offset.
+
+    Returns:
+    tuple: (rotation_matrix, offset)
+    """
+    # Validate angle
+    if not isinstance(angle, (int, float)):
+        raise ValueError("Angle of rotation must be numeric scalar.")
+    # Default axis and about
+    axis = np.array(axis) if axis is not None else np.array([0, 0, 1])
+    about = np.array(about) if about is not None else np.zeros(len(axis))
+    # Ensure axis is 3D for simplicity
+    if len(axis) < 3:
+        axis = np.pad(axis, (0, 3 - len(axis)))
+    # Normalize axis
+    axis = axis / np.linalg.norm(axis)
+    # Calculate rotation matrix
+    c = np.cos(angle)
+    s = np.sin(angle)
+    t = 1 - c
+    x, y, z = axis
+    rotation_matrix = np.array([
+        [t*x*x + c, t*x*y - s*z, t*x*z + s*y],
+        [t*x*y + s*z, t*y*y + c, t*y*z - s*x],
+        [t*x*z - s*y, t*y*z + s*x, t*z*z + c]
+    ])
+    # Calculate offset
+    offset = about - rotation_matrix @ about
+    transform_matrix = np.eye(4)
+    transform_matrix[:3, :3] = rotation_matrix
+    transform_matrix[:3, 3] = offset
+
+    return transform_matrix
 
 
 #print(find_smallest_box('py_Rotated_Pelvis.stl', 0, [0, 1, 0]))
