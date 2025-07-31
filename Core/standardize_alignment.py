@@ -70,7 +70,7 @@ def align_pelvis(left_pelvis_path, right_pelvis_path):
     rotate_about[2] = rotate_about[2] + (im == 3)
 
     # perform series of checks to see if pelvis is upside down
-    aabb = find_smallest_box.find_bounding_box(combined_mesh, tform)
+    aabb = find_smallest_box.find_bounding_box(combined_mesh.copy(), tform)
     steps = np.arange(4, 100, 4) / 100  
     z_range = aabb[1, 2] - aabb[0, 2]   
     sample = steps * z_range + aabb[0, 2]
@@ -234,10 +234,10 @@ def align_pelvis(left_pelvis_path, right_pelvis_path):
     mesh = merge_parts.pgon_merge(left, right)
     tform = np.dot(translation.translate(-mesh.center_mass), tform)
 
-    return tform
+    return tform, combined_mesh.copy()
 
-test_file_path = 'C:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Tests\\Schmitz\\'
+'''test_file_path = 'C:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Tests\\Schmitz\\'
 left_pelvis = test_file_path + 'l hip 1.stl'
 right_pelvis = test_file_path + 'r hip 1.stl'
 s = align_pelvis(left_pelvis, right_pelvis)
-print(s)
+print(s)'''
