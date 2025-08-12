@@ -1,18 +1,34 @@
 from helper_functions import *
 import parse_inputs
 import project_points
-import sphere_regression
 import grid_occupancy
 import numpy as np
-import math
+import sphere_regression_with_weights
+import mark_acetabulum
 
 def ui_037(rotated_pelvis):
-    locate_acetabulum(rotated_pelvis)
+    centers, radii = [], []
+    try:
+        for k in range(20):
+            try:
+                centers, radii = locate_acetabulum(rotated_pelvis)
+                break
+            except Exception as e:
+                print('failed, trying again...')
+                if k != 19:
+                    continue
+            centers, radii = locate_acetabulum(rotated_pelvis)
+    except Exception as ex:
+        print('none')
+        return None
+    
+    # Mark acetabulum
+    mesh = mark_acetabulum.mark_acetabulum( rotated_pelvis, centers, radii)
     return None
 
 def locate_acetabulum(mesh, params = dict()):
     # calculate polygon unit normals and barycenters
-    barys, _, norms = find_barys_and_norms.find_barys_norms(mesh)
+    barys, _, norms, _ = find_barys_and_norms.find_barys_norms(mesh)
     params = parse_inputs.parse_inputs(params)
 
     # project points off of polygon surface
@@ -40,41 +56,36 @@ def locate_acetabulum(mesh, params = dict()):
     #radii = np.full(2, np.mean(dists[np.isin(reidx, ic[r])]))
 
     # Refine centers    
-    for i in range(0, params['GridCycles'] - 1):
+    #for i in range(params['GridCycles'] - 1):
+    # Update grid size and range
+    grid_size = params['GridSize'] / params['GridAdjustmentFactor']
+    adjustment = np.array([-1, 1]) * np.sqrt(5 * params['GridSize'] ** 2) / 2
+    radius_range = radii + adjustment
 
-        # Update grid size and range
-        params['GridSize'] = params['GridSize'] / params['GridAdjustmentFactor']
-        adjustment = np.array([-1, 1]) * math.sqrt(5 * params['GridSize'] ** 2) / 2
-        params['RadiusRange'] = radii + adjustment
+    # Loop through centers
+    for c in range(0, 2):
+        print('c: ', c)
 
-        # Loop through centers
-        for c in range(0, 1):
+        # Filter faces
+        mask = filter_faces.filter_faces(barys, norms, centers[c, :], radius_range[1], 45)
+        pgon = pgon_separation.separate_by_mask(mesh, mask)
+        points, dists = project_points.project_points(pgon, norms[mask, :], params['SamplePoints'], radius_range)
 
-            # Filter faces
-            mask = filter_faces.filter_faces(barys, norms, centers[c, :], params['RadiusRange'][1], 45)
+        # Get grid occupancy
+        grid, count, reidx = grid_occupancy.get_grid_occupancy(points, grid_size)
 
-            # Re-calculate points
-            print("Mask type:", type(mask))
-            print("Mask shape:", mask.shape)
-            print("Mask dtype:", mask.dtype)
-            print("Number of selected faces:", np.sum(mask) if mask.dtype == bool else len(mask))
-
-            pgon = pgon_separation.separate_by_mask(mesh, mask)
-            points, dists = project_points.project_points(pgon, norms[mask, :], params['SamplePoints'], params['RadiusRange'])
-
-            # Get grid occupancy
-            grid, count, reidx = grid_occupancy.get_grid_occupancy(points, params['GridSize'])
-
-            # Locate best grid point
-            r = np.argmax(count)
-            new_grid = grid[r, :]
-            centers[c, :] = new_grid
-            radii[c] = np.mean(dists[reidx == r]); 
+        # Locate best grid point
+        r = np.argmax(count)
+        new_grid = grid[r, :]
+        centers[c, :] = new_grid
+        radii[c] = np.mean(dists[reidx == r]); 
 
     # Calculate centers using spherefit
-    for i in range(0, params['FitCycles']):
+    for i in range(1, params['FitCycles'] + 1):
+        print('fit cycles: ', i)
         # Loop through centers
-        for c in range(0, 1):
+        for c in range(0, 2):
+            print('c: ', c)
             # Filter faces
             mask = filter_faces.filter_faces(barys, norms, centers[c, :], params['RadiusRange'][1], 60)
 
@@ -83,7 +94,8 @@ def locate_acetabulum(mesh, params = dict()):
             points, fi =  generate_random_points.sample_points_on_mesh(pgon, params['SamplePoints'], True)
 
             # Perform spherical regressions using different weights
-            for j in range(0, params['WeightCycles']):
+            for j in range(1, params['WeightCycles'] + 1):  
+                print('j: ', j)
 
                 # Calculate radial vectors
                 rvecs = centers[c, :] - points
@@ -94,14 +106,17 @@ def locate_acetabulum(mesh, params = dict()):
                 weights = (np.sum(rvecs * norms[fi, :], axis=1) + 1) / 2
 
                 # Update weights
-                if i > 0 or j > 0:
+                if i > 1 or j > 1:
                     weights = weights * (4 ** (-np.maximum(mags - radii[c], 0)))
 
                 # Calculate sphere fit, original function
-                centers[c, :], radii[c] = sphere_regression.sphereFit(points)
+                #centers[c, :], radii[c] = sphere_regression.sphereFit(points)
+                centers[c, :], radii[c] = sphere_regression_with_weights.sphereFit(points, weights)
     # Assume standard output coordinates (-x = left)
-    centers = np.array(centers) 
-    sorted_indices = np.argsort(centers, axis=0)
-    centers = centers[sorted_indices]
-    ic = sorted_indices
+    centers = np.array(centers)
+    radii = np.array(radii)
+    ic = np.lexsort(centers.T[::-1])
+    centers = centers[ic]                         
+    radii = radii[ic]
     print('done!!!')
+    return centers, radii

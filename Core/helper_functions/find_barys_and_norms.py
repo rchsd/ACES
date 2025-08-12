@@ -1,22 +1,48 @@
-import trimesh
 import numpy as np
+import trimesh
 
-def find_barys_norms(mesh):
+def compute_vertex_normals(vertices, faces):
+    V = len(vertices)
+    vertex_normals = np.zeros((V, 3), dtype=np.float64)
+
+    # Compute face normals
+    v0 = vertices[faces[:, 0]]
+    v1 = vertices[faces[:, 1]]
+    v2 = vertices[faces[:, 2]]
+    face_normals = np.cross(v1 - v0, v2 - v0)
+
+    # Accumulate face normals to vertices
+    for i in range(3):
+        np.add.at(vertex_normals, faces[:, i], face_normals)
+
+    # Normalize vertex normals
+    norms = np.linalg.norm(vertex_normals, axis=1, keepdims=True)
+    norms[norms == 0] = 1
+    vertex_normals /= norms
+
+    return vertex_normals
+
+def find_barys_norms(mesh: trimesh.Trimesh):
     face_vertices = mesh.triangles
     barycenter = face_vertices.mean(axis=1)
 
-    # compute non-unitized normals manually
+    # Compute non-unitized face normals manually
     v0 = mesh.vertices[mesh.faces[:, 0]]
     v1 = mesh.vertices[mesh.faces[:, 1]]
     v2 = mesh.vertices[mesh.faces[:, 2]]
 
-    # compute edge vectors
     edge1 = v1 - v0
     edge2 = v2 - v0
-
-    # cross product gives area-weighted normal
     non_unitized_normals = np.cross(edge1, edge2)
 
-    normalized_face_normals = mesh.face_normals
+    # Unitized face normals from trimesh
+    unitized_face_normals = mesh.face_normals
 
-    return barycenter, non_unitized_normals, normalized_face_normals
+    # Correct unitized vertex normals (manual computation)
+    unitized_vertex_normals = compute_vertex_normals(mesh.vertices, mesh.faces)
+
+    return barycenter, non_unitized_normals, unitized_face_normals, unitized_vertex_normals
+
+mesh = trimesh.load('c:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Tests\\Schmitz\\l hip 1.stl')
+
+a, b, c, vnorms = find_barys_norms(mesh)

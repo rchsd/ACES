@@ -4,14 +4,14 @@ import trimesh
 import polygon_separation_helper as psh
 from collections import defaultdict
 
-def separate(faces, mask):
+'''def separate(faces, mask):
     """
     Groups faces by their corresponding mask values and returns them in sorted order of group ID.
     """
     groups = defaultdict(list)
     for face, group_id in zip(faces, mask):
         groups[int(group_id)].append(face)
-    return [groups[key] for key in sorted(groups.keys())]
+    return [groups[key] for key in sorted(groups.keys())]'''
 
 def create_submeshes_with_mask(mesh=None, mask=None, faces=None, vertices=None):
     """

@@ -1,4 +1,5 @@
 import numpy as np
+import trimesh
 from helper_functions import *
 
 # 0 = volume, 1 = centroid, 2 = faces, 3 = vertices, 4 = mesh_copy
@@ -97,7 +98,7 @@ def align_pelvis(left_pelvis_path, right_pelvis_path):
     
     # normals form bottom slices are more evenly distributed
     transformed_mesh = combined_mesh.copy()
-    barys, norms, _ = find_barys_and_norms.find_barys_norms(transformed_mesh)
+    barys, norms, _, _ = find_barys_and_norms.find_barys_norms(transformed_mesh)
     n1 = np.sum(np.abs(norms[barys[:, 2] > 0]), axis=0)
     n2 = np.sum(np.abs(norms[barys[:, 2] < 0]), axis=0)
     # calculate means and check for validity

@@ -112,11 +112,11 @@ def identify_parts(faces):
     face_groups = [group_map[find(face[0])] for face in faces]
     return face_groups
 
-def separate(faces, mask):
+'''def separate(faces, mask):
     groups = defaultdict(list)
     for face, group_id in zip(faces, mask):
         groups[group_id].append(face)
-    return list(groups.values())
+    return list(groups.values())'''
 
 def create_submeshes(mesh, transform=None):
     if transform is not None and transform.any():
