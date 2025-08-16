@@ -16,7 +16,7 @@ def separate(pgon_struct, combined_mesh, centers, radii):
     """
 
     # Split mesh into connected components
-    components = combined_mesh.split(only_watertight=False)
+    components = combined_mesh.split(only_watertight=True)
 
     # Compute volumes of each component
     volumes = np.array([comp.volume for comp in components])
@@ -50,6 +50,7 @@ def separate(pgon_struct, combined_mesh, centers, radii):
         pgon_struct['step'] = np.ones((len(combined_mesh.faces), 2), dtype=bool)
 
         mesh = trimesh.Trimesh(vertices=pgon_struct['vertices'], faces=pgon_struct['faces'])
+        pgon_struct['mesh'] = mesh
 
         return pgon_struct, mesh
 

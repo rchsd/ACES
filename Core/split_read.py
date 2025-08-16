@@ -33,8 +33,9 @@ def split_read(file):
         pgon_struct['step'] = pgon_struct['step'][:, :last_nonzero + 1]
 
     mesh = trimesh.Trimesh(vertices=pgon_struct['vertices'], faces=pgon_struct['faces'])
+    pgon_struct['mesh'] = mesh
 
-    return pgon_struct, mesh
+    return pgon_struct
 
 def stlread(mesh):
     # Implement or replace this function to read the STL and return pgon and mask

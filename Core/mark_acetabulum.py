@@ -13,9 +13,9 @@ def mark_acetabulum(rotated_mesh, centers, radii, n=None, params = dict()):
     # revert to original step if already split pgon passed in
 
     # returns dictionary of mesh, step and mask
-    pgon_struct, mesh = split_read.split_read(rotated_mesh)
+    pgon_struct = split_read.split_read(rotated_mesh)
     # pgonmask
-    temp_pgon = pgon_separation.separate_by_mask(mesh, pgon_struct['step'])
+    temp_pgon = pgon_separation.separate_by_mask(pgon_struct['mesh'], pgon_struct['step'])
     temp_pgon_2, mesh = separate.separate(pgon_struct, temp_pgon, centers, radii)
 
     # calculate vertex normals
@@ -45,29 +45,11 @@ def mark_acetabulum(rotated_mesh, centers, radii, n=None, params = dict()):
     # Compute dot products: result is (321062, 2)
     nw = np.sum(unit_rvecs_transposed * vnorms_expanded, axis=2)
 
-    # calculate radial vectors
-    '''centers = np.array(centers)
-    centers_permuted = np.transpose(centers.reshape(2, 3, 1), (2, 1, 0))
-    vertices_expanded = mesh.vertices[:, :, np.newaxis]
-    rvecs = vertices_expanded - centers_permuted
-
-    # Calculate distance weights
-    radii_row = np.ravel(radii)[np.newaxis, :]
-    dw = np.divide(np.linalg.norm(rvecs, axis=1), radii_row)
-    dw = dw - params['DistanceCutoff']
-    dw[dw < 0] = 0
-    dw = np.exp(-dw)
-
-    # Calcualte normal weights
-    vnorms = vnorms[:, :, np.newaxis]
-    nw_1 = unitize.unitize(rvecs, axis=1) * vnorms
-    nw_2 = np.squeeze(np.sum(nw_1, axis=1))'''
-
-    # Edit w
-    w = edit_weights.edit_weights(mesh, np.max(nw * dw, axis=1))
+    # Edit w, only displays acetabula since user can't draw fossa
+    edit_weights.edit_weights(mesh, np.max(nw * dw, axis=1))
     #w = edit_weights.edit_weights(rotated_mesh, n)
 
-    return rotated_mesh
+    return temp_pgon_2
 
 '''mesh = trimesh.load('new_mesh.stl')
 centers_mat = sio.loadmat('centers.mat')
