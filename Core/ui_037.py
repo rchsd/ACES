@@ -12,21 +12,25 @@ import load_patient
 import split_read
 import write_mesh_from_vertices_faces as wvf
 import split_write
+import process_default
+import test_track_split
 
 def ui_037(rotated_pelvis):
     pgon_dict = step_0(rotated_pelvis)
-    pgon_dict, centers, radii = step_1(rotated_pelvis)
+    pgon_dict, centers, radii = step_1(rotated_pelvis, pgon_dict)
     current_index = 0
     #pgon_dict = step_2(pgon_dict, centers, radii, current_index)
     pgon = step_3(pgon_dict, centers, radii)
     pgon_struct, metadata = load_patient.load_patient(pgon)
+    mask, centers, radii, tform = metadata['mask'], metadata['centers'], metadata['radii'], metadata['tform']
+    process_default.default(pgon_struct['mesh'], mask, centers, radii, tform)
     print('hello')
     
 def step_0(pgon):
     pgon_struct = split_read.split_read(pgon)
     return pgon_struct
     
-def step_1(rotated_pelvis):
+def step_1(rotated_pelvis, pgon_dict):
     centers, radii = [], []
     try:
         for k in range(20):
@@ -43,13 +47,13 @@ def step_1(rotated_pelvis):
         return None
     
     # mesh is a dict that contains vertices, faces, steps, and mesh
-    pgon_dict = mark_acetabulum.mark_acetabulum( rotated_pelvis, centers, radii)
+    pgon_dict = mark_acetabulum.mark_acetabulum(pgon_dict, centers, radii)
     return pgon_dict, centers, radii
 
 # not needed
 def step_1_load(pgon_dict):
     # Get center faces
-    cpgon = pgon_separation.separate_by_mask(pgon_dict['mesh'], pgon_dict['mesh'] == 255)
+    cpgon = pgon_separation.pgon_mask(pgon_dict['mesh'], pgon_dict['mesh'] == 255)
 
     # Calculate centers
     centers, _, _, _ = find_barys_and_norms.find_barys_norms(cpgon)
@@ -67,15 +71,16 @@ def step_1_load(pgon_dict):
 
     return pgon_dict, centers, radii
 
+# locates fossa
 def step_2(pgon_struct, centers, radii, side):
-    bounds = np.zeros[0, 2]
+    bounds = np.zeros((0, 2))
 
     # Get correct side of polygon
-    print(np.array( pgon_struct['step']).shape)
-    temp = pgon_separation.separate_by_mask(pgon_struct['mesh'], pgon_struct['step'][:,2])
+    #print(np.array( pgon_struct['step']).shape)
+    temp = pgon_separation.pgon_mask(pgon_struct['mesh'], pgon_struct['step'][:,2])
     mask = pgon_struct['mask'][pgon_struct['step'][:,2]]
-    temp_2 = pgon_separation.separate_by_mask(temp, np.mod(mask, 1) == np.mod(side, 1))
-    mask = mask[np.mod(mask, 1) == np.mod(side, 1) > 2]
+    temp_2 = pgon_separation.pgon_mask(temp, np.mod(mask, 1) == np.mod(side, 1))
+    mask = mask[np.mod(mask, 1) == np.mod(side, 1)] > 2
 
     # Get whether or not each side exists
     '''exists = [] * 2
@@ -180,7 +185,7 @@ def locate_acetabulum(mesh, params = dict()):
 
         # Filter faces
         mask = filter_faces.filter_faces(barys, norms, centers[c, :], radius_range[1], 45)
-        pgon = pgon_separation.separate_by_mask(mesh, mask)
+        pgon = pgon_separation.pgon_mask(mesh, mask)
         points, dists = project_points.project_points(pgon, norms[mask, :], params['SamplePoints'], radius_range)
 
         # Get grid occupancy
@@ -202,7 +207,7 @@ def locate_acetabulum(mesh, params = dict()):
             mask = filter_faces.filter_faces(barys, norms, centers[c, :], params['RadiusRange'][1], 60)
 
             # Sample polygon
-            pgon = pgon_separation.separate_by_mask(mesh, mask)
+            pgon = pgon_separation.pgon_mask(mesh, mask)
             points, fi =  generate_random_points.sample_points_on_mesh(pgon, params['SamplePoints'], True)
 
             # Perform spherical regressions using different weights

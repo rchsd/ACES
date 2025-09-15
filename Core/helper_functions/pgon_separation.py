@@ -1,7 +1,7 @@
 import scipy.io as sio
 import numpy as np
 import trimesh
-import polygon_separation_helper as psh
+#import polygon_separation_helper as psh
 from collections import defaultdict
 
 def separate(faces, mask):
@@ -143,9 +143,9 @@ def create_submeshes(mesh, transform=None):
     
     return submeshes
 
-# only creates one mesh
-def separate_by_mask(mesh, mask):
-    # Ensure the mesh is a Trimesh object
+# only creates one mesh, using a mask
+def pgon_mask(mesh, mask):
+    # Ensure the mesh is a Trimesh object, or check for vertices and faces
     new_mesh = trimesh.Trimesh(vertices=mesh.vertices, faces=mesh.faces)
     mask = np.asarray(mask).flatten()
 
@@ -168,6 +168,46 @@ def separate_by_mask(mesh, mask):
     selected_mesh = trimesh.Trimesh(vertices=new_mesh.vertices, faces=selected_faces)
 
     return selected_mesh
+
+# only creates one mesh, using indexes
+def pgon_mask_index(mesh, mask_indices):
+    """
+    Extracts a subset of faces from a mesh using face indices,
+    reindexes the vertices to include only those used, and returns
+    both the new mesh and a mapping of original vertex indices used.
+    
+    Parameters:
+        mesh (trimesh.Trimesh): The input mesh.
+        mask_indices (array-like): Indices of faces to extract.
+    
+    Returns:
+        selected_mesh (trimesh.Trimesh): The new mesh with reindexed vertices.
+        original_vertex_indices (np.ndarray): Mapping of new vertices to original indices.
+    """
+    # Ensure mask is a flat array of valid indices
+    mask_indices = np.asarray(mask_indices).flatten()
+    
+    # Validate face indices
+    if np.any(mask_indices >= len(mesh.faces)) or np.any(mask_indices < 0):
+        raise ValueError("Some face indices are out of bounds.")
+    
+    # Select faces
+    selected_faces = mesh.faces[mask_indices]
+    
+    # Find unique vertex indices used by selected faces
+    unique_vertex_indices, inverse_indices = np.unique(selected_faces, return_inverse=True)
+    
+    # Reindex faces to match new vertex array
+    reindexed_faces = inverse_indices.reshape(selected_faces.shape)
+    
+    # Extract corresponding vertices
+    new_vertices = mesh.vertices[unique_vertex_indices]
+    
+    # Create new mesh
+    selected_mesh = trimesh.Trimesh(vertices=new_vertices, faces=reindexed_faces, process=False)
+    
+    # Return mesh and mapping of new vertex indices to original indices
+    return selected_mesh, unique_vertex_indices
 
 # Test with contour
 '''mesh = trimesh.load("temp_mesh.stl")
@@ -198,3 +238,11 @@ for i, submesh in enumerate(submeshes):
 
     print(f" Number of faces: {len(faces)}")
     print(f" Number of vertices: {len(vertices)}")'''
+
+'''faces = sio.loadmat('faces').get('faces') - 1
+vertices = sio.loadmat('vertices').get('vertices')
+mesh = trimesh.Trimesh(vertices=vertices, faces=faces)
+step = sio.loadmat('temp').get('step').astype(bool)
+temp = pgon_mask(mesh, step[:, -1])
+print(temp.faces.shape)
+print(temp.vertices.shape)'''

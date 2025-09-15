@@ -1,11 +1,15 @@
 import numpy as np
 import trimesh
 
-def pgon_split(mesh, normal, coefficient, tol=1e-8):
+def pgon_split(mesh, normal, coefficient, vertices=None, faces=None, tol=1e-8):
     normal = np.asarray(normal)
     normal = normal / np.linalg.norm(normal)
-    vertices = mesh.vertices
-    faces = mesh.faces
+    if mesh is None:
+        vertices=vertices
+        faces=faces
+    else:
+        vertices = mesh.vertices
+        faces = mesh.faces
 
     dists = vertices @ normal - coefficient
     dists[np.abs(dists / (np.abs(coefficient) + tol)) < tol] = 0

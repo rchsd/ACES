@@ -7,7 +7,7 @@ def split_read(file):
     """
     try:
         # Read split file
-        pgon_struct, mask = stlread(file)  # Assume stlread returns pgon and mask
+        pgon_struct, mask = stlread(file)
 
         # Read header tags
         tags = stlreadh(file).split(':')  # Assume stlreadh returns header tags as a string
@@ -19,7 +19,7 @@ def split_read(file):
     if len(tags) < 2 or tags[0] or tags[1] != 'split':
         # Set mask, step, and tags
         pgon_struct['mask'] = np.ones(len(pgon_struct['faces']), dtype=int)
-        pgon_struct['step'] = np.ones_like(pgon_struct['mask'], dtype=bool)
+        pgon_struct['step'] = np.ones(pgon_struct['mask'].shape, dtype=bool)
         pgon_struct['tags'] = []
 
     else:
@@ -38,14 +38,14 @@ def split_read(file):
     return pgon_struct
 
 def stlread(mesh):
-    # Implement or replace this function to read the STL and return pgon and mask
-    # Example using trimesh
     pgon = {
         'vertices': mesh.vertices,
         'faces': mesh.faces,
         'normals': mesh.face_normals
     }
-    mask = np.zeros(len(mesh.faces), dtype=np.uint32)  # Example mask, adjust as needed
+    # array is full of ones since matlab function returns attributes
+    # and since attributes will always be empty, should return ones
+    mask = np.ones(len(mesh.faces), dtype=np.uint32) 
     return pgon, mask
 
 def stlreadh(file):
