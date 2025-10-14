@@ -1,5 +1,4 @@
 import numpy as np
-import test_pgon_mask
 from helper_functions import *
 
 def fill_holes(pgon):
@@ -7,7 +6,6 @@ def fill_holes(pgon):
     # Get current polygon
     temp = pgon_separation.pgon_mask(pgon['mesh'], pgon['step'][:, -1])
     mask = pgon['mask'][pgon['step'][:, -1]]
-    #mask = np.array(mask).flatten()
 
     # Mark largest non-masked piece
     index = np.where(mask == 1)[0]
