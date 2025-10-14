@@ -4,12 +4,15 @@ from helper_functions import *
 import unitize
 
 def load_patient(pgon_struct):
-
-    meshes = []
     metadata = []
+    attributes = pgon_struct['mask'] # attributes is equivalent to mask in splitread matlab function
+    pgon_struct['mask'] = (attributes >> 8) + 1
+    pgon_struct['step'] = (attributes[:, None] & (1 << np.arange(7, -1, -1))) != 0
 
-    # mask has parts with values of 255, becomes 65024 after bit shifting
-    orts = pgon_separation.separate_by_mask(pgon_struct['mesh'], pgon_struct['mask'] == 65024)
+    # Remove extra steps
+    pgon_struct['step'] = pgon_struct['step'][:, :np.max(np.where(np.any(pgon_struct['step'], axis=0))) + 1]
+
+    orts = pgon_separation.pgon_mask(pgon_struct['mesh'], pgon_struct['mask'] == 255)
 
     # Sort faces so right comes first
     barys, norms, _, _ = find_barys_and_norms.find_barys_norms(orts)
@@ -36,7 +39,7 @@ def load_patient(pgon_struct):
     transform[:3, 3] = T @ R.T
 
     # Apply transformation
-    pgon = pgon_separation.separate_by_mask(pgon_struct['mesh'], pgon_struct['step'][:, 0])
+    pgon = pgon_separation.pgon_mask(pgon_struct['mesh'], pgon_struct['step'][:, 3])
     pgon_temp = pgon.copy().apply_transform(transform)
     vertices = pgon_temp.vertices
     faces = pgon_temp.faces
@@ -44,14 +47,17 @@ def load_patient(pgon_struct):
     mesh = trimesh.Trimesh(vertices=vertices, faces=faces)
     pgon_struct['mesh'] = mesh
 
+    centers_homogeneous = np.hstack([centers, np.ones((centers.shape[0], 1))])
+    transformed_centers_homogeneous = (transform @ centers_homogeneous.T).T
+    centers = transformed_centers_homogeneous[:, :3]
+
     metadata.append({
-        'mask': pgon_struct['mask'][pgon_struct['step'][:, 0]] - 1,
-        'centers': apply_transform(centers, transform),
+        'mask': pgon_struct['mask'][pgon_struct['step'][:, 3]] - 1,
+        'centers': centers,
         'radii': radii,
         'tform': transform
     })
 
-    #return meshes if len(meshes) > 1 else meshes[0], metadata if len(metadata) > 1 else metadata[0]
     return pgon_struct, metadata
 
 

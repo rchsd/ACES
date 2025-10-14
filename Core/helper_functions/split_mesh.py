@@ -95,7 +95,7 @@ def pgon_split(mesh, normal, coefficient, vertices=None, faces=None, tol=1e-8):
                                    faces=np.array(new_faces),
                                    process=False)
 
-    return refined_mesh, np.array(over_plane_mask), np.array(original_face_indices)   
+    return refined_mesh, np.array(over_plane_mask), np.array(original_face_indices)
 
 
 # for testing  

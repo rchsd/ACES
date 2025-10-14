@@ -50,12 +50,11 @@ def mark_acetabulum(pgon_struct, centers, radii, n=None, params = dict()):
 
     # Edit w, only displays acetabula since user can't draw fossa
     w = edit_weights.edit_weights(temp_pgon_2['mesh'], np.max(nw * dw, axis=1))
+    #w = edit_weights.edit_weights_with_mask(temp_pgon_2['mesh'], np.max(nw * dw, axis=1), radii, centers)
     w = np.array(w).reshape(-1, 1)
-    #w = edit_weights.edit_weights(rotated_mesh, n)
 
     # Select acetabulum
     split = pgon_track_splt.track_split(temp_pgon_2, w, np.array([0, 0, 0, 1]), np.cos(np.deg2rad(params['AngleCutoff'])))
-    #split = test_track_split.track_split(temp_pgon_2, w, np.array([0, 0, 0, 1]), np.cos(np.deg2rad(params['AngleCutoff'])))
     pgon_dict = hole_fill.fill_holes(split)
 
     return pgon_dict

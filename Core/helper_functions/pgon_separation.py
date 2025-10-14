@@ -143,7 +143,7 @@ def create_submeshes(mesh, transform=None):
     
     return submeshes
 
-# only creates one mesh, using a mask
+'''# only creates one mesh, using a mask
 def pgon_mask(mesh, mask):
     # Ensure the mesh is a Trimesh object, or check for vertices and faces
     new_mesh = trimesh.Trimesh(vertices=mesh.vertices, faces=mesh.faces)
@@ -166,6 +166,30 @@ def pgon_mask(mesh, mask):
 
     # Create a new mesh with the selected faces
     selected_mesh = trimesh.Trimesh(vertices=new_mesh.vertices, faces=selected_faces)
+
+    return selected_mesh'''
+
+def pgon_mask(mesh, mask):
+    # Ensure mask is a boolean array
+    new_mesh = trimesh.Trimesh(vertices=mesh.vertices, faces=mesh.faces)
+    mask = np.asarray(mask).flatten()
+
+    # Verify that the mask length matches the number of faces
+    if len(mask) != len(new_mesh.faces):
+        raise ValueError("The length of the mask must match the number of faces in the mesh.")
+
+    # Select faces based on the mask
+    selected_faces = new_mesh.faces[mask]
+    
+    print("Selected faces shape:", selected_faces.shape)
+
+    # Check if any faces are selected
+    if selected_faces.size == 0:
+        print("No faces selected by the mask.")
+        return None
+
+    # Create a new mesh with the selected faces
+    selected_mesh = trimesh.Trimesh(vertices=mesh.vertices, faces=selected_faces)
 
     return selected_mesh
 

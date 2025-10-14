@@ -2,21 +2,21 @@ import numpy as np
 import trimesh
 
 def reflection(vector):
-    if vector == [1, 0, 0]:  # Reflection across the X-axis
+    if np.array_equal(vector, np.array([1, 0, 0])):  # Reflection across the X-axis
         return np.array([
             [-1,  0,  0,  0],
             [ 0,  1,  0,  0],
             [ 0,  0,  1,  0],
             [ 0,  0,  0,  1]
         ])
-    elif vector == [0, 1, 0]:  # Reflection across the Y-axis
+    elif np.array_equal(vector, np.array([0, 1, 0])):  # Reflection across the Y-axis
         return np.array([
             [ 1,  0,  0,  0],
             [ 0, -1,  0,  0],
             [ 0,  0,  1,  0],
             [ 0,  0,  0,  1]
         ])
-    elif vector == [0, 0, 1]:  # Reflection across the Z-axis
+    elif np.array_equal(vector, np.array([0, 0, 1])):  # Reflection across the Z-axis
         return np.array([
             [ 1,  0,  0,  0],
             [ 0,  1,  0,  0],

@@ -1,13 +1,14 @@
 import trimesh
 import numpy as np
 
+
 def split_read(file):
     """
-    SPLITREAD Reads *.stl in *.split format
+    SPLITREAD Reads *.stl in *.split format, simplified to ignore step decoding.
     """
     try:
         # Read split file
-        pgon_struct, mask = stlread(file)
+        pgon_struct, mask = stlread(file['mesh'])
 
         # Read header tags
         tags = stlreadh(file).split(':')  # Assume stlreadh returns header tags as a string
@@ -15,23 +16,23 @@ def split_read(file):
     except Exception as ex:
         raise ex  # Reformat and rethrow exceptions
 
-    # If 'split' tag not found, process as normal stl
-    if len(tags) < 2 or tags[0] or tags[1] != 'split':
+    # If 'split' tag not found, process as normal STL
+    if len(tags) < 2 or tags[0] != '' or tags[1] != 'split':
         # Set mask, step, and tags
         pgon_struct['mask'] = np.ones(len(pgon_struct['faces']), dtype=int)
-        pgon_struct['step'] = np.ones(pgon_struct['mask'].shape, dtype=bool)
+        pgon_struct['step'] = np.ones((len(pgon_struct['faces']), 1), dtype=bool)
         pgon_struct['tags'] = []
-
     else:
-        # Set mask, step, and tags
+        # Decode mask from bit-shifted format
         pgon_struct['mask'] = (mask >> 8) + 1
-        pgon_struct['step'] = np.bitwise_and(mask[:, None], np.uint32(1 << np.arange(7, -1, -1))) != 0
+
+        # Set a placeholder step array (ignoring bitwise step encoding)
+        pgon_struct['step'] = np.ones((len(pgon_struct['faces']), 1), dtype=bool)
+
+        # Extract tags
         pgon_struct['tags'] = tags[2:]
 
-        # Remove extra steps
-        last_nonzero = np.max(np.nonzero(np.any(pgon_struct['step'], axis=0)))
-        pgon_struct['step'] = pgon_struct['step'][:, :last_nonzero + 1]
-
+    # Create mesh object
     mesh = trimesh.Trimesh(vertices=pgon_struct['vertices'], faces=pgon_struct['faces'])
     pgon_struct['mesh'] = mesh
 

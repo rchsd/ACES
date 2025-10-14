@@ -8,23 +8,22 @@ import mark_acetabulum
 import unitize
 import trimesh
 import scipy.io as sio
-import load_patient
 import split_read
 import write_mesh_from_vertices_faces as wvf
 import split_write
-import process_default
-import test_track_split
+import pgon_track_splt
+import vertex_values
+import step_02_gui as tpp
 
 def ui_037(rotated_pelvis):
-    pgon_dict = step_0(rotated_pelvis)
+    file = {'mesh': rotated_pelvis}
+    pgon_dict = step_0(file)
     pgon_dict, centers, radii = step_1(rotated_pelvis, pgon_dict)
-    current_index = 0
-    #pgon_dict = step_2(pgon_dict, centers, radii, current_index)
+    for current_index in range(1, 3):
+        pgon_dict = step_2(pgon_dict, centers, radii, current_index)
     pgon = step_3(pgon_dict, centers, radii)
-    pgon_struct, metadata = load_patient.load_patient(pgon)
-    mask, centers, radii, tform = metadata['mask'], metadata['centers'], metadata['radii'], metadata['tform']
-    process_default.default(pgon_struct['mesh'], mask, centers, radii, tform)
-    print('hello')
+    
+    return pgon
     
 def step_0(pgon):
     pgon_struct = split_read.split_read(pgon)
@@ -73,28 +72,92 @@ def step_1_load(pgon_dict):
 
 # locates fossa
 def step_2(pgon_struct, centers, radii, side):
-    bounds = np.zeros((0, 2))
+    bounds = np.zeros((0, 3))
+    index = side - 1
 
     # Get correct side of polygon
-    #print(np.array( pgon_struct['step']).shape)
     temp = pgon_separation.pgon_mask(pgon_struct['mesh'], pgon_struct['step'][:,2])
     mask = pgon_struct['mask'][pgon_struct['step'][:,2]]
     temp_2 = pgon_separation.pgon_mask(temp, np.mod(mask, 1) == np.mod(side, 1))
     mask = mask[np.mod(mask, 1) == np.mod(side, 1)] > 2
+    next = None
+    #bounds = tpp.get_projected_points(temp_2, mask, centers[side, :], radii[side], bounds)
+
+    # Get bounds from GUI, made placeholder values
+    if side == 1:     
+        bounds = [
+            [1.61130533155253, 62.2104774804963, -59.9403544387100],
+            [-2.98932152246617, 65.0650606157165, -51.6403794430619],
+            [-7.34775112723169, 67.2217866734611, -45.0245965083881],
+            [-7.72200918223249, 69.3480503089603, -39.6956700566565],
+            [-5.43729393271627, 72.2822761564305, -33.8127287727286],
+            [4.20327163457286, 71.0439532607862, -26.9901709307782],
+            [15.3015917738291, 71.6722849902156, -26.4668214238727],
+            [19.4608502629328, 66.4420422475634, -31.9885584898059],
+            [21.1244803732521, 61.7369738673751, -41.9030427539932],
+            [23.3351779795573, 63.9742418931808, -51.2725106300571],
+            [21.5039262916537, 60.9578688263805, -56.3143169343964],
+            [1.61130533155253, 62.2104774804963, -59.9403544387100]]
+
+        next = 1
+    else:
+        bounds = [
+            [25.3045585876297, -63.5475473763193, -58.5582828041084],
+            [24.1332604996705, -66.1454693708478, -44.1019601497463],
+            [21.1636168024839, -69.6240646536135, -33.0447749133765],
+            [13.6114116876227, -73.9058089049435, -28.2780929142467],
+            [2.27276953826547, -74.9146182228626, -30.3890602286426],
+            [-3.00053887140878, -74.3440647221311, -34.4490504628709],
+            [-5.82578793780910, -73.0278049023276, -40.1903990382810],
+            [-6.35175508242096, -72.0343244658184, -46.4807911318309],
+            [-5.71131604262102, -72.4100879360961, -50.5798107243275],
+            [-4.54250949739974, -66.9258561970092, -49.4445593297409],
+            [-1.50041971067511, -65.7641390475811, -53.0062114755565],
+            [3.02803482928811, -64.2295630281545, -58.8743715723273],
+            [5.52932169182047, -62.9618628548538, -63.0824055430105],
+            [25.3045585876297, -63.5475473763193, -58.5582828041084]]
+        next = 2
 
     # Get whether or not each side exists
-    '''exists = [] * 2
-    exists[0] = np.any(np.isin(mesh['mask'], (5, 7)))
-    exists[1] = np.any(np.isin(mesh['mask'], (6, 8)))'''
+    exists = [
+        np.any(np.isin(pgon_struct['mask'], [5, 7])),
+        np.any(np.isin(pgon_struct['mask'], [6, 8]))
+    ]
 
-    # ignoring previous matlab steps since the user doesn't trace fossa
-    # tracing fossa is what creates the bounds so I'm keeping them empty  
-    '''if bounds.size == 0:
-        vals = vertex_values(pgon_struct, bounds, centers, radii, side)
-        pgon = pgontracksplit(pgon_struct, vals, [0, 0, 0, 1], 0);'''
+    # Delete only current side if both sides exist
+    if np.all(exists):
+        pgon_struct['step'][pgon_struct['step'][:, -2] & (pgon_struct['mask'] % 2 == side % 2), -1] = True
+        keep = ~np.isin(pgon_struct['mask'], side + np.array([4, 6]))
+        temp = pgon_separation.pgon_mask(pgon_struct['mesh'], keep)
+        pgon_struct['faces'] = temp.faces
+        pgon_struct['vertices'] = temp.vertices
+        pgon_struct['step'] = pgon_struct['step'][keep, :]
+        pgon_struct['mask'] = pgon_struct['mask'][keep]
 
-    
-    return None
+    # If current mask exists, delete it
+    elif exists[index]:
+        pgon_struct['step'] = pgon_struct['step'][:, :-1]
+        keep = np.any(pgon_struct['step'], axis=1)
+        temp = pgon_separation.pgon_mask(pgon_struct['mesh'], keep)
+        pgon_struct['faces'] = temp.faces
+        pgon_struct['vertices'] = temp.vertices
+        pgon_struct['step'] = pgon_struct['step'][keep, :]
+        pgon_struct['mask'] = pgon_struct['mask'][keep]
+
+    # Get vertex values to use for split
+    vals = vertex_values.find_vertex_values(pgon_struct, bounds, centers, radii, side)
+
+    # Split polygon
+    vals = vals.reshape(-1, 1)
+    pgon = pgon_track_splt.track_split(pgon_struct, vals, [0, 0, 0, 1], 0)
+
+    # If other step exists, merge steps
+    if exists[2 - side]:
+        pgon['step'][:, -2] = pgon['step'][:, -1]
+        pgon['step'] = pgon['step'][:, :-1]
+        pgon['mask'][pgon['mask'] > 8] = pgon['mask'][pgon['mask'] > 8] - 4
+
+    return pgon
 
 # SET_CENTERS: Creates triangles to represent acetabulum center
 def step_3(pgon, centers, radii):

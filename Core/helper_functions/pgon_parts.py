@@ -1,6 +1,7 @@
 import networkx as nx
 import numpy as np
 import trimesh
+from collections import defaultdict, deque
 
 def find_parts(polygon=None, method='vertex', mesh=None, max_angle=None):
     """
@@ -90,6 +91,19 @@ def find_parts(polygon=None, method='vertex', mesh=None, max_angle=None):
 
     else:
         raise ValueError("Unknown method. Use 'vertex' or 'edge'.")
+
+def find_parts_edges(edges):
+    """
+    Treat each edge as its own part (like MATLAB pgonparts with disconnected edges).
+    
+    Parameters:
+    - edges: (n_edges x 2) array of vertex indices
+    
+    Returns:
+    - part_indices: array of part index for each edge
+    """
+    return np.arange(len(edges)), [{'nfaces': 1, 'ncncts': 1, 'cstate': 1} for _ in range(len(edges))]
+
     
 def max_part_area(mesh, parts):
     """
