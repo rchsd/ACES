@@ -6,10 +6,7 @@ import numpy as np
 import sphere_regression_with_weights
 import mark_acetabulum
 import unitize
-import trimesh
-import scipy.io as sio
 import split_read
-import write_mesh_from_vertices_faces as wvf
 import split_write
 import pgon_track_splt
 import vertex_values
@@ -201,8 +198,6 @@ def step_3(pgon, centers, radii):
     # Append step values (2 new rows of False)
     pgon['step'] = np.vstack([pgon['step'], np.zeros((2, pgon['step'].shape[1]), dtype=bool)])
     pgon_dict = split_write.splitwrite(pgon)
-    #mesh = wvf.write_mesh(pgon['vertices'], pgon['faces'])
-    #pgon['mesh'] = mesh
 
     return pgon_dict
 
@@ -234,7 +229,6 @@ def locate_acetabulum(mesh, params = dict()):
     centers = grid_selected[r, :]
     r = np.array(r).flatten()
     radii = np.tile(np.mean(dists[np.isin(reidx, ic[r])]), 2)
-    #radii = np.full(2, np.mean(dists[np.isin(reidx, ic[r])]))
 
     # Refine centers    
     # Update grid size and range
@@ -298,10 +292,3 @@ def locate_acetabulum(mesh, params = dict()):
     centers = centers[ic]                         
     radii = radii[ic]
     return centers, radii
-
-'''mesh = trimesh.load('new_mesh.stl')
-centers_mat = sio.loadmat('centers.mat')
-centers = centers_mat.get('centers')
-radii_mat = sio.loadmat('radii.mat')
-radii = radii_mat.get('radii')
-step_3(mesh, centers, radii)'''

@@ -1,6 +1,5 @@
 import standardize_alignment
 import ui_037
-import numpy as np
 from helper_functions import display_mesh
 from helper_functions import snapshot
 import load_patient

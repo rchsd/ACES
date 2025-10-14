@@ -1,23 +1,17 @@
 import numpy as np
 import parse_inputs
-import split_read
 import separate
-import unitize
 import edit_weights
-import trimesh
 import scipy.io as sio
 import hole_fill
 import pgon_track_splt
 from helper_functions import *
-import test_track_split
 
 def mark_acetabulum(pgon_struct, centers, radii, n=None, params = dict()):
     params = parse_inputs.parse_inputs(params)
     # revert to original step if already split pgon passed in
 
     # returns dictionary of mesh, step and mask
-    #pgon_struct = split_read.split_read(rotated_mesh)
-    # pgonmask
     temp_pgon = pgon_separation.pgon_mask(pgon_struct['mesh'], pgon_struct['step'])
     temp_pgon_2 = separate.separate(pgon_struct, temp_pgon, centers, radii)
 
@@ -50,7 +44,6 @@ def mark_acetabulum(pgon_struct, centers, radii, n=None, params = dict()):
 
     # Edit w, only displays acetabula since user can't draw fossa
     w = edit_weights.edit_weights(temp_pgon_2['mesh'], np.max(nw * dw, axis=1))
-    #w = edit_weights.edit_weights_with_mask(temp_pgon_2['mesh'], np.max(nw * dw, axis=1), radii, centers)
     w = np.array(w).reshape(-1, 1)
 
     # Select acetabulum
@@ -58,12 +51,3 @@ def mark_acetabulum(pgon_struct, centers, radii, n=None, params = dict()):
     pgon_dict = hole_fill.fill_holes(split)
 
     return pgon_dict
-
-'''mesh = trimesh.load('new_mesh.stl')
-centers_mat = sio.loadmat('centers.mat')
-centers = centers_mat.get('centers')
-radii_mat = sio.loadmat('radii.mat')
-radii = radii_mat.get('radii')
-n_mat = sio.loadmat('n.mat')
-n = n_mat.get('n')
-mark_acetabulum(mesh, centers, radii, n)'''

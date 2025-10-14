@@ -237,9 +237,3 @@ def align_pelvis(left_pelvis_path, right_pelvis_path):
     tform = np.dot(translation.translate(-mesh.center_mass), tform)
 
     return tform, combined_mesh.copy()
-
-'''test_file_path = 'C:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Tests\\Schmitz\\'
-left_pelvis = test_file_path + 'l hip 1.stl'
-right_pelvis = test_file_path + 'r hip 1.stl'
-s = align_pelvis(left_pelvis, right_pelvis)
-print(s)'''
