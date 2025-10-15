@@ -2,7 +2,6 @@ import numpy as np
 import unitize
 from scipy.stats import mode
 from scipy.spatial import cKDTree
-import test_make_pgon
 from helper_functions import *
 
 # VERTEX_VALUES: Converts selection to vertex values
@@ -46,23 +45,9 @@ def find_vertex_values(p, b, c, r, s):
         [0, 0, 0, 1]  
     ])
     tform = (matrix @ alignment.align(n, [0, 0, 1])) @ translation.translate(-c[side, :] - r[side] * n)
-    # Step 2: Convert points to homogeneous coordinates
-    points_hom = np.hstack((b, np.ones((b.shape[0], 1))))  # shape (N, 4)
-    # Step 3: Apply transformation
-    transformed = points_hom @ tform.T  # shape (N, 4)
-    # Step 4: Extract only the first 3 coordinates
-    product = transformed[:, :3]
-    #temp = test_make_pgon.transform_and_project(product)
-    temp = test_make_pgon.transform_and_project(b, tform)
+    temp = make_pgon.transform_and_project(b, tform)
     if make_pgon.calculate_volume_bounds(temp['faces'], temp['vertices']) < 0:
         temp = pgon_inv(temp)
-    
-    # Step 2: Convert points to homogeneous coordinates
-    points_hom = np.hstack((q, np.ones((q.shape[0], 1))))  # shape (N, 4)
-    # Step 3: Apply transformation
-    transformed = points_hom @ tform.T  # shape (N, 4)
-    # Step 4: Extract only the first 3 coordinates
-    product = transformed[:, :3]
     selected[selected == 2] = 2 * (pgon_pip.in_pgon(temp, q, tform) != 0) + 1
 
     # Keep largest contiguous selections
@@ -79,7 +64,7 @@ def find_vertex_values(p, b, c, r, s):
 
     
     # Calculate distance from selection polyhedron
-    sel = test_make_pgon.transform_and_project(b, None, True)
+    sel = make_pgon.transform_and_project(b, None, True)
     # Append a new vertex from c[side] to sel['vertices']
     sel['vertices'] = np.vstack([sel['vertices'], c[side]])
     # Update the third column of each face to reference the new vertex index

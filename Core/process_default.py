@@ -1,5 +1,4 @@
 import numpy as np
-import test_unpaired_edges
 import test_trimesh_plane as ttp
 from helper_functions import *
 import trimesh
@@ -98,8 +97,7 @@ def coverage_angles(pgon, center):
         pgon = pgon.apply_transform(translation.translate(-center))
 
     # Get open edges
-    #edge = pgon_upe.unpaired_edges_pgon(pgon)
-    a, b, c, edge = test_unpaired_edges.find_unpaired_edges(pgon)
+    _, _, _, edge = pgon_upe.unpaired_edges_pgon(pgon)
 
     # Create sampling vector
     th = np.arange(0, 540) * np.pi / 540

@@ -13,6 +13,7 @@ def align_pelvis(left_pelvis_path, right_pelvis_path):
     rl = np.subtract(left.center_mass, right.center_mass)
     tform2 = alignment.align(np.dot(rl, np.sign(rl[0])), [0, 1, 0])
     tform = tform2 @ tform
+    find_slice_bounding_box
 
     # find smallest box code
     tform2 = find_smallest_box.find_smallest_box(tform, combined_mesh.faces, combined_mesh.vertices, 0, [0, 1, 0])
@@ -79,10 +80,10 @@ def align_pelvis(left_pelvis_path, right_pelvis_path):
     # makes a copy instead of transforming original mesh
     transformed_mesh = combined_mesh.copy().apply_transform(tform)
     ctour, _, ii = ttp.compute_contours_with_trimesh(transformed_mesh, np.array([0, 0, 1]), sample)
-    plane_slices = test_pgonsep_by_plane_index.separate_by_plane(ctour, ii)
+    plane_slices = pgonsep_by_plane_index.separate_by_plane(ctour, ii)
 
     # bounds of top slices cover more area
-    aabb = test_aabb.compute_aabb_slices(plane_slices)
+    aabb = find_slice_bounding_box.compute_aabb_slices(plane_slices)
     aabb_slices = np.zeros((2, 3, 24))
     for i in range(24):
         aabb_slices[0, :, i] = aabb[i]['min']

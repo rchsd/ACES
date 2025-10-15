@@ -38,30 +38,25 @@ def unpaired_edges_faces(faces):
     return np.array(unpaired_edges), np.array(parent_faces)
 
 
-def unpaired_edges_pgon(pgon):
-    faces = pgon.faces
-    edge_count = defaultdict(int)
-    edge_to_face = defaultdict(list)
+def unpaired_edges_pgon(mesh):
+    # Find boundary edge indices
+    index = trimesh.grouping.group_rows(mesh.edges_sorted, require_count=1)
+    unique_edges = mesh.edges[index]
 
-    # Step 1: Count all edges and track their parent faces
-    for i, face in enumerate(faces):
-        nsim = len(face)
-        for j in range(nsim):
-            v1 = face[j]
-            v2 = face[(j + 1) % nsim]
-            edge = tuple(sorted((v1, v2)))  # undirected edge
-            edge_count[edge] += 1
-            edge_to_face[edge].append(i)
+    # Get unique vertex indices and their coordinates
+    boundary_vertex_indices = np.unique(unique_edges.flatten())
+    boundary_vertex_coords = mesh.vertices[boundary_vertex_indices]
 
-    # Step 2: Identify unpaired edges
-    unpaired = [edge for edge, count in edge_count.items() if count == 1]
-    parent_faces = [edge_to_face[edge][0] for edge in unpaired]
+    # Create a mapping from global vertex indices to local ones
+    index_map = {old_idx: new_idx for new_idx, old_idx in enumerate(boundary_vertex_indices)}
 
-    # Step 3: Format results
-    results = np.array(unpaired)
-    pfaces = np.array(parent_faces)
+    # Remap edge vertex indices to local indices
+    remapped_edges = np.array([[index_map[v0], index_map[v1]] for v0, v1 in unique_edges])
 
-    return results, pfaces
+    degenerate_faces = np.hstack([remapped_edges, remapped_edges[:, [0]]])  # shape (M, 3)
+    mesh = trimesh.Trimesh(vertices=boundary_vertex_coords, faces=degenerate_faces, process=False)
+
+    return boundary_vertex_coords, remapped_edges, boundary_vertex_indices, mesh
 
 
 
