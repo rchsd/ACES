@@ -80,7 +80,7 @@ def default(pgon, mask, centers, radii, tform):
     selected_faces = (mask & 3) == 2
     #new_mesh = pgon_separation.pgon_mask(pgon, selected_faces)
     new_mesh = pgon.submesh([selected_faces], append=True)
-    result.update({'right_volume': new_mesh.volume})
+    result.update({'right_volume': pgon_props.compute_mesh_volume(new_mesh)})
 
     # Create left result dictionary
     result.update({'left_center': centers[1], 'left_radius': radii[1], 'left_total_area': areas.flat[l_hip], 'left_fossa_area': areas.flat[l_fossa], 'left_orientation': orient[1], 'left_version': np.degrees(np.arctan2(orient[1, 0], orient[1, 1]))})
@@ -89,7 +89,7 @@ def default(pgon, mask, centers, radii, tform):
     selected_faces = (mask & 3) == 3
     #new_mesh = pgon_separation.pgon_mask(pgon, selected_faces)
     new_mesh = pgon.submesh([selected_faces], append=True)
-    result.update({'left_volume': new_mesh.volume})
+    result.update({'left_volume': pgon_props.compute_mesh_volume(new_mesh)})
 
     return result
 
