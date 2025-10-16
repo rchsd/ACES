@@ -6,11 +6,13 @@ from helper_functions import *
 # 0 = volume, 1 = centroid, 2 = faces, 3 = vertices, 4 = mesh_copy
 def align_pelvis(left_pelvis_path, right_pelvis_path):
     combined_mesh = merge_parts.pgon_merge(None, None, left_pelvis_path, right_pelvis_path)
-    tform = translation.translate(-combined_mesh.center_mass)
+    #tform = translation.translate(-combined_mesh.center_mass)
+    tform = translation.translate(-find_volume_center.volume_centroid(combined_mesh))
 
     left = mesh_analysis.load_mesh(left_pelvis_path)
     right = mesh_analysis.load_mesh(right_pelvis_path)
-    rl = np.subtract(left.center_mass, right.center_mass)
+    #rl = np.subtract(left.center_mass, right.center_mass)
+    rl = np.subtract(find_volume_center.volume_centroid(left), find_volume_center.volume_centroid(right))
     tform2 = alignment.align(np.dot(rl, np.sign(rl[0])), [0, 1, 0])
     tform = tform2 @ tform
     find_slice_bounding_box
@@ -141,7 +143,7 @@ def align_pelvis(left_pelvis_path, right_pelvis_path):
     left = left.copy().apply_transform(tform)
     right = right.copy().apply_transform(tform)
 
-    if np.dot(left.center_mass, (0, 1, 0)) < np.dot(right.center_mass, (0, 1, 0)):
+    if np.dot(find_volume_center.volume_centroid(left), (0, 1, 0)) < np.dot(find_volume_center.volume_centroid(right), (0, 1, 0)):
         temp = left
         left = right
         right = temp
@@ -235,6 +237,6 @@ def align_pelvis(left_pelvis_path, right_pelvis_path):
             break 
     # finalize
     mesh = merge_parts.pgon_merge(left, right)
-    tform = np.dot(translation.translate(-mesh.center_mass), tform)
+    tform = np.dot(translation.translate(-find_volume_center.volume_centroid(mesh)), tform)
 
     return tform, combined_mesh.copy()

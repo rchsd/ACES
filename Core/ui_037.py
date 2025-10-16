@@ -10,6 +10,7 @@ import split_read
 import split_write
 import pgon_track_splt
 import vertex_values
+import trimesh
 import step_02_gui as tpp
 
 def ui_037(rotated_pelvis):
@@ -164,7 +165,7 @@ def step_3(pgon, centers, radii):
     i_s = np.cross(pa, rl)
 
     # Create output polygon
-    cpgon = {'faces': np.array([[1, 2, 3], [4, 5, 6]])}
+    cpgon = {'faces': np.array([[0, 1, 2], [3, 4, 5]])}
 
     # Calculate vectors
     up = np.array([-np.sin(np.radians(30)), np.cos(np.radians(30))])
@@ -172,14 +173,12 @@ def step_3(pgon, centers, radii):
 
     # Create vertices
     cpgon['vertices'] = np.zeros((6, 3))
-    rl_stacked = np.vstack([rl, i_s])  # shape (2, 3)
-    dn_result = np.dot(dn, rl_stacked)    
-    up_result = np.dot(up, rl_stacked)
+    rl_stacked = np.vstack([rl, i_s])  # shape (2, 3) 
     pa_stacked = np.vstack([pa, i_s])
     radii = radii.reshape(2,)  
     cpgon['vertices'][0, :] = centers[0, :] + radii[0] * rl
-    cpgon['vertices'][1, :] = centers[0, :] + radii[0] * dn_result
-    cpgon['vertices'][2, :] = centers[0, :] + radii[0] * up_result
+    cpgon['vertices'][1, :] = centers[0, :] + radii[0] * np.dot(dn, rl_stacked)
+    cpgon['vertices'][2, :] = centers[0, :] + radii[0] * np.dot(up, rl_stacked)
     cpgon['vertices'][3, :] = centers[1, :] + radii[1] * pa
     cpgon['vertices'][4, :] = centers[1, :] + radii[1] * np.dot(dn, pa_stacked)
     cpgon['vertices'][5, :] = centers[1, :] + radii[1] * np.dot(up, pa_stacked)

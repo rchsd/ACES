@@ -150,10 +150,24 @@ def compute_part_centroids(mesh, face_labels):
         face_indices = np.where(face_labels == label)[0]
         part_faces = mesh.faces[face_indices]
         part_mesh = trimesh.Trimesh(vertices=mesh.vertices, faces=part_faces, process=False)
-        centroids.append(part_mesh.center_mass)
+        centroids.append(volume_centroid(part_mesh))
 
     return np.array(centroids)
 
-#mesh = trimesh.load('left_part.stl')
-#parts = find_parts(None, 'edge', None, mesh)
-#print('hello')
+def volume_centroid(mesh):
+    # Step 1: Compute bounding box center as offset
+    offset = mesh.bounding_box.centroid
+
+    # Step 2: Center the mesh vertices by subtracting the offset
+    centered_vertices = mesh.vertices - offset
+
+    # Step 3: Create a new mesh with centered vertices
+    centered_mesh = trimesh.Trimesh(vertices=centered_vertices, faces=mesh.faces, process=False)
+
+    # Step 4: Compute volume-weighted centroid of the centered mesh
+    centered_centroid = centered_mesh.center_mass
+
+    # Step 5: Translate the centroid back to original location using offset
+    final_centroid = centered_centroid + offset
+
+    return final_centroid

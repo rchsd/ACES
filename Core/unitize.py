@@ -1,6 +1,6 @@
 import numpy as np
 
-def unitize(A, axis=None):
+def unitize(A, axis=-1):
     # Calculate the magnitude along the specified axis
     magnitude = np.linalg.norm(A, axis=axis, keepdims=True)
     

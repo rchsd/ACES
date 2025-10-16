@@ -13,6 +13,8 @@ def default(pgon, mask, centers, radii, tform):
     angles = np.zeros((360, 4))
     #angles[:, r_fossa] = coverage_angles(pgon_separation.pgon_mask(pgon, mask == 6), centers[0])  # mask == (6 - 1) * 256
     #angles[:, l_fossa] = coverage_angles(pgon_separation.pgon_mask(pgon, mask == 7), centers[1])  # mask == (7 - 1) * 256
+    mesh_1 = trimesh.Trimesh(vertices=pgon.vertices, faces=pgon.faces).submesh([(mask & 3) == 2], append=True)
+    mesh_2 = pgon_separation.pgon_mask(pgon, (mask & 3) == 2)
     angles[:, r_hip]   = coverage_angles(pgon_separation.pgon_mask(pgon, (mask & 3) == 2), centers[0])
     angles[:, l_hip] = coverage_angles(pgon_separation.pgon_mask(pgon, (mask & 3) == 3), centers[1])
 
@@ -41,14 +43,16 @@ def default(pgon, mask, centers, radii, tform):
 
     # Calculate orientations
     selected = (mask & 3) == 2
-    normals = pgon.face_normals[selected]
+    #normals = pgon.face_normals[selected]
+    _, normals, _, _ = find_barys_and_norms.find_barys_norms(pgon, selected)
     summed = np.sum(normals, axis=0)
     unit_vector = summed / np.linalg.norm(summed)
     orient = np.zeros((2, 3))
     orient[0, :] = unit_vector
 
     selected = (mask & 3) == 3
-    normals = pgon.face_normals[selected]
+    #normals = pgon.face_normals[selected]
+    _, normals, _, _ = find_barys_and_norms.find_barys_norms(pgon, selected)
     summed = np.sum(normals, axis=0)
     unit_vector = summed / np.linalg.norm(summed)
     orient[1, :] = unit_vector
@@ -74,7 +78,8 @@ def default(pgon, mask, centers, radii, tform):
     result.update({'right_tilt': np.degrees(np.arctan2(-orient[0, 2], -orient[0, 1])), 'right_total_supine_coverage': np.bincount(mask1, weights=angles[:, r_hip])[1:] / 45, 'right_fossa_supine_coverage': np.bincount(mask1, weights=angles[:, r_fossa])[1:] / 45})
     result.update({'right_total_tilt_coverage': np.bincount(mask2, weights=angles[:, r_hip])[1:] / 45, 'right_fossa_tilt_coverage': np.bincount(mask2, weights=angles[:, r_fossa])[1:] / 45})
     selected_faces = (mask & 3) == 2
-    new_mesh = pgon_separation.pgon_mask(pgon, selected_faces)
+    #new_mesh = pgon_separation.pgon_mask(pgon, selected_faces)
+    new_mesh = pgon.submesh([selected_faces], append=True)
     result.update({'right_volume': new_mesh.volume})
 
     # Create left result dictionary
@@ -82,7 +87,8 @@ def default(pgon, mask, centers, radii, tform):
     result.update({'left_tilt': np.degrees(np.arctan2(-orient[1, 2], orient[1, 1])), 'left_total_supine_coverage': np.bincount(mask1, weights=angles[:, l_hip])[1:] / 45, 'left_fossa_supine_coverage': np.bincount(mask1, weights=angles[:, l_fossa])[1:] / 45})
     result.update({'left_total_tilt_coverage': np.bincount(mask2, weights=angles[:, l_hip])[1:] / 45, 'left_fossa_tilt_coverage': np.bincount(mask2, weights=angles[:, l_fossa])[1:] / 45})
     selected_faces = (mask & 3) == 3
-    new_mesh = pgon_separation.pgon_mask(pgon, selected_faces)
+    #new_mesh = pgon_separation.pgon_mask(pgon, selected_faces)
+    new_mesh = pgon.submesh([selected_faces], append=True)
     result.update({'left_volume': new_mesh.volume})
 
     return result
@@ -94,7 +100,7 @@ def coverage_angles(pgon, center):
         pgon = pgon.copy().apply_transform(reflection.reflection(np.array([0, 1, 0])) @ translation.translate(-center))
     # Translate only left-side
     else:
-        pgon = pgon.apply_transform(translation.translate(-center))
+        pgon = pgon.copy().apply_transform(translation.translate(-center))
 
     # Get open edges
     _, _, _, edge = pgon_upe.unpaired_edges_pgon(pgon)
