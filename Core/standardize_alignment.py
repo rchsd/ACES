@@ -81,7 +81,7 @@ def align_pelvis(left_pelvis_path, right_pelvis_path):
     sample = steps * z_range + aabb[0, 2]
     # makes a copy instead of transforming original mesh
     transformed_mesh = combined_mesh.copy().apply_transform(tform)
-    ctour, _, ii = ttp.compute_contours_with_trimesh(transformed_mesh, np.array([0, 0, 1]), sample)
+    ctour, _, ii = find_plane_contours.compute_contours_with_trimesh(transformed_mesh, np.array([0, 0, 1]), sample)
     plane_slices = pgonsep_by_plane_index.separate_by_plane(ctour, ii)
 
     # bounds of top slices cover more area

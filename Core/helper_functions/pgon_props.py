@@ -1,6 +1,7 @@
 import trimesh
 import numpy as np
 
+# Implements Scalar Triple Product
 def compute_mesh_volume(mesh:trimesh):
     faces = mesh.faces
     vertices = mesh.vertices
@@ -10,6 +11,3 @@ def compute_mesh_volume(mesh:trimesh):
         vol = np.dot(v0, np.cross(v1, v2)) / 6.0
         volume += vol
     return abs(volume)
-
-#mesh = trimesh.load('c:\\MATLAB\\t.stl')
-#print(compute_mesh_volume(mesh.faces, mesh.vertices))

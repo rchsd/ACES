@@ -20,7 +20,7 @@ def perform_analysis(left_pelvis_path, right_pelvis_path):
     pgon = ui_037.ui_037(rotated_pelvis)
     pgon_struct, metadata = load_patient.load_patient(pgon)
     mask, centers, radii, tform = metadata[0]['mask'], metadata[0]['centers'], metadata[0]['radii'], metadata[0]['tform']
-    result = process_default.default(pgon_struct['mesh'], mask, centers, radii, tform)
+    result = process_default.default(pgon_struct['mesh'], mask, centers, radii)
     print_data.format_and_export_to_csv(result, "final_results.csv")
 
     #snapshot.take_snapshots(rotated_pelvis, 2)

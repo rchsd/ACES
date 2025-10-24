@@ -2,6 +2,7 @@ from collections import defaultdict
 from typing import List, Tuple
 import numpy as np
 import trimesh
+import scipy.io as sio
 
 def unpaired_edges_faces(faces):
     """
@@ -39,24 +40,59 @@ def unpaired_edges_faces(faces):
 
 
 def unpaired_edges_pgon(mesh):
-    # Find boundary edge indices
-    index = trimesh.grouping.group_rows(mesh.edges_sorted, require_count=1)
-    unique_edges = mesh.edges[index]
+    # Dictionary to count edge appearances and track orientation and parent face
+    edge_counter = defaultdict(lambda: {'count': 0, 'flipped': False, 'face_index': None})
+
+    # Iterate through each face and its edges
+    for face_index, face in enumerate(mesh.faces):
+        for i in range(len(face)):
+            v0 = face[i]
+            v1 = face[(i + 1) % len(face)]
+            edge = (v0, v1)
+            edge_rev = (v1, v0)
+
+            # Check if reversed edge already exists
+            if edge_rev in edge_counter:
+                edge_counter[edge_rev]['count'] += 1
+            elif edge in edge_counter:
+                edge_counter[edge]['count'] += 1
+            else:
+                # New edge, add to counter
+                edge_counter[edge]['count'] = 1
+                edge_counter[edge]['flipped'] = False
+                edge_counter[edge]['face_index'] = face_index
+
+    # Collect unpaired edges (odd count)
+    unpaired_edges = []
+    parent_faces = []
+
+    for edge, info in edge_counter.items():
+        if info['count'] % 2 == 1:
+            # Flip edge if necessary
+            if info['flipped']:
+                edge = (edge[1], edge[0])
+            unpaired_edges.append(edge)
+            parent_faces.append(info['face_index'])
+
+    # Convert to numpy arrays
+    unpaired_edges = np.array(unpaired_edges)
+    parent_faces = np.array(parent_faces)
 
     # Get unique vertex indices and their coordinates
-    boundary_vertex_indices = np.unique(unique_edges.flatten())
+    boundary_vertex_indices = np.unique(unpaired_edges.flatten())
     boundary_vertex_coords = mesh.vertices[boundary_vertex_indices]
 
     # Create a mapping from global vertex indices to local ones
     index_map = {old_idx: new_idx for new_idx, old_idx in enumerate(boundary_vertex_indices)}
 
     # Remap edge vertex indices to local indices
-    remapped_edges = np.array([[index_map[v0], index_map[v1]] for v0, v1 in unique_edges])
+    remapped_edges = np.array([[index_map[v0], index_map[v1]] for v0, v1 in unpaired_edges])
 
+    # Create degenerate faces from edges
     degenerate_faces = np.hstack([remapped_edges, remapped_edges[:, [0]]])  # shape (M, 3)
-    mesh = trimesh.Trimesh(vertices=boundary_vertex_coords, faces=degenerate_faces, process=False)
+    boundary_mesh = trimesh.Trimesh(vertices=boundary_vertex_coords, faces=degenerate_faces, process=False)
 
-    return boundary_vertex_coords, remapped_edges, boundary_vertex_indices, mesh
+    return boundary_vertex_coords, remapped_edges, boundary_vertex_indices, parent_faces, boundary_mesh
 
 
 
