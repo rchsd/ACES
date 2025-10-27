@@ -15,7 +15,6 @@ def align_pelvis(left_pelvis_path, right_pelvis_path):
     rl = np.subtract(find_volume_center.volume_centroid(left), find_volume_center.volume_centroid(right))
     tform2 = alignment.align(np.dot(rl, np.sign(rl[0])), [0, 1, 0])
     tform = tform2 @ tform
-    find_slice_bounding_box
 
     # find smallest box code
     tform2 = find_smallest_box.find_smallest_box(tform, combined_mesh.faces, combined_mesh.vertices, 0, [0, 1, 0])

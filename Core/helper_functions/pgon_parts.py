@@ -51,7 +51,7 @@ def find_parts(polygon=None, method='vertex', mesh=None, max_angle=None):
 
         # Assign each face a label based on the first vertex
         face_labels = [node_to_component[face[0]] for face in faces]
-        return face_labels
+        return np.array(face_labels)
 
     elif method == 'edge':
         # Edge-based connectivity using face normals and neighbors
