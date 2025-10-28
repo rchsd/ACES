@@ -1,17 +1,7 @@
-from helper_functions import *
-import parse_inputs
-import project_points
-import grid_occupancy
+from helper_functions import split_read, mark_acetabulum, pgon_separation, find_barys_and_norms, vertex_values
+from helper_functions import pgon_track_split, unitize, parse_inputs, split_write, project_points, grid_occupancy
+from helper_functions import calculate_distances, filter_faces, generate_random_points, sphere_regression_with_weights
 import numpy as np
-import sphere_regression_with_weights
-import mark_acetabulum
-import unitize
-import split_read
-import split_write
-import pgon_track_splt
-import vertex_values
-import trimesh
-import step_02_gui as tpp
 
 def ui_037(rotated_pelvis):
     file = {'mesh': rotated_pelvis}
@@ -147,7 +137,7 @@ def step_2(pgon_struct, centers, radii, side):
 
     # Split polygon
     vals = vals.reshape(-1, 1)
-    pgon = pgon_track_splt.track_split(pgon_struct, vals, [0, 0, 0, 1], 0)
+    pgon = pgon_track_split.track_split(pgon_struct, vals, [0, 0, 0, 1], 0)
 
     # If other step exists, merge steps
     if exists[2 - side]:

@@ -1,11 +1,7 @@
 import numpy as np
-import parse_inputs
-import separate
-import edit_weights
 import scipy.io as sio
-import hole_fill
-import pgon_track_splt
-from helper_functions import *
+from helper_functions import parse_inputs, pgon_separation, separate, find_barys_and_norms, edit_weights
+from helper_functions import pgon_track_split, hole_fill
 
 def mark_acetabulum(pgon_struct, centers, radii, n=None, params = dict()):
     params = parse_inputs.parse_inputs(params)
@@ -47,7 +43,7 @@ def mark_acetabulum(pgon_struct, centers, radii, n=None, params = dict()):
     w = np.array(w).reshape(-1, 1)
 
     # Select acetabulum
-    split = pgon_track_splt.track_split(temp_pgon_2, w, np.array([0, 0, 0, 1]), np.cos(np.deg2rad(params['AngleCutoff'])))
+    split = pgon_track_split.track_split(temp_pgon_2, w, np.array([0, 0, 0, 1]), np.cos(np.deg2rad(params['AngleCutoff'])))
     pgon_dict = hole_fill.fill_holes(split)
 
     return pgon_dict

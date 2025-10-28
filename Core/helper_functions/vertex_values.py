@@ -1,8 +1,7 @@
 import numpy as np
-import unitize
 from scipy.stats import mode
 from scipy.spatial import cKDTree
-from helper_functions import *
+from helper_functions import alignment, translation, make_pgon, pgon_pip, pgon_edges, pgon_parts, pgon_upe
 
 # VERTEX_VALUES: Converts selection to vertex values
 def find_vertex_values(p, b, c, r, s):

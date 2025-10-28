@@ -1,10 +1,4 @@
-import standardize_alignment
-import ui_037
-from helper_functions import display_mesh
-from helper_functions import snapshot
-import load_patient
-import process_default
-import print_data
+from helper_functions import *
 import trimesh
 import numpy as np
 
@@ -18,7 +12,7 @@ def perform_analysis(left_pelvis_path, right_pelvis_path):
     #rotated_pelvis = rotated_pelvis.copy().apply_transform(rotation_matrix)
 
     pgon = ui_037.ui_037(rotated_pelvis)
-    pgon_struct, metadata = load_patient.load_patient(pgon)
+    pgon_struct, metadata = load_patient.load_new_patient(pgon)
     mask, centers, radii, tform = metadata[0]['mask'], metadata[0]['centers'], metadata[0]['radii'], metadata[0]['tform']
     result = process_default.default(pgon_struct['mesh'], mask, centers, radii)
 
@@ -26,7 +20,7 @@ def perform_analysis(left_pelvis_path, right_pelvis_path):
     if result['tilt'] < 0:
         rotated_pelvis = correct_mesh_transform(rotated_pelvis)
         pgon = ui_037.ui_037(rotated_pelvis)
-        pgon_struct, metadata = load_patient.load_patient(pgon)
+        pgon_struct, metadata = load_patient.load_new_patient(pgon)
         mask, centers, radii, tform = metadata[0]['mask'], metadata[0]['centers'], metadata[0]['radii'], metadata[0]['tform']
         result = process_default.default(pgon_struct['mesh'], mask, centers, radii)
 
@@ -45,8 +39,7 @@ def correct_mesh_transform(mesh):
 
     return trimesh.Trimesh(vertices=mesh.vertices, faces=mesh.faces)
 
-
-test_file_path = 'C:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Tests\\Schmitz\\'
+'''test_file_path = 'C:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Tests\\Schmitz\\'
 left_pelvis_path = 'c:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Tests\\Schmitz\\l hip 1.stl'
 right_pelvis_path = 'c:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Tests\\Schmitz\\r hip 1.stl'
-perform_analysis(left_pelvis_path, right_pelvis_path)
+perform_analysis(left_pelvis_path, right_pelvis_path)'''

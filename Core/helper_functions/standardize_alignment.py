@@ -1,7 +1,7 @@
 import numpy as np
-import trimesh
-import test_trimesh_plane as ttp
-from helper_functions import *
+from helper_functions import merge_parts, translation, find_volume_center, mesh_analysis, alignment
+from helper_functions import find_smallest_box, split_mesh, pgon_separation, reflection, generate_random_points
+from helper_functions import find_plane_contours, pgonsep_by_plane_index, find_slice_bounding_box, pgon_parts, find_barys_and_norms
 
 # 0 = volume, 1 = centroid, 2 = faces, 3 = vertices, 4 = mesh_copy
 def align_pelvis(left_pelvis_path, right_pelvis_path):

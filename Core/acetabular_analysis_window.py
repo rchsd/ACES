@@ -1,5 +1,4 @@
-import acetabular_analysis
-import find_centroid as fc
+import run_analysis
 from PyQt5.QtWidgets import QWidget, QPushButton, QFileDialog
 
 class acetabular_analysis_window(QWidget):
@@ -12,12 +11,10 @@ class acetabular_analysis_window(QWidget):
         self.button_model_selection = QPushButton('Run Acetabular Analysis', self)
         self.button_model_selection.clicked.connect(self.getModels)
 
-
     def getModels(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        model_names, _ = QFileDialog.getOpenFileNames(self, "Open File", 'C:\MATLAB',"STL Files (*.stl)", options=options)
+        model_names, _ = QFileDialog.getOpenFileNames(self, "Open File", 'C:\\Users\\bbeasley\\Documents\\Python Projects\Matlab-GUI\\Tests\Schmitz',"STL Files (*.stl)", options=options)
         if model_names:
-            acetabular_analysis.model_list = model_names
-            acetabular_analysis.run_analysis()
+            run_analysis.perform_analysis(model_names[0], model_names[1])
             self.close()

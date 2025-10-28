@@ -1,5 +1,4 @@
 import pyvista as pv
-import time
 
 def take_snapshots(mesh, delay):
     polydata = pv.wrap(mesh)

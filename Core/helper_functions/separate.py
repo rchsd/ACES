@@ -1,8 +1,6 @@
 import numpy as np
 import trimesh
-import unitize
-import pgon_track_splt
-from helper_functions import *
+from helper_functions import pgon_parts, pgon_separation, unitize, pgon_track_split
 
 def separate_old(pgon_struct, combined_mesh, centers, radii):
     """
@@ -177,7 +175,7 @@ def separate(pgon, combined_mesh, centers, radii):
         # Keep the one large piece and split it
         pgon = pgon_separation.pgon_mask(pgon, parts == ii[0])
         norm = unitize.unitize(np.diff(centers, axis=0)[0])
-        pgon = pgon_track_splt.track_split(pgon, verts=[], plane=norm, coef=np.dot(norm, np.mean(centers, axis=0)))
+        pgon = pgon_track_split.track_split(pgon, verts=[], plane=norm, coef=np.dot(norm, np.mean(centers, axis=0)))
 
     else:
         raise ValueError("Model could not be resolved into right and left halves.")

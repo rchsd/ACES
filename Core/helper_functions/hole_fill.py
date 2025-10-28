@@ -1,5 +1,5 @@
 import numpy as np
-from helper_functions import *
+from helper_functions import pgon_separation, pgon_parts
 
 def fill_holes(pgon):
 

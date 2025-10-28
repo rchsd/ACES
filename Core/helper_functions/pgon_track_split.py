@@ -1,6 +1,6 @@
 import numpy as np
 import trimesh
-from helper_functions import *
+from helper_functions import split_mesh
 
 def track_split(pgon, verts, plane, coef):
     # Ensure 'step' exists and is valid

@@ -1,7 +1,6 @@
 import numpy as np
 import math
 import scipy.io as sio
-#import plot_sphere as ps
 
 def sphereFit(points, weights=None):
     # Ensure the input is a numpy array

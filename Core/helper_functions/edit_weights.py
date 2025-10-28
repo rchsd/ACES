@@ -1,9 +1,9 @@
 import pyvista as pv
 import numpy as np
-from trimesh import Trimesh
+import trimesh
 from random import choice
 
-def edit_weights(pgon: Trimesh, w):
+def edit_weights(pgon: trimesh.Trimesh, w):
     k = w.copy()
     mesh = pv.wrap(pgon)
     plotter = pv.Plotter()
@@ -21,7 +21,6 @@ def edit_weights(pgon: Trimesh, w):
     plotter.show()
 
     return k
-
 
 def edit_weights_with_mask(pgon, w, radii, centers):
     mesh = pv.wrap(pgon)

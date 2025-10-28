@@ -1,7 +1,6 @@
 import scipy.io as sio
 import numpy as np
 import trimesh
-#import polygon_separation_helper as psh
 from collections import defaultdict
 
 def separate(faces, mask):
@@ -70,10 +69,6 @@ def create_meshes_with_quadrants(mesh, quadrants, isReindexed=True):
         submeshes.append(submesh)
     return submeshes
 
-# calls helper function
-'''def create_submeshes(mesh, transform = None):
-    psh.create_submeshes(mesh, transform)'''
-
 def identify_parts(faces):
     parent = {}
     
@@ -112,12 +107,6 @@ def identify_parts(faces):
     face_groups = [group_map[find(face[0])] for face in faces]
     return face_groups
 
-'''def separate(faces, mask):
-    groups = defaultdict(list)
-    for face, group_id in zip(faces, mask):
-        groups[group_id].append(face)
-    return list(groups.values())'''
-
 def create_submeshes(mesh, transform=None):
     if transform is not None and transform.any():
         mesh.apply_transform(transform)
@@ -142,32 +131,6 @@ def create_submeshes(mesh, transform=None):
         submeshes.append(submesh)
     
     return submeshes
-
-'''# only creates one mesh, using a mask
-def pgon_mask(mesh, mask):
-    # Ensure the mesh is a Trimesh object, or check for vertices and faces
-    new_mesh = trimesh.Trimesh(vertices=mesh.vertices, faces=mesh.faces)
-    mask = np.asarray(mask).flatten()
-
-    # Verify that the mask length matches the number of faces
-    if len(mask) != len(new_mesh.faces):
-        raise ValueError("The length of the mask must match the number of faces in the mesh.")
-
-    # Select faces based on the mask
-    selected_faces = new_mesh.faces[mask]
-    
-    print("Selected faces shape:", selected_faces.shape)
-    #print(selected_faces.size)
-
-    # Check if any faces are selected
-    if selected_faces.size == 0:
-        print("No faces selected by the mask.")
-        return None
-
-    # Create a new mesh with the selected faces
-    selected_mesh = trimesh.Trimesh(vertices=new_mesh.vertices, faces=selected_faces)
-
-    return selected_mesh'''
 
 def pgon_mask(mesh, mask):
     # Ensure mask is a boolean array
@@ -232,41 +195,3 @@ def pgon_mask_index(mesh, mask_indices):
     
     # Return mesh and mapping of new vertex indices to original indices
     return selected_mesh, unique_vertex_indices
-
-# Test with contour
-'''mesh = trimesh.load("temp_mesh.stl")
-reidx = [3, 2, 4, 1]  # Example mask
-matlab_data_ii = sio.loadmat('ii.mat')
-matlab_faces = sio.loadmat('faces.mat')
-matlab_vertices = sio.loadmat('vertices.mat')
-faces = matlab_faces.get('faces') - 1
-vertices = matlab_vertices.get('vertices')
-ii = matlab_data_ii.get('ii')
-submeshes = create_submeshes_with_mask(mesh, ii, faces, vertices)'''
-
-# Test with quadrants
-'''mesh = trimesh.load('temp.stl')
-matrix = sio.loadmat('quadrants.mat')
-quadrants = matrix.get('i2')
-print(quadrants)
-submeshes = create_meshes_with_quadrants('temp.stl', quadrants)'''
-
-# Test for splittin without mask
-'''mesh = trimesh.load_mesh("1_Combined_Pelvis.stl")
-submeshes = psh.create_submeshes(mesh)
-
-for i, submesh in enumerate(submeshes):
-    print(f"Submesh {i}:")
-    faces = submesh.faces
-    vertices = submesh.vertices
-
-    print(f" Number of faces: {len(faces)}")
-    print(f" Number of vertices: {len(vertices)}")'''
-
-'''faces = sio.loadmat('faces').get('faces') - 1
-vertices = sio.loadmat('vertices').get('vertices')
-mesh = trimesh.Trimesh(vertices=vertices, faces=faces)
-step = sio.loadmat('temp').get('step').astype(bool)
-temp = pgon_mask(mesh, step[:, -1])
-print(temp.faces.shape)
-print(temp.vertices.shape)'''

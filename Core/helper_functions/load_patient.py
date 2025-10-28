@@ -1,9 +1,8 @@
 import numpy as np
 import trimesh
-from helper_functions import *
-import unitize
+from helper_functions import pgon_separation, find_barys_and_norms, unitize
 
-def load_patient(pgon_struct):
+def load_new_patient(pgon_struct):
     metadata = []
     attributes = pgon_struct['mask'] # attributes is equivalent to mask in splitread matlab function
     pgon_struct['mask'] = (attributes >> 8) + 1

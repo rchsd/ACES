@@ -29,8 +29,3 @@ def parse_inputs(args):
             params[key] = value
 
     return params
-
-'''
-mesh = dict()
-params = parse_inputs(mesh)
-print(params['RadiusRange'][1])'''

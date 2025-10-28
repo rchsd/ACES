@@ -36,7 +36,3 @@ def index_by_edges(faces: np.ndarray):
             flip_flags[i, j] = flipped
 
     return (np.array(all_edges, dtype=np.uint32), np.array(unique_edges, dtype=np.uint32), indexed_faces, flip_flags)
-
-'''file_path = 'c:\\MATLAB\\edges.mat'
-faces = sio.loadmat(file_path).get('edges')
-edges, _, _, _ = index_by_edges(faces)'''

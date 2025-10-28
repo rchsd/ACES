@@ -1,5 +1,5 @@
 import numpy as np
-import generate_random_points
+from helper_functions import generate_random_points
 import trimesh
 
 def project_points(mesh, norms, npoints, range):
