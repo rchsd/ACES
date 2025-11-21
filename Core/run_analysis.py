@@ -3,6 +3,7 @@ import trimesh
 import numpy as np
 
 def perform_analysis(left_pelvis_path, right_pelvis_path):
+    print('Starting Analysis')
     tform, pelvis = standardize_alignment.align_pelvis(left_pelvis_path, right_pelvis_path)
     rotated_pelvis = pelvis.copy().apply_transform(tform)
     #display_mesh.display_mesh(rotated_pelvis)
@@ -18,6 +19,7 @@ def perform_analysis(left_pelvis_path, right_pelvis_path):
 
     # Accounts for backward orientation
     if result['tilt'] < 0:
+        print('Reruning analysis due to negative pelvis orientation')
         rotated_pelvis = correct_mesh_transform(rotated_pelvis)
         pgon = ui_037.ui_037(rotated_pelvis)
         pgon_struct, metadata = load_patient.load_new_patient(pgon)
@@ -25,6 +27,7 @@ def perform_analysis(left_pelvis_path, right_pelvis_path):
         result = process_default.default(pgon_struct['mesh'], mask, centers, radii)
 
     print_data.format_and_export_to_csv(result, "final_results.csv")
+    print("Analysis complete")
 
     #snapshot.take_snapshots(rotated_pelvis, 2)
 

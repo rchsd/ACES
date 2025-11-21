@@ -3,7 +3,7 @@ import numpy as np
 import trimesh
 from collections import defaultdict, deque
 
-def find_parts(polygon=None, method='vertex', mesh=None, max_angle=None):
+def find_parts(polygon:dict=None, method='vertex', mesh=None, max_angle=None):
     """
     Identify connected parts of a polygon mesh using different algorithms.
 

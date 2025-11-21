@@ -1,9 +1,10 @@
 import numpy as np
 import scipy.io as sio
+import trimesh
 from helper_functions import parse_inputs, pgon_separation, separate, find_barys_and_norms, edit_weights
-from helper_functions import pgon_track_split, hole_fill
+from helper_functions import pgon_track_split, hole_fill, unitize
 
-def mark_acetabulum(pgon_struct, centers, radii, n=None, params = dict()):
+def mark_acetabulum(pgon_struct, centers, radii, params = dict()):
     params = parse_inputs.parse_inputs(params)
     # revert to original step if already split pgon passed in
 
@@ -15,31 +16,21 @@ def mark_acetabulum(pgon_struct, centers, radii, n=None, params = dict()):
     _, _, _, vnorms = find_barys_and_norms.find_barys_norms(temp_pgon_2['mesh'])
 
     # rvecs: vectors from each vertex to each center
-    rvecs = centers[:, None, :] - temp_pgon_2['mesh'].vertices[None, :, :]  # shape: (2, 321062, 3)
+    rvecs = centers.T[None, :, :] - temp_pgon_2['mesh'].vertices[:, :, None]
 
-    # Distance weights
-    magnitudes = np.linalg.norm(rvecs, axis=2)          # shape: (2, 321062)
-    dw = magnitudes / radii[:, None]                    # shape: (2, 321062)
+    # Calculate distance weights
+    dw = np.squeeze(np.linalg.norm(rvecs, axis=1)) / radii[None, :]
     dw = dw - params['DistanceCutoff']
     dw[dw < 0] = 0
-    dw = np.exp(-dw)                                    # shape: (2, 321062)
-    dw = np.array(dw).T
+    dw = np.exp(-dw)
 
-    # Normal weights
-    # Normalize rvecs: shape (2, 321062, 3)
-    unit_rvecs = rvecs / np.linalg.norm(rvecs, axis=2, keepdims=True)
-
-    # Transpose to shape (321062, 2, 3) to align with vnorms
-    unit_rvecs_transposed = np.transpose(unit_rvecs, (1, 0, 2))  # (vertices, centers, 3)
-
-    # Expand vnorms to shape (321062, 1, 3)
-    vnorms_expanded = vnorms[:, np.newaxis, :]  # (vertices, 1, 3)
-
-    # Compute dot products: result is (321062, 2)
-    nw = np.sum(unit_rvecs_transposed * vnorms_expanded, axis=2)
+    # Calculate normal weights
+    nw = np.squeeze(np.sum(unitize.unitize(rvecs, axis=1) * vnorms[:, :, None], axis=1))
 
     # Edit w, only displays acetabula since user can't draw fossa
-    w = edit_weights.edit_weights(temp_pgon_2['mesh'], np.max(nw * dw, axis=1))
+    #n = edit_weights.extract_highlighted_region(temp_pgon_2['mesh'], np.max(nw * dw, axis=1), threshold=0.5)
+    w = edit_weights.edit_weights_display(temp_pgon_2['mesh'], np.max(nw * dw, axis=1))
+
     w = np.array(w).reshape(-1, 1)
 
     # Select acetabulum
@@ -47,3 +38,12 @@ def mark_acetabulum(pgon_struct, centers, radii, n=None, params = dict()):
     pgon_dict = hole_fill.fill_holes(split)
 
     return pgon_dict
+
+def handle_input(user_input, pgon_struct, centers, radii, params = dict()):
+    normalized = user_input.strip().lower()
+    if normalized in {"yes", "y"}:
+        return 
+    elif normalized in {"no", "n"}:
+        mark_acetabulum(pgon_struct, centers, radii, params)
+    else:
+        print("Invalid input")

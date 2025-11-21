@@ -66,8 +66,8 @@ def step_2(pgon_struct, centers, radii, side):
     # Get correct side of polygon
     temp = pgon_separation.pgon_mask(pgon_struct['mesh'], pgon_struct['step'][:,2])
     mask = pgon_struct['mask'][pgon_struct['step'][:,2]]
-    temp_2 = pgon_separation.pgon_mask(temp, np.mod(mask, 1) == np.mod(side, 1))
-    mask = mask[np.mod(mask, 1) == np.mod(side, 1)] > 2
+    temp_2 = pgon_separation.pgon_mask(temp, np.mod(mask, 2) == np.mod(side, 2))
+    mask = mask[np.mod(mask, 2) == np.mod(side, 2)] > 2
     next = None
     #bounds = tpp.get_projected_points(temp_2, mask, centers[side, :], radii[side], bounds)
 
@@ -222,7 +222,7 @@ def locate_acetabulum(mesh, params = dict()):
     # Refine centers    
     # Update grid size and range
     grid_size = params['GridSize'] / params['GridAdjustmentFactor']
-    adjustment = np.array([-1, 1]) * np.sqrt(5 * params['GridSize'] ** 2) / 2
+    adjustment = np.array([-1, 1]) * np.sqrt(5 * grid_size ** 2) / 2
     radius_range = radii + adjustment
 
     # Loop through centers
@@ -244,20 +244,20 @@ def locate_acetabulum(mesh, params = dict()):
         radii[c] = np.mean(dists[reidx == r]); 
 
     # Calculate centers using spherefit
-    for i in range(1, params['FitCycles'] + 1):
+    for i in range(params['FitCycles']):
         print('fit cycles: ', i)
         # Loop through centers
         for c in range(0, 2):
             print('c: ', c)
             # Filter faces
-            mask = filter_faces.filter_faces(barys, norms, centers[c, :], params['RadiusRange'][1], 60)
+            mask = filter_faces.filter_faces(barys, norms, centers[c, :], radius_range[1], 60)
 
             # Sample polygon
             pgon = pgon_separation.pgon_mask(mesh, mask)
             points, fi =  generate_random_points.sample_points_on_mesh(pgon, params['SamplePoints'], True)
 
             # Perform spherical regressions using different weights
-            for j in range(1, params['WeightCycles'] + 1):  
+            for j in range(params['WeightCycles']):  
                 print('j: ', j)
 
                 # Calculate radial vectors
@@ -269,7 +269,7 @@ def locate_acetabulum(mesh, params = dict()):
                 weights = (np.sum(rvecs * norms[fi, :], axis=1) + 1) / 2
 
                 # Update weights
-                if i > 1 or j > 1:
+                if i > 0 or j > 0:
                     weights = weights * (4 ** (-np.maximum(mags - radii[c], 0)))
 
                 # Calculate sphere fit, original function

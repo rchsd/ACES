@@ -1,4 +1,5 @@
 import numpy as np
+import trimesh
 from helper_functions import pgon_separation, pgon_parts
 
 def fill_holes(pgon):

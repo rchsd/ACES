@@ -3,6 +3,8 @@ from helper_functions import pgon_separation, find_barys_and_norms, pgon_props
 from helper_functions import reflection, translation, pgon_upe, find_plane_contours
 import pandas as pd
 import numpy_groupies as ng
+import scipy.io as sio
+import smooth_mesh
 
 def default(pgon, mask, centers, radii):
     # Define indexes
@@ -81,7 +83,7 @@ def default(pgon, mask, centers, radii):
     result.update({'right_total_tilt_coverage': right_total_tilt, 'right_fossa_tilt_coverage': right_fossa_tilt})
     selected_faces = (mask & 3) == 2
     new_mesh = pgon_separation.pgon_mask(pgon, selected_faces)
-    result.update({'right_volume': pgon_props.compute_mesh_volume(new_mesh)})
+    result.update({'right_volume': pgon_props.compute_mesh_volume(new_mesh, centers[0])})
 
     # Create left result dictionary
     left_supine = pd.Series(angles[:, l_hip]).groupby(mask1).sum().div(45).to_numpy()
@@ -94,7 +96,7 @@ def default(pgon, mask, centers, radii):
     result.update({'left_total_tilt_coverage': left_total_tilt, 'left_fossa_tilt_coverage': left_fossa_tilt})
     selected_faces = (mask & 3) == 3
     new_mesh = pgon_separation.pgon_mask(pgon, selected_faces)
-    result.update({'left_volume': pgon_props.compute_mesh_volume(new_mesh)})
+    result.update({'left_volume': pgon_props.compute_mesh_volume(new_mesh, centers[1])})
 
     return result
 

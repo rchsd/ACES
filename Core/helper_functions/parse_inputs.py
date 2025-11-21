@@ -4,7 +4,7 @@ def parse_inputs(args):
     # Default parameter values
     params = {
         'SamplePoints': 5000,
-        'RadiusRange': [15, 35],
+        'RadiusRange': np.array([15, 35]),
         'GridSize': 10,
         'GridAdjustmentFactor': 3,
         'GridCycles': 2,

@@ -149,12 +149,13 @@ def separate(pgon, combined_mesh, centers, radii):
 
     # Identify large pieces
     threshold = (4 * np.pi * np.mean(radii) ** 3) / 3
-    ii = np.where(10 * vols > threshold)[0]
+    # Adding 1 because parts should returns 1s and 2s. ii will return 0 and 1 so half of the parts will be ignored
+    ii = np.where(10 * vols > threshold)[0] + 1
 
     if len(ii) == 2:
         # Keep only the two large pieces
-        #mesh = pgon_separation.pgon_mask(combined_mesh, np.isin(parts, ii).astype(bool))
-        parts = pgon_parts.find_parts(None, method='vertex', mesh=combined_mesh, max_angle=None)
+        mesh = pgon_separation.pgon_mask(combined_mesh, np.isin(parts, ii))
+        parts = pgon_parts.find_parts(None, method='vertex', mesh=mesh, max_angle=None)
         cent = pgon_parts.compute_part_centroids(combined_mesh, parts)
 
         # Determine left/right orientation

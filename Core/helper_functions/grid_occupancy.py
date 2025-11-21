@@ -31,6 +31,9 @@ def get_grid_occupancy(points, grid_size):
     grid_sorted = grid[ig]
 
     # Get unique grid points and their indices
+    #grid = np.floor(points / grid_size) * grid_size + grid_size / 2
+    #grid = np.round(grid, decimals=6) 
+    grid_unique, bg, ag = np.unique(grid, axis=0, return_inverse=True, return_index=True)
     grid_unique, ag, bg = np.unique(grid_sorted, axis=0, return_index=True, return_inverse=True)
 
     # Calculate occupancy counts
