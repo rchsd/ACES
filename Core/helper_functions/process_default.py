@@ -4,7 +4,6 @@ from helper_functions import reflection, translation, pgon_upe, find_plane_conto
 import pandas as pd
 import numpy_groupies as ng
 import scipy.io as sio
-import smooth_mesh
 
 def default(pgon, mask, centers, radii):
     # Define indexes
