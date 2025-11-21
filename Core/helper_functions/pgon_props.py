@@ -5,7 +5,7 @@ import numpy as np
 def compute_mesh_volume(mesh:trimesh, center=None):
     faces = mesh.faces
     vertices = mesh.vertices
-    if center.all() == None:
+    if center is None or center == 0:
         center = mesh.centroid
     volume = 0.0
     for face in faces:
