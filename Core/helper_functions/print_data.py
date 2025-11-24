@@ -14,7 +14,7 @@ def print_general(result):
     lw = 4 * math.pi * result['left_radius'] ** 2
     tw = 4 * math.pi * ((result['right_radius'] + result['left_radius']) ** 2) / 4
 
-    header_1 = (['PatientID'] + [''] * 3 + ['Right'] + [''] * 11 + ['Left'] + [''] * 11 + ['Total'])
+    header_1 = (['PatientID'] + [''] * 3 + ['Right'] + [''] * 9 + ['Left'] + [''] * 7 + ['Total'])
     header_2 = ['', 'Pel. Width', 'Ace. Tilt', 'Ace. Spread',
                 'Radius', 'Version', 'Tilt', 'W.B. Area', 'F. Area', 'T. Area',
                 'W.B. Norm', 'F. Norm', 'T. Norm', 'Volume',
