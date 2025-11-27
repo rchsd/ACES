@@ -1,13 +1,17 @@
 import math
 import csv
+from helper_functions import parse_spreadsheet
 
 def format_and_export_to_csv(result, filename='coverage.csv'):
-    with open(filename, mode='w', newline='') as file:
-        header_1, header_2, row_1 = print_general(result)
-        row_header_1, row_header_2, row_header_3, results_header = print_supine_coverage(result)
+    _, _, row_general = print_general(result)
+    _, _, _, row_supine = print_supine_coverage(result)
+    parse_spreadsheet.format_and_export_to_excel(row_general, row_supine, 'coverage.xlsx')
 
+    '''with open(filename, mode='w', newline='') as file:
+        header_1, header_2, row_general = print_general(result)
+        row_header_1, row_header_2, row_header_3, row_supine = print_supine_coverage(result)
         writer = csv.writer(file)
-        writer.writerows([header_1, header_2, row_1, [], [], [], row_header_1, row_header_2, row_header_3, results_header])
+        writer.writerows([header_1, header_2, row_general, [], [], [], row_header_1, row_header_2, row_header_3, row_supine])'''
 
 def print_general(result):
     rw = 4 * math.pi * result['right_radius'] ** 2
