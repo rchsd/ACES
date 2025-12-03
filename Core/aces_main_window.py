@@ -1,6 +1,5 @@
 import sys
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QPushButton)
-import acetabular_analysis_window
 import aces_window_dialog
         
 class main_window(QMainWindow):
