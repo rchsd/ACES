@@ -6,11 +6,10 @@ def compute_mesh_volume(mesh:trimesh, center=None):
     faces = mesh.faces
     vertices = mesh.vertices
     if center is None:
-        center = mesh.centroid
+        center = 0
     volume = 0.0
     for face in faces:
         v0, v1, v2 = vertices[face] - center
-        #v0, v1, v2 = vertices[face]
         vol = np.dot(v0, np.cross(v1, v2)) / 6.0
         volume += vol
     return abs(volume)

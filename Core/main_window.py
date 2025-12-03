@@ -1,6 +1,7 @@
 import sys
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QPushButton)
 import acetabular_analysis_window
+import aces_window_dialog
         
 class main_window(QMainWindow):
 
@@ -44,7 +45,7 @@ class main_window(QMainWindow):
         self.w.show()'''
 
     def show_hip_selection_window(self):
-        self.w = acetabular_analysis_window.acetabular_analysis_window()
+        self.w = aces_window_dialog.ACES_Dialog_Window()
         self.w.show()
 
 app = QApplication(sys.argv)

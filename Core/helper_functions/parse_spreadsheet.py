@@ -2,8 +2,20 @@ from openpyxl import load_workbook
 import shutil
 import os
 from datetime import datetime
+import sys
+from pathlib import Path
 
-def format_and_export_to_excel(row_general, row_supine, age, duplicate_file='coverage.xlsx', last_block_cols=8):
+def resource_path(relative_path: str) -> Path:
+    """
+    Get absolute path to resource, works for dev and PyInstaller.
+    """
+    if hasattr(sys, '_MEIPASS'):  # PyInstaller sets this for onefile builds
+        base_path = Path(sys._MEIPASS)
+    else:
+        base_path = Path(__file__).parent  # or your project root
+    return base_path / relative_path
+
+def format_and_export_to_excel(row_general, row_supine, duplicate_file='coverage.xlsx', last_block_cols=8, patient_age=8, patient_sex=5):
     """
     Unified workflow:
       1) Duplicate the original Excel file.
@@ -15,7 +27,8 @@ def format_and_export_to_excel(row_general, row_supine, age, duplicate_file='cov
          - F..M (or F..N)  -> Tab 3 R9..Y10 (or R..Z)
     """
 
-    original_file = 'EXAMPLE_Data_07-02-24.xlsx'
+    #original_file = 'EXAMPLE_Data_07-02-24.xlsx'
+    original_file = resource_path('EXAMPLE_Data_07-02-24.xlsx')
     row_general = row_general[1:]
 
     # ---------- Helpers ----------
@@ -56,14 +69,13 @@ def format_and_export_to_excel(row_general, row_supine, age, duplicate_file='cov
         return f"{base}yo{gender_suffix}" if base is not None else None
 
     # ---------- Prompt for tab selection (keep this interactive) ----------
-    option = input("Enter 5 for tab 5 (F) or 6 for tab 6 (M): ").strip()
-    if option not in {"5", "6"}:
+    option = patient_sex
+    if option not in {5, 6}:
         raise ValueError("Please enter 5 or 6.")
     tab_option = int(option)
     gender_suffix = "F" if tab_option == 5 else "M"
 
-    age = int(input("Enter age between 8 and 18: ").strip())
-    if not (8 <= age <= 18):
+    if not (8 <= patient_age <= 18):
         raise ValueError("Age must be between 8 and 18.")
 
     # ---------- Prepare destination filename ----------
@@ -84,7 +96,7 @@ def format_and_export_to_excel(row_general, row_supine, age, duplicate_file='cov
         raise ValueError("Source workbook must have at least 6 sheets (to access tabs 5 and 6).")
     if len(wb_dst.sheetnames) < 3:
         raise ValueError("Destination workbook must have at least 3 sheets (tabs 1, 2, and 3).")
-    if not (8 <= age <= 18):
+    if not (8 <= patient_age <= 18):
         raise ValueError("Age must be between 8 and 18.")
     if len(row_general) > 33:
         raise ValueError("row_general exceeds 33 columns (B..AH).")
@@ -103,14 +115,14 @@ def format_and_export_to_excel(row_general, row_supine, age, duplicate_file='cov
 
     # ---------- 2) Age-based row mapping ----------
     # Age 8 -> rows 3 & 4; Age 9 -> 7 & 8; Age 10 -> 11 & 12; ...
-    start_row = 3 + (age - 8) * 4
+    start_row = 3 + (patient_age - 8) * 4
     src_rows = [start_row, start_row + 1]
 
     # ---------- 3) Copy A..E -> Tab 2 A7:E8 (A formatted as '<value or age>yoM/F') ----------
     cols_A_to_E = excel_col_range("A", "E")
     for i, r in enumerate(src_rows):
         values = [src_ws[f"{c}{r}"].value for c in cols_A_to_E]
-        values[0] = format_age_cell(values[0], gender_suffix, age_hint=age)  # modify A with fallback
+        values[0] = format_age_cell(values[0], gender_suffix, age_hint=patient_age)  # modify A with fallback
         write_row(tab2_ws, start_col="A", row_idx=7 + i, values=values, max_end_col="E")
 
     # ---------- 4) Copy F..M (or F..N) -> Tab 3 R9..Y10 (or R..Z) ----------
