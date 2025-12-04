@@ -15,7 +15,7 @@ def resource_path(relative_path: str) -> Path:
         base_path = Path(__file__).parent  # or your project root
     return base_path / relative_path
 
-def format_and_export_to_excel(row_general, row_supine, duplicate_file='coverage.xlsx', last_block_cols=8, patient_age=8, patient_sex=5):
+def format_and_export_to_excel(row_general, row_supine, duplicate_file='python_coverage.xlsx', last_block_cols=8, patient_age=8, patient_sex=5):
     """
     Unified workflow:
       1) Duplicate the original Excel file.
