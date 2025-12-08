@@ -238,4 +238,6 @@ def align_pelvis(left_pelvis_path, right_pelvis_path):
     mesh = merge_parts.pgon_merge(left, right)
     tform = np.dot(translation.translate(-find_volume_center.volume_centroid(mesh)), tform)
 
+    print('Pelvis is now aligned, continuing analysis.')
+
     return tform, combined_mesh.copy()

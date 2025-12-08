@@ -143,8 +143,6 @@ def pgon_mask(mesh, mask):
 
     # Select faces based on the mask
     selected_faces = new_mesh.faces[mask]
-    
-    print("Selected faces shape:", selected_faces.shape)
 
     # Check if any faces are selected
     if selected_faces.size == 0:

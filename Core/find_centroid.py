@@ -24,4 +24,3 @@ def find_centroid_of_surface_area(meshFilePath):
 
     # Calculate centroid
     centroid = surface_area.centroid
-    print(centroid)

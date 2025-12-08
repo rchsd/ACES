@@ -18,6 +18,7 @@ def step_0(pgon):
     return pgon_struct
     
 def step_1(rotated_pelvis, pgon_dict):
+    print('Locating acetabulums.')
     centers, radii = [], []
     try:
         for k in range(20):
@@ -35,6 +36,9 @@ def step_1(rotated_pelvis, pgon_dict):
     
     # mesh is a dict that contains vertices, faces, steps, and mesh
     pgon_dict = mark_acetabulum.mark_acetabulum(pgon_dict, centers, radii)
+
+    print('Acetabulums identified.')
+
     return pgon_dict, centers, radii
 
 # not needed
@@ -149,6 +153,8 @@ def step_2(pgon_struct, centers, radii, side):
 
 # SET_CENTERS: Creates triangles to represent acetabulum center
 def step_3(pgon, centers, radii):
+    print('Finding acetabulum centers.')
+
     # Create vectors
     rl = unitize.unitize(np.diff(centers, axis=0))
     pa = unitize.unitize(np.cross((0, 0, 1), rl))
@@ -227,8 +233,6 @@ def locate_acetabulum(mesh, params = dict()):
 
     # Loop through centers
     for c in range(0, 2):
-        print('c: ', c)
-
         # Filter faces
         mask = filter_faces.filter_faces(barys, norms, centers[c, :], radius_range[1], 45)
         pgon = pgon_separation.pgon_mask(mesh, mask)
@@ -245,10 +249,8 @@ def locate_acetabulum(mesh, params = dict()):
 
     # Calculate centers using spherefit
     for i in range(params['FitCycles']):
-        print('fit cycles: ', i)
         # Loop through centers
         for c in range(0, 2):
-            print('c: ', c)
             # Filter faces
             mask = filter_faces.filter_faces(barys, norms, centers[c, :], radius_range[1], 60)
 
@@ -258,8 +260,6 @@ def locate_acetabulum(mesh, params = dict()):
 
             # Perform spherical regressions using different weights
             for j in range(params['WeightCycles']):  
-                print('j: ', j)
-
                 # Calculate radial vectors
                 rvecs = centers[c, :] - points
                 mags = np.linalg.norm(rvecs, axis=1)

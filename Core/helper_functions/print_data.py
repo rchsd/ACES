@@ -3,6 +3,7 @@ import csv
 from helper_functions import parse_spreadsheet
 
 def format_and_export_to_csv(result, filename='coverage.csv', patient_age=8, patient_sex=5):
+    print('Formatting data for spreadsheet.')
     _, _, row_general = print_general(result)
     _, _, _, row_supine = print_supine_coverage(result)
     parse_spreadsheet.format_and_export_to_excel(row_general, row_supine, 'python_coverage.xlsx', 8, patient_age, patient_sex)

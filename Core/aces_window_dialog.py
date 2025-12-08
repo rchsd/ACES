@@ -63,14 +63,12 @@ class ACES_Dialog_Window(QWidget):
             self.btn2.setStyleSheet("background-color: lightblue; font-weight: bold;")
             self.btn1.setStyleSheet("")
             self.btn_value = 6
-        print(f"Selected option: {choice}")
 
     def set_dropdown_value(self):
         if self.dropdown.currentIndex() > 0:  # Ignore placeholder
             self.dropdown_value = int(self.dropdown.currentText())
         else:
             self.dropdown_value = None
-        print(f"Dropdown value: {self.dropdown_value}")
 
     def on_continue(self):
         if self.selected_option is None or self.dropdown_value is None:

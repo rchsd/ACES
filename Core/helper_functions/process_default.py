@@ -6,6 +6,7 @@ import numpy_groupies as ng
 import scipy.io as sio
 
 def default(pgon, mask, centers, radii):
+    print('Calculating coverage angles.')
     # Define indexes
     r_fossa = 0
     l_fossa = 2
