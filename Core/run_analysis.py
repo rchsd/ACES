@@ -38,8 +38,8 @@ def correct_mesh_transform(mesh):
 
     return mesh
 
-test_file_path = 'C:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Tests\\Schmitz\\'
+'''test_file_path = 'C:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Tests\\Schmitz\\'
 left_pelvis_path = 'c:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Tests\\Schmitz\\l hip 1.stl'
 right_pelvis_path = 'c:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Tests\\Schmitz\\r hip 1.stl'
 perform_analysis('c:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Validation\\16yoM_80\\Left Hip.stl', 
-                 'c:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Validation\\16yoM_80\\Right Hip.stl')
+                 'c:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Validation\\16yoM_80\\Right Hip.stl')'''

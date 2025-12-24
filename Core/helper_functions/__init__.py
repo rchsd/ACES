@@ -4,4 +4,4 @@ from . import pgonsep_by_plane_index, translation, display_mesh, snapshot, calcu
 from . import pgon_upe, pgon_pip, pgon_edges, make_pgon, find_volume_center, pgon_props, find_plane_contours, load_patient
 from . import process_default, standardize_alignment, print_data, ui_037, unitize ,parse_inputs, project_points, grid_occupancy 
 from . import sphere_regression_with_weights, separate, edit_weights, mark_acetabulum, pgon_track_split, split_read, hole_fill
-from . import split_write, vertex_values, generate_random_points, sphere_regression, plot_sphere, parse_spreadsheet, fossa_selection_points, fossa_selection_lasso
+from . import split_write, vertex_values, generate_random_points, sphere_regression, plot_sphere, parse_spreadsheet, fossa_selection_points_qt, fossa_selection_lasso
