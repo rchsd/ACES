@@ -1,9 +1,8 @@
 import numpy as np
-from helper_functions import pgon_separation, find_barys_and_norms, pgon_props
+from helper_functions import pgon_separation, find_barys_and_norms, pgon_props, fossa_selection_points
 from helper_functions import reflection, translation, pgon_upe, find_plane_contours
 import pandas as pd
 import numpy_groupies as ng
-import scipy.io as sio
 
 def default(pgon, mask, centers, radii):
     print('Calculating coverage angles.')
@@ -14,23 +13,22 @@ def default(pgon, mask, centers, radii):
     l_hip = 3
 
     angles = np.zeros((360, 4))
-    #angles[:, r_fossa] = coverage_angles(pgon_separation.pgon_mask(pgon, mask == 6), centers[0])  # mask == (6 - 1) * 256
-    #angles[:, l_fossa] = coverage_angles(pgon_separation.pgon_mask(pgon, mask == 7), centers[1])  # mask == (7 - 1) * 256
+    r_fossa_mesh = fossa_selection_points.find_fossa(pgon_separation.pgon_mask(pgon, (mask & 3) == 2), centers[0].copy())
+    l_fossa_mesh = fossa_selection_points.find_fossa(pgon_separation.pgon_mask(pgon, (mask & 3) == 3), centers[1].copy())
+
+    angles[:, r_fossa] = coverage_angles(r_fossa_mesh, centers[0]) 
+    angles[:, l_fossa] = coverage_angles(l_fossa_mesh, centers[1]) 
     angles[:, r_hip] = coverage_angles(pgon_separation.pgon_mask(pgon, (mask & 3) == 2), centers[0])
     angles[:, l_hip] = coverage_angles(pgon_separation.pgon_mask(pgon, (mask & 3) == 3), centers[1])
 
     # Calculate surface areas
     areas = np.zeros((2, 2))
 
-    # Right foss
-    '''selected_faces = (mask & 6)
-    masked_mesh = pgon.submesh([selected_faces], append=True)
-    areas.flat[r_fossa] = masked_mesh.area'''
+    # Right fossa
+    areas.flat[r_fossa] = r_fossa_mesh.area
 
     # Left fossa
-    '''selected_faces = (mask & 7)
-    masked_mesh = pgon.submesh([selected_faces], append=True)
-    areas.flat[l_fossa] = masked_mesh.area'''
+    areas.flat[l_fossa] = l_fossa_mesh.area
 
     # Right hip
     selected_faces = (mask & 3) == 2

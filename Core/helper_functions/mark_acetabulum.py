@@ -1,6 +1,5 @@
 import numpy as np
 import scipy.io as sio
-import trimesh
 from helper_functions import parse_inputs, pgon_separation, separate, find_barys_and_norms, edit_weights
 from helper_functions import pgon_track_split, hole_fill, unitize
 
@@ -28,7 +27,6 @@ def mark_acetabulum(pgon_struct, centers, radii, params = dict()):
     nw = np.squeeze(np.sum(unitize.unitize(rvecs, axis=1) * vnorms[:, :, None], axis=1))
 
     # Edit w, only displays acetabula since user can't draw fossa
-    #n = edit_weights.extract_highlighted_region(temp_pgon_2['mesh'], np.max(nw * dw, axis=1), threshold=0.5)
     w = edit_weights.edit_weights_display(temp_pgon_2['mesh'], np.max(nw * dw, axis=1))
 
     w = np.array(w).reshape(-1, 1)
@@ -38,12 +36,3 @@ def mark_acetabulum(pgon_struct, centers, radii, params = dict()):
     pgon_dict = hole_fill.fill_holes(split)
 
     return pgon_dict
-
-def handle_input(user_input, pgon_struct, centers, radii, params = dict()):
-    normalized = user_input.strip().lower()
-    if normalized in {"yes", "y"}:
-        return 
-    elif normalized in {"no", "n"}:
-        mark_acetabulum(pgon_struct, centers, radii, params)
-    else:
-        print("Invalid input")

@@ -73,7 +73,6 @@ def step_2(pgon_struct, centers, radii, side):
     temp_2 = pgon_separation.pgon_mask(temp, np.mod(mask, 2) == np.mod(side, 2))
     mask = mask[np.mod(mask, 2) == np.mod(side, 2)] > 2
     next = None
-    #bounds = tpp.get_projected_points(temp_2, mask, centers[side, :], radii[side], bounds)
 
     # Get bounds from GUI, made placeholder values
     if side == 1:     

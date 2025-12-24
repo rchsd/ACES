@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import (
-    QApplication, QWidget, QPushButton, QVBoxLayout, QHBoxLayout,
+    QWidget, QPushButton, QVBoxLayout, QHBoxLayout,
     QLabel, QComboBox, QMessageBox, QPushButton, QFileDialog
 )
 import run_analysis
@@ -81,5 +81,5 @@ class ACES_Dialog_Window(QWidget):
         options |= QFileDialog.DontUseNativeDialog
         model_names, _ = QFileDialog.getOpenFileNames(self, "Open File", 'C:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Validation',"STL Files (*.stl)", options=options)
         if model_names:
-            run_analysis.perform_analysis(model_names[0], model_names[1], self.dropdown_value, self.btn_value)
             self.close()
+            run_analysis.perform_analysis(model_names[0], model_names[1], self.dropdown_value, self.btn_value)
