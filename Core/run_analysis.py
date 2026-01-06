@@ -11,7 +11,7 @@ def perform_analysis(left_pelvis_path, right_pelvis_path, patient_age=8, patient
     pgon = ui_037.ui_037(rotated_pelvis)
     pgon_struct, metadata = load_patient.load_new_patient(pgon)
     mask, centers, radii, tform = metadata[0]['mask'], metadata[0]['centers'], metadata[0]['radii'], metadata[0]['tform']
-    result = process_default.default(pgon_struct['mesh'], mask, centers, radii)
+    result, fossa_dict = process_default.default(pgon_struct['mesh'], mask, centers, radii)
 
     # Accounts for backward orientation
     if result['tilt'] < 0:
@@ -20,12 +20,12 @@ def perform_analysis(left_pelvis_path, right_pelvis_path, patient_age=8, patient
         pgon = ui_037.ui_037(rotated_pelvis)
         pgon_struct, metadata = load_patient.load_new_patient(pgon)
         mask, centers, radii, tform = metadata[0]['mask'], metadata[0]['centers'], metadata[0]['radii'], metadata[0]['tform']
-        result = process_default.default(pgon_struct['mesh'], mask, centers, radii)
+        result, fossa_dict = process_default.default(pgon_struct['mesh'], mask, centers, radii)
 
     print_data.format_and_export_to_csv(result, "final_results.csv", patient_age, patient_sex)
-    print("Analysis complete")
 
-    snapshot.take_snapshots(rotated_pelvis, 2)
+    snapshot.take_snapshots(rotated_pelvis, centers, fossa_dict)
+    print("Analysis complete")
 
 def correct_mesh_transform(mesh):
     # Create a 180-degree rotation matrix around Z-axis
@@ -37,9 +37,3 @@ def correct_mesh_transform(mesh):
     mesh.apply_transform(rotation_matrix)
 
     return mesh
-
-'''test_file_path = 'C:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Tests\\Schmitz\\'
-left_pelvis_path = 'c:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Tests\\Schmitz\\l hip 1.stl'
-right_pelvis_path = 'c:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Tests\\Schmitz\\r hip 1.stl'
-perform_analysis('c:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Validation\\16yoM_80\\Left Hip.stl', 
-                 'c:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Validation\\16yoM_80\\Right Hip.stl')'''

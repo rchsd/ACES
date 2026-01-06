@@ -623,7 +623,7 @@ def vtk_faces_to_triangles_from_flat(faces_flat: np.ndarray):
 # =============================================================================
 # Public entries: build a Trimesh from selected ROI
 # =============================================================================
-def find_fossa_qt(mesh: trimesh.Trimesh, normal):
+def find_fossa(mesh: trimesh.Trimesh, normal):
     """
     Launch interactive ROI selection via a PyQt modal dialog. Return a `trimesh.Trimesh`.
     """
@@ -652,11 +652,3 @@ def find_fossa_qt(mesh: trimesh.Trimesh, normal):
         raise ValueError("No triangular faces found (after extract_surface/triangulate).")
     tmesh = trimesh.Trimesh(vertices=vertices, faces=faces_tri, process=False)
     return tmesh
-
-
-def find_fossa(mesh: trimesh.Trimesh, normal):
-    """
-    Backward-compatible entry that now uses the PyQt modal dialog.
-    Your external modules can keep calling `find_fossa(mesh, normal)` as before.
-    """
-    return find_fossa_qt(mesh, normal)

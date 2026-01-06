@@ -49,12 +49,16 @@ def default(pgon, mask, centers, radii):
     unit_vector = summed / np.linalg.norm(summed)
     orient = np.zeros((2, 3))
     orient[0, :] = unit_vector
+    # needed for image generation in snapshot code
+    right_ace_normals = normals
 
     selected = (mask & 3) == 3
-    _, normals, _, _ = find_barys_and_norms.find_barys_norms(pgon, selected)
+    _  , normals, _, _ = find_barys_and_norms.find_barys_norms(pgon, selected)
     summed = np.sum(normals, axis=0)
     unit_vector = summed / np.linalg.norm(summed)
     orient[1, :] = unit_vector
+    # needed for image generation in snapshot code
+    left_ace_normals = normals
 
     elevation = np.cross(orient[0], orient[1])
     elevation /= np.linalg.norm(elevation)
@@ -98,7 +102,14 @@ def default(pgon, mask, centers, radii):
     new_mesh = pgon_separation.pgon_mask(pgon, selected_faces)
     result.update({'left_volume': pgon_props.compute_mesh_volume(new_mesh, centers[1])})
 
-    return result
+    # needed for image generation in snapshot code, stored in dictionary for later processing
+    fossa_dict = dict()
+    fossa_dict.update({'right_ace_normals': right_ace_normals, 'left_ace_normals': left_ace_normals})
+    _, r_normals, _, _ = find_barys_and_norms.find_barys_norms(r_fossa_mesh)
+    _, l_normals, _, _ = find_barys_and_norms.find_barys_norms(l_fossa_mesh)
+    fossa_dict.update({'right_fossa_normals': r_normals, 'left_fossa_normals': l_normals})
+
+    return result, fossa_dict
 
 
 def coverage_angles(pgon, center):
