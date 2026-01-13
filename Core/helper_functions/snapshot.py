@@ -134,8 +134,7 @@ def take_snapshots(
     # ---- Scene scale and camera distance ----
     aabb = mesh.bounds  # [[xmin,ymin,zmin],[xmax,ymax,zmax]]
     extent = aabb[1] - aabb[0]
-    # Multiplied by -3 in order to properly align mesh
-    view_distance = -3.0 * float(np.max(extent))
+    view_distance = 3.0 * float(np.max(extent))
     view_target = aabb.mean(axis=0)
 
     # ---- PyVista mesh (wrap trimesh) ----
@@ -158,7 +157,7 @@ def take_snapshots(
 
     # ---- Define views (exclude top) ----
     views = {
-        "version_front":        {"offset": np.array([+view_distance, 0.0, 0.0]), "up": up_default},
+        "version_front":        {"offset": np.array([view_distance, 0.0, 0.0]), "up": up_default},
         "version_back":         {"offset": np.array([-view_distance, 0.0, 0.0]), "up": up_default},
         "version_left":         {"offset": np.array([0.0, +view_distance, 0.0]), "up": up_default},
         "version_right":        {"offset": np.array([0.0, -view_distance, 0.0]), "up": up_default},
