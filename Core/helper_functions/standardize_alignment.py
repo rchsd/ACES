@@ -28,7 +28,7 @@ def align_pelvis(left_pelvis_path, right_pelvis_path):
 
     # Smallest dimension should be x-dimension
     if np.dot([-1, 0, 1], difference.T) < 0:
-        tform = np.dot(find_smallest_box.rotate_mesh(np.pi/2, [0, 1, 0]), tform)
+        tform = np.dot(find_smallest_box.calculate_rotation_transform(np.pi/2, [0, 1, 0]), tform)
 
     temp = merge_parts.pgon_merge(left.copy().apply_transform(tform), right.copy().apply_transform(np.dot(reflection.reflection_simple([0, 1, 0]), tform)))
     temp2, i1, _ = split_mesh.pgon_split(temp, [1, 0, 0], 0)
