@@ -33,7 +33,6 @@ class main_window(QMainWindow):
         self.statusBar().showMessage(sender.text() + ' Running Acetabular Analysis')
         self.show_hip_selection_window()
 
-
     def resizeEvent(self, event):
         self.btn_1.move(self.rect().center()-self.btn_1.rect().topRight())
         self.btn_2.move(self.rect().center()-self.btn_2.rect().topLeft())
