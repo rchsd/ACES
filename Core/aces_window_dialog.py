@@ -79,7 +79,7 @@ class ACES_Dialog_Window(QWidget):
     def getModels(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        model_names, _ = QFileDialog.getOpenFileNames(self, "Open File", 'C:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Validation',"STL Files (*.stl)", options=options)
+        model_names, _ = QFileDialog.getOpenFileNames(self, "Open File", "C:\\","STL Files (*.stl)", options=options)
         if model_names:
             self.close()
             run_analysis.perform_analysis(model_names[0], self.dropdown_value, self.btn_value)
