@@ -17,7 +17,7 @@ Python 3.10 or higher is supported. This project was developed using Python 3.13
 ```
 python3.13 -m venv venv
 source venv/bin/activate     # macOS/Linux
-venv\Scriptsctivate        # Windows
+venv\Scripts\Activate        # Windows
 ```
 
 ### 3. Install Python Dependencies
