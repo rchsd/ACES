@@ -4,8 +4,8 @@ from helper_functions import merge_parts, translation, find_volume_center, mesh_
 from helper_functions import find_smallest_box, split_mesh, pgon_separation, reflection, generate_random_points
 from helper_functions import find_plane_contours, pgonsep_by_plane_index, find_slice_bounding_box, pgon_parts, find_barys_and_norms
 
-def align_pelvis(pelvis_path):
-    combined_mesh = trimesh.load(pelvis_path)
+def align_pelvis(pelvis_path_left, pelvis_path_right):
+    combined_mesh = trimesh.util.concatenate(trimesh.load(pelvis_path_left), trimesh.load(pelvis_path_right))
     tform = translation.translate(-find_volume_center.volume_centroid(combined_mesh))
 
     # Separate into right and left

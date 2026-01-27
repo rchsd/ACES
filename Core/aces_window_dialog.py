@@ -82,4 +82,4 @@ class ACES_Dialog_Window(QWidget):
         model_names, _ = QFileDialog.getOpenFileNames(self, "Open File", "C:\\","STL Files (*.stl)", options=options)
         if model_names:
             self.close()
-            run_analysis.perform_analysis(model_names[0], self.dropdown_value, self.btn_value)
+            run_analysis.perform_analysis(model_names[0], model_names[1], self.dropdown_value, self.btn_value)
