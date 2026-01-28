@@ -13,9 +13,9 @@ cd Matlab-GUI
 ```
 
 ### 2. Create and Activate a Virtual Environment
-Python 3.10 or higher is supported. This project was developed using Python 3.13.
+Python 3.10 or higher is supported. This project was developed using Python 3.13. Please note that Python 3.14 is not currently supported.
 ```
-python3.13 -m venv venv
+py -3.13 -m venv venv
 source venv/bin/activate     # macOS/Linux
 venv\Scripts\Activate        # Windows
 ```
