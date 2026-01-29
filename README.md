@@ -29,13 +29,11 @@ pip install -r requirements.txt
 
 ## Running the Application
 
-The main application entry point is:
-```
-Matlab-GUI/Core/aces_main_window.py
-```
+The main application entry point is the full absolute path to aces_main_window.py (for example: C:\Users\YourName\Projects\Matlab-GUI\Core\aces_main_window.py).
 Run it using:
 ```
-python Core/aces_main_window.py
+cd "C:\Users\YourName\Projects\Matlab-GUI\Core\aces_main_window.py"
+python aces_main_window.py
 ```
 
 ---
@@ -108,14 +106,15 @@ Seven pelvis images at different orientations.
 ## Creating a Standalone Executable
 Navigate to the Core folder and run:
 ```
-py -3.13 -m PyInstaller aces_main_window.py --add-data "EXAMPLE_Data_07-02-24.xlsx;."
+python -m PyInstaller aces_main_window.py --name aces --onedir --clean --noconfirm --paths . --add-data "EXAMPLE_Data_07-02-24.xlsx;." --collect-submodules jaraco --collect-submodules helper_functions
 ```
 
 ### Resulting Structure
 ```
-dist/
-    aces_main_window/
-        aces_main_window.exe
+Core/
+    dist/
+        aces/
+            aces.exe
 ```
 
 Running this executable launches the same GUI, and all outputs will be saved in the same folder as the .exe.
