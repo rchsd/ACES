@@ -31,25 +31,3 @@ def load_mesh(file_path):
     mesh = trimesh.load(file_path)
 
     return mesh
-
-# for testing
-'''
-left_mesh = 'Schmitz/l hip 1.stl'
-right_mesh = 'Schmitz/r hip 1.stl'
-transform = np.array([
-    [1, 0, 0],
-    [0, 1, 0],
-    [0, 0, 1]])
-offset = np.array([-24.7660551658072, 44.9501128623997, 43.1640541421168])
-
-#print(apply_transform(right_mesh, transform, offset))
-#volume = apply_transform(right_mesh, transform, offset)
-#sorted_descending = sorted(volume, reverse=True)
-#print(volume)
-#print(sorted_descending)
-#volume_1, center_1, faces, vertices = apply_transform(left_mesh, transform, offset)
-#print(center_1)
-#volume_2 = apply_transform(right_mesh, transform, offset)
-#new_matrix = volume_1, volume_2
-#sorted_descending = sorted(new_matrix, reverse=True)
-#print(sorted_descending)'''

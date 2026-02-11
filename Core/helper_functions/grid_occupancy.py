@@ -44,9 +44,3 @@ def get_grid_occupancy(points, grid_size):
     reidx[ig] = bg
 
     return grid_unique, count, reidx
-
-'''matrix = sio.loadmat('c:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Tests\\Schmitz\\points.mat')
-points = matrix.get('points')
-#points = np.array(points)
-grid, count, reidx = get_grid_occupancy(points, 10)
-print('hello')'''

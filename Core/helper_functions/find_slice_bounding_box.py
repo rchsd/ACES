@@ -34,29 +34,3 @@ def compute_aabb_slices(separated_groups):
         }
 
     return aabb_dict
-
-
-# Example: assuming `separated` is the dictionary of 24 groups
-# For demonstration, we simulate a dummy structure
-# Replace this with your actual `separated` dictionary
-'''separated = {
-    i: {
-        'faces': np.random.randint(0, 100, (10, 3)),
-        'vertices': np.random.rand(100, 3)
-    } for i in range(24)
-}
-
-# Compute AABB for each group
-aabb_results = {}
-for plane_idx, group in separated.items():
-    aabb_min, aabb_max = compute_aabb(group['faces'], group['vertices'])
-    aabb_results[plane_idx] = {
-        'min': aabb_min,
-        'max': aabb_max
-    }
-
-# Print the results
-for plane_idx in sorted(aabb_results):
-    print(f"Plane {plane_idx}:")
-    print(f"  AABB Min: {aabb_results[plane_idx]['min']}")
-    print(f"  AABB Max: {aabb_results[plane_idx]['max']}")'''

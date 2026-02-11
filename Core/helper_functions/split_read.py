@@ -53,7 +53,3 @@ def stlreadh(file):
     # Implement or replace this function to read header tags from the file
     # Example: return header as a string
     return "Header:split:tag1:tag2"  # Example header, adjust as needed
-
-#mesh = trimesh.load('c:\\Users\\bbeasley\\Documents\\Python Projects\\Matlab-GUI\\Tests\Schmitz\\transformed_mesh.stl')
-#pgon = splitread(mesh)
-#print(pgon['step'])

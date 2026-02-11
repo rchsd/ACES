@@ -38,5 +38,3 @@ def correct_mesh_transform(mesh):
     mesh.apply_transform(rotation_matrix)
 
     return mesh
-
-#perform_analysis(r'c:\0stl\pelvis 1.stl')

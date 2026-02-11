@@ -52,12 +52,6 @@ def extract_highlighted_region(pgon: trimesh.Trimesh, w, threshold=0.5):
     # Threshold the mesh to extract the region of interest
     highlighted = mesh.threshold(value=threshold, scalars='weights')
 
-    # Optional: convert back to Trimesh if needed
-    '''highlighted_trimesh = trimesh.Trimesh(
-        vertices=highlighted.points,
-        faces=highlighted.faces.reshape(-1, 4)[:, 1:]  # PyVista uses vtk format
-    )'''
-
     # Visualize the extracted region
     plotter = pv.Plotter()
     plotter.add_mesh(highlighted, color='red', show_edges=True)

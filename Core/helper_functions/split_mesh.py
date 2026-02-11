@@ -202,9 +202,3 @@ def pgon_split_two(mesh, normal, coefficient, vertices=None, faces=None, tol=1e-
     refined_mesh.remove_unreferenced_vertices()
 
     return refined_mesh, np.array(over_plane_mask), np.array(original_face_indices)
-
-# for testing  
-'''mesh = trimesh.load('1_Combined_Pelvis.stl')
-updated_mesh, mask, index = refine_mesh_with_plane_intersections(mesh, [0, 0, 1], 0)
-#print(mesh)
-print(updated_mesh)'''

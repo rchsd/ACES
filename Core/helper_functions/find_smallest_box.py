@@ -117,9 +117,3 @@ def calculate_rotation_transform(angle, axis=None, about=None):
     transform_matrix[:3, 3] = offset
 
     return transform_matrix
-
-
-#print(find_smallest_box('py_Rotated_Pelvis.stl', 0, [0, 1, 0]))
-'''combined_mesh = trimesh.load('Schmitz\\quad_1.stl')
-tform2 = find_smallest_box(combined_mesh.faces, combined_mesh.vertices, 0, [1, 0, 0])
-print(tform2)'''

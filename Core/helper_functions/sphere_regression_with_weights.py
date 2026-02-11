@@ -34,18 +34,3 @@ def sphereFit(points, weights=None):
     radius = math.sqrt(C[3] + np.sum(center**2))
     
     return center, radius
-
-'''mat_points = sio.loadmat('points')
-points = mat_points.get('points')
-mat_weights = sio.loadmat('weights')
-weights = mat_weights.get('weights')
-weights = weights.flatten()
-mat_centers = sio.loadmat('centers')
-centers = mat_centers.get('centers')
-mat_radii = sio.loadmat('radii')
-radii = mat_radii.get('radii')
-print(radii)
-centers[0,:], radii[0] = sphereFit(points)
-new_center = centers[0,:]
-new_radii = radii[0]
-print('hello')'''
