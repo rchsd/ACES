@@ -3,8 +3,6 @@ from helper_functions import pgon_separation, find_barys_and_norms, pgon_props, 
 from helper_functions import reflection, translation, pgon_upe, find_plane_contours
 import pandas as pd
 import numpy_groupies as ng
-import matplotlib
-matplotlib.use('Qt5Agg')
 
 def default(pgon, mask, centers, radii):
     print('Calculating coverage angles.')
