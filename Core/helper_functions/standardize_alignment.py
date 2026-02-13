@@ -1,39 +1,15 @@
 import numpy as np
-import trimesh
-from helper_functions import merge_parts, translation, find_volume_center, mesh_analysis, alignment, unitize
+from helper_functions import merge_parts, translation, find_volume_center, mesh_analysis, alignment
 from helper_functions import find_smallest_box, split_mesh, pgon_separation, reflection, generate_random_points
 from helper_functions import find_plane_contours, pgonsep_by_plane_index, find_slice_bounding_box, pgon_parts, find_barys_and_norms
 
-def align_pelvis(pelvis_path_left, pelvis_path_right):
-    combined_mesh = trimesh.util.concatenate(trimesh.load(pelvis_path_left), trimesh.load(pelvis_path_right))
+def align_pelvis(left_pelvis_path, right_pelvis_path):
+    combined_mesh = merge_parts.pgon_merge(None, None, left_pelvis_path, right_pelvis_path)
     tform = translation.translate(-find_volume_center.volume_centroid(combined_mesh))
 
-    # Separate into right and left
-    parts = combined_mesh.copy().apply_transform(tform).split(only_watertight=False)
-    # Abs value used just in case mesh isn't watertight
-    volumes = np.array([abs(p.volume) for p in parts])
-    # Np.argsort sorts in ascending order by default, so negative volumes does the reverese
-    ii = np.argsort(-volumes)
-    idx_1, idx_2 = ii[0], ii[1]
-    cent_1 = parts[idx_1].center_mass
-    cent_2 = parts[idx_2].center_mass
-    v = cent_2 - cent_1
-    rl = unitize.unitize(v)
-    # Cent_2 comes first in order to preserve original index order of parts
-    projections = np.array([cent_2 @ rl, cent_1 @ rl])
-    mask = projections > 0
-
-    tform_inv = np.linalg.inv(tform)
-    right_parts = [parts[i] for i, m in enumerate(mask) if m]
-    left_parts  = [parts[i] for i, m in enumerate(mask) if not m]
-
-    rp = trimesh.util.concatenate(right_parts) if right_parts else None
-    lp = trimesh.util.concatenate(left_parts)  if left_parts else None
-    rp.apply_transform(tform_inv)
-    lp.apply_transform(tform_inv)
-
-    # Update transform
-    rl = lp.center_mass - rp.center_mass
+    left = mesh_analysis.load_mesh(left_pelvis_path)
+    right = mesh_analysis.load_mesh(right_pelvis_path)
+    rl = np.subtract(find_volume_center.volume_centroid(left), find_volume_center.volume_centroid(right))
     tform2 = alignment.align(np.dot(rl, np.sign(rl[0])), [0, 1, 0])
     tform = tform2 @ tform
 
@@ -49,10 +25,8 @@ def align_pelvis(pelvis_path_left, pelvis_path_right):
 
     # Smallest dimension should be x-dimension
     if np.dot([-1, 0, 1], difference.T) < 0:
-        tform = np.dot(find_smallest_box.calculate_rotation_transform(np.pi/2, [0, 1, 0]), tform)
-        
-    left = lp
-    right = rp
+        tform = np.dot(find_smallest_box.rotate_mesh(np.pi/2, [0, 1, 0]), tform)
+
     temp = merge_parts.pgon_merge(left.copy().apply_transform(tform), right.copy().apply_transform(np.dot(reflection.reflection_simple([0, 1, 0]), tform)))
     temp2, i1, _ = split_mesh.pgon_split(temp, [1, 0, 0], 0)
     temp3, i2, i1i2 = split_mesh.pgon_split(temp2, [0, 0, 1], 0)
@@ -219,7 +193,7 @@ def align_pelvis(pelvis_path_left, pelvis_path_right):
 
         # remove sagittal plane rotation
         for i in range(100):
-            # calculate centers using your pgonaabb function or equivalent logic
+            # calculate centers using your aabb
             center1 = np.mean(find_smallest_box.find_bounding_box(left), axis=0)
             center2 = np.mean(find_smallest_box.find_bounding_box(right), axis=0)
             
