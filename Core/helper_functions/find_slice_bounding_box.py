@@ -32,5 +32,5 @@ def compute_aabb_slices(separated_groups):
             'min': aabb_min,
             'max': aabb_max
         }
-
+    
     return aabb_dict

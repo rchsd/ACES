@@ -3,6 +3,8 @@ from PyQt5.QtWidgets import (
     QWidget, QPushButton, QVBoxLayout, QHBoxLayout,
     QLabel, QComboBox, QMessageBox, QPushButton, QFileDialog
 )
+from PyQt5.QtGui import QFont
+from aces_main_window import ACTIVE_STYLE, HIGHLIGHT_STYLE, COLOR_STYLE, COMBO_BOX
 import run_analysis
 
 class ACES_Dialog_Window(QWidget):
@@ -10,7 +12,9 @@ class ACES_Dialog_Window(QWidget):
         super().__init__()
         self.setWindowTitle("ACES Window Dialog")
         self.setGeometry(200, 200, 300, 220)
-
+        self.setFixedSize(300, 220)
+        self.setStyleSheet('QWidget {background-color: white; }')
+        
         # Track selections
         self.selected_option = None
         self.dropdown_value = None
@@ -19,26 +23,42 @@ class ACES_Dialog_Window(QWidget):
         main_layout = QVBoxLayout()
         button_layout = QHBoxLayout()
 
+        # Patient Information Title Label
+        self.title_label =  QLabel("Patient Information:", self)
+        self.title_label.setFont(QFont('Arial', 15))
+        self.title_label.setStyleSheet(COLOR_STYLE)
+        main_layout.addWidget(self.title_label)
+        
+
         # Question label for buttons
-        question_label = QLabel("Is the patient male or female?")
+        question_label = QLabel("Gender:")
+        question_label.setFont(QFont('Arial', 10))
+        question_label.setStyleSheet(COLOR_STYLE)
         main_layout.addWidget(question_label)
 
         # Buttons for choices
-        self.btn1 = QPushButton("Female")
-        self.btn2 = QPushButton("Male")
-        self.btn1.clicked.connect(lambda: self.set_choice(1))
-        self.btn2.clicked.connect(lambda: self.set_choice(2))
+        self.button1 = QPushButton("Female")
+        self.button1.setStyleSheet(HIGHLIGHT_STYLE)
+        self.button1.clicked.connect(lambda: self.set_choice(1))
+        button_layout.addWidget(self.button1)
 
-        button_layout.addWidget(self.btn1)
-        button_layout.addWidget(self.btn2)
+        self.button2 = QPushButton("Male")
+        self.button2.setStyleSheet(HIGHLIGHT_STYLE)
+        self.button2.clicked.connect(lambda: self.set_choice(2))
+        button_layout.addWidget(self.button2)
+
         main_layout.addLayout(button_layout)
 
+
         # Instruction label for dropdown
-        dropdown_label = QLabel("How old is the patient?")
+        dropdown_label = QLabel("Age:")
+        dropdown_label.setFont(QFont('Arial', 10))
+        dropdown_label.setStyleSheet(COLOR_STYLE)
         main_layout.addWidget(dropdown_label)
 
         # Dropdown for values 8 to 18
         self.dropdown = QComboBox()
+        self.dropdown.setStyleSheet(COMBO_BOX)
         self.dropdown.addItem("Select a value")  # Placeholder
         for i in range(8, 19):
             self.dropdown.addItem(str(i))
@@ -46,9 +66,11 @@ class ACES_Dialog_Window(QWidget):
         main_layout.addWidget(self.dropdown)
 
         # Continue button
-        self.continue_btn = QPushButton("Run Analysis")
-        self.continue_btn.clicked.connect(self.on_continue)
-        main_layout.addWidget(self.continue_btn)
+        self.continue_button = QPushButton("Run Analysis")
+        self.continue_button.setFont(QFont('Arial', 10))
+        self.continue_button.setStyleSheet(HIGHLIGHT_STYLE)
+        self.continue_button.clicked.connect(self.on_continue)
+        main_layout.addWidget(self.continue_button)
 
         self.setLayout(main_layout)
 
@@ -56,13 +78,13 @@ class ACES_Dialog_Window(QWidget):
         self.selected_option = choice
         # Highlight selected button
         if choice == 1:
-            self.btn1.setStyleSheet("background-color: lightblue; font-weight: bold;")
-            self.btn2.setStyleSheet("")
-            self.btn_value = 5
+            self.button1.setStyleSheet(ACTIVE_STYLE)
+            self.button2.setStyleSheet(HIGHLIGHT_STYLE)
+            self.button_value = 5
         else:
-            self.btn2.setStyleSheet("background-color: lightblue; font-weight: bold;")
-            self.btn1.setStyleSheet("")
-            self.btn_value = 6
+            self.button2.setStyleSheet(ACTIVE_STYLE)
+            self.button1.setStyleSheet(HIGHLIGHT_STYLE)
+            self.button_value = 6
 
     def set_dropdown_value(self):
         if self.dropdown.currentIndex() > 0:  # Ignore placeholder
@@ -82,4 +104,4 @@ class ACES_Dialog_Window(QWidget):
         model_names, _ = QFileDialog.getOpenFileNames(self, "Open File", "C:\\","STL Files (*.stl)", options=options)
         if model_names:
             self.close()
-            run_analysis.perform_analysis(model_names[0], model_names[1], self.dropdown_value, self.btn_value)
+            run_analysis.perform_analysis(model_names[0], model_names[1], self.dropdown_value, self.button_value)

@@ -22,7 +22,7 @@ def mark_acetabulum(pgon_struct, centers, radii, params = dict()):
     dw = dw - params['DistanceCutoff']
     dw[dw < 0] = 0
     dw = np.exp(-dw)
-
+    
     # Calculate normal weights
     nw = np.squeeze(np.sum(unitize.unitize(rvecs, axis=1) * vnorms[:, :, None], axis=1))
 

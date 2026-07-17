@@ -29,7 +29,7 @@ def get_grid_occupancy(points, grid_size):
     # Sort grid points
     ig = np.lexsort(grid.T[::-1])
     grid_sorted = grid[ig]
-
+    
     # Get unique grid points and their indices
     #grid = np.floor(points / grid_size) * grid_size + grid_size / 2
     #grid = np.round(grid, decimals=6) 

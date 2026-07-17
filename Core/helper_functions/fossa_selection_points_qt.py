@@ -626,9 +626,13 @@ def find_fossa(mesh: trimesh.Trimesh, normal):
     Launch interactive ROI selection via a PyQt modal dialog. Return a `trimesh.Trimesh`.
     """
     # DETACH: Trimesh -> new instance, then wrap to PyVista
-    mesh_ui = pv.wrap(mesh.copy())  # safe detachment from analysis mesh
+    pv_mesh = pv.wrap(mesh.copy())  # safe detachment from analysis mesh
+    
+   
+    ############################################
+
     result = points_select_depth_colored_qt(
-        mesh_or_path=mesh_ui,
+        mesh_or_path=pv_mesh,
         normal=normal,
         pick_normal_first=True,
         window_size=(1280, 960),
@@ -638,15 +642,17 @@ def find_fossa(mesh: trimesh.Trimesh, normal):
         overlay_points=True,
         export_path=None
     )
+   
     roi = result["roi_pyvista"]
     if roi is None:
         return None
 
-    tri_surface = roi.extract_surface().clean().triangulate()
+    tri_surface = roi.extract_surface(algorithm = 'dataset_surface').clean().triangulate()
     vertices = np.asarray(tri_surface.points, dtype=np.float64).copy()
     faces_vtk = np.asarray(tri_surface.faces, dtype=np.int64).ravel().copy()
     faces_tri = vtk_faces_to_triangles_from_flat(faces_vtk)
     if faces_tri.size == 0:
         raise ValueError("No triangular faces found (after extract_surface/triangulate).")
     tmesh = trimesh.Trimesh(vertices=vertices, faces=faces_tri, process=False)
+  
     return tmesh

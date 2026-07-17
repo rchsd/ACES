@@ -72,7 +72,7 @@ class spine_analysis_window(QWidget):
             spine_analysis.custom_spine_position = 'Right'
         elif index is 4:
             spine_analysis.custom_spine_position = 'Superior'
-        elif index is 4:
+        elif index is 4: # maybe its 5? -------- 5/29
             spine_analysis.custom_spine_position = 'Inferior'
 
     def toggleSnapshotWithDiscs_changed(self, state):
@@ -83,7 +83,7 @@ class spine_analysis_window(QWidget):
             print("Checkbox 1 is unchecked")
 
     def vertebralDiscBoxes_changed(self, index, state):
-
+        # Can/will be cleaned up ------ 5/29 
         if index is 1:
             i = 1 if state == 2 else 0
             spine_analysis.alphas[index-1] = i

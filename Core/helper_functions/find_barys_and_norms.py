@@ -46,6 +46,7 @@ def find_barys_norms(mesh: trimesh.Trimesh, mask=None):
 
     # Correct unitized vertex normals (manual computation)
     vertex_normals = np.zeros_like(mesh.vertices)
+    
     for i, face in enumerate(faces):
         for vertex_idx in face:
             vertex_normals[vertex_idx] += unitized_face_normals[i]

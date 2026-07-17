@@ -5,7 +5,7 @@ import numpy as np
 def volume_centroid(mesh):
     # Step 1: Compute bounding box center as offset
     offset = mesh.bounding_box.centroid
-
+    
     # Step 2: Center the mesh vertices by subtracting the offset
     centered_vertices = mesh.vertices - offset
 
@@ -19,7 +19,8 @@ def volume_centroid(mesh):
     final_centroid = centered_centroid + offset
 
     return final_centroid
-
+    #return mesh.center_mass #works for watertight meshes 
+    
 # Example usage with a sample mesh
 # Replace this with your actual mesh loading
 #mesh = trimesh.load('c:\\MATLAB\\new_mesh.stl')

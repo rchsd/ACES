@@ -29,7 +29,7 @@ def step_1(rotated_pelvis, pgon_dict):
                 print('failed, trying again...')
                 if k != 19:
                     continue
-            centers, radii = locate_acetabulum(rotated_pelvis)
+            centers, radii = locate_acetabulum(rotated_pelvis) 
     except Exception as ex:
         print('none')
         return None
@@ -59,7 +59,7 @@ def step_1_load(pgon_dict):
     result = np.mean(vertices, axis=1)
     diff = centers[1, :] - result
     radii[1] = np.mean(diff)
-
+    
     return pgon_dict, centers, radii
 
 # locates fossa
@@ -214,6 +214,7 @@ def locate_acetabulum(mesh, params = dict()):
     count_selected = sorted_count[:20]
     count_selected = count_selected.reshape(-1,1)
 
+    
     # Locate pair of grid spaces that are highly occupied and far apart
     m1 = count_selected @ count_selected.T
     m2 = calculate_distances.calculate_pairwise_distances(grid_selected)
@@ -228,10 +229,12 @@ def locate_acetabulum(mesh, params = dict()):
     # Update grid size and range
     grid_size = params['GridSize'] / params['GridAdjustmentFactor']
     adjustment = np.array([-1, 1]) * np.sqrt(5 * grid_size ** 2) / 2
-    radius_range = radii + adjustment
+    radius_range = radii + adjustment 
+    
 
     # Loop through centers
     for c in range(0, 2):
+
         # Filter faces
         mask = filter_faces.filter_faces(barys, norms, centers[c, :], radius_range[1], 45)
         pgon = pgon_separation.pgon_mask(mesh, mask)
@@ -250,6 +253,8 @@ def locate_acetabulum(mesh, params = dict()):
     for i in range(params['FitCycles']):
         # Loop through centers
         for c in range(0, 2):
+
+
             # Filter faces
             mask = filter_faces.filter_faces(barys, norms, centers[c, :], radius_range[1], 60)
 

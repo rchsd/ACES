@@ -25,9 +25,9 @@ def find_parts(polygon:dict=None, method='vertex', mesh=None, max_angle=None):
         }
 
         # Build neighbor list from face adjacency
-        for a, b in mesh.face_adjacency:
-            polygon['neighbors'][a].append(b)
-            polygon['neighbors'][b].append(a)
+        for face_a, face_b in mesh.face_adjacency:
+            polygon['neighbors'][face_a].append(face_b)
+            polygon['neighbors'][face_b].append(face_a)
 
     #if polygon is None or 'faces' not in polygon:
         #raise ValueError("Either 'polygon' with 'faces' or a 'trimesh' object must be provided.")
@@ -66,20 +66,20 @@ def find_parts(polygon:dict=None, method='vertex', mesh=None, max_angle=None):
         limit = -np.cos(max_angle) if max_angle is not None else -1.0
         ipart = 0
 
-        for f in range(n_faces):
-            if processed[f]:
+        for face_index in range(n_faces):
+            if processed[face_index]:
                 continue
 
-            stack = [f]
-            processed[f] = True
-            parts[f] = ipart
+            stack = [face_index]
+            processed[face_index] = True
+            parts[face_index] = ipart
 
             while stack:
-                g = stack.pop()
-                for neighbor in neighbors[g]:
+                current_face = stack.pop()
+                for neighbor in neighbors[current_face]:
                     if neighbor is None or processed[neighbor]:
                         continue
-                    dot = np.dot(normals[g], normals[neighbor])
+                    dot = np.dot(normals[current_face], normals[neighbor])
                     if dot >= limit:
                         processed[neighbor] = True
                         parts[neighbor] = ipart
@@ -105,7 +105,7 @@ def find_parts_edges(edges):
     return np.arange(len(edges)), [{'nfaces': 1, 'ncncts': 1, 'cstate': 1} for _ in range(len(edges))]
 
     
-def max_part_area(mesh, parts):
+def max_part_areas(mesh, parts):
     """
     Compute the maximum area of connected parts in a mesh.
 
@@ -121,6 +121,38 @@ def max_part_area(mesh, parts):
     face_areas = mesh.area_faces
 
     part_areas = [face_areas[parts == label].sum() for label in unique_parts]
+    return max(part_areas)
+
+def max_part_area(mesh, parts):
+    """
+    Compute the maximum area of connected parts in a mesh.
+
+    Parameters:
+    - mesh: trimesh.Trimesh object
+    - parts: list of part labels for each face
+
+    Returns:
+    - Maximum area among all parts, or 0.0 if no parts exist.
+    """
+    # Force parts to be a numpy array
+    parts = np.array(parts)
+    
+    # --- BEGIN EMPTY ITERABLE SAFE GUARD ---
+    # If the parts array is empty, there are no areas to compute. 
+    # Return 0.0 immediately to prevent max() from crashing.
+    if parts.size == 0:
+        return 0.0
+    # --- END EMPTY ITERABLE SAFE GUARD ---
+
+    unique_parts = np.unique(parts)
+    face_areas = mesh.area_faces
+
+    part_areas = [face_areas[parts == label].sum() for label in unique_parts]
+    
+    # Second safety layer in case part_areas list generation failed
+    if not part_areas:
+        return 0.0
+        
     return max(part_areas)
 
 def compute_part_volumes(mesh, face_labels):

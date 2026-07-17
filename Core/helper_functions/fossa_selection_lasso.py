@@ -7,6 +7,8 @@ from matplotlib.widgets import LassoSelector
 from matplotlib import colors
 from matplotlib.collections import PolyCollection
 
+keep_widgets = []
+
 # --------- Utilities ---------
 def _harden_plotter(pl: pv.Plotter) -> pv.Plotter:
     """Windows stability: disable MSAA and depth peeling before any rendering."""
@@ -347,10 +349,11 @@ def lasso_select_depth_colored(
             closed=True
         )
         ax.add_collection(pc)
-
+    print("here before result")
     result = {"roi_pyvista": None, "selected_cell_ids": []}
 
     def onselect(verts):
+        print("here in onselect-------")
         poly_xy = np.array(verts, dtype=float)
         # Clip lasso polygon to image bounds
         poly_xy[:, 0] = np.clip(poly_xy[:, 0], 0, W - 1)
@@ -447,16 +450,22 @@ def lasso_select_depth_colored(
         # Cleanup off-screen plotter
         pl.close()
 
+    print("right before the function call")
     # Keep strong reference; run BLOCKING show
     lasso = LassoSelector(ax, onselect=onselect)
+    keep_widgets.append(lasso)
     plt.show(block=False)
+
+    print("Plot window open. Awaiting lasso selection...")
+    while plt.fignum_exists(fig.number):
+        plt.pause(0.1)
 
     # If user closes lasso without selecting, ensure cleanup
     try:
         pl.close()
     except Exception:
         pass
-
+    print(f'This is the result before tri_surface \n {result}')
     return result
 
 def vtk_faces_to_triangles_from_flat(faces_flat: np.ndarray):
@@ -493,7 +502,7 @@ def find_fossa(tri_mesh:trimesh.Trimesh, normal):
 
     roi = result["roi_pyvista"]
     
-    tri_surface = roi.extract_surface().clean().triangulate()
+    tri_surface = roi.extract_surface(algorithm = 'dataset_surface').clean().triangulate()
     vertices = np.asarray(tri_surface.points, dtype=np.float64)
     faces_vtk = np.asarray(tri_surface.faces, dtype=np.int64).ravel()
 

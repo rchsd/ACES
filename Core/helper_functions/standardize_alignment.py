@@ -1,17 +1,31 @@
 import numpy as np
 from helper_functions import merge_parts, translation, find_volume_center, mesh_analysis, alignment
 from helper_functions import find_smallest_box, split_mesh, pgon_separation, reflection, generate_random_points
-from helper_functions import find_plane_contours, pgonsep_by_plane_index, find_slice_bounding_box, pgon_parts, find_barys_and_norms
+from helper_functions import find_plane_contours, pgonsep_by_plane_index, find_slice_bounding_box, pgon_parts, find_barys_and_norms, display_mesh
 
 def align_pelvis(left_pelvis_path, right_pelvis_path):
-    combined_mesh = merge_parts.pgon_merge(None, None, left_pelvis_path, right_pelvis_path)
-    tform = translation.translate(-find_volume_center.volume_centroid(combined_mesh))
 
+    #retuns a combined mesh of the left and right pelvis sides
+    combined_mesh = merge_parts.pgon_merge(None, None, left_pelvis_path, right_pelvis_path)
+    #print("this is the mesh in align pelvis after combining the two parts\n")
+    #display_mesh.display_mesh(combined_mesh)
+    
+    #finds the centroid of the mesh and then translates its position with a 4x4 matrix np.eye(4)
+    tform = translation.translate(-find_volume_center.volume_centroid(combined_mesh))
+    #return tform, combined_mesh.copy()
+
+    #loads left and right pelvis (******can probably just load the mesh right away instead of calling a function for it 6/9)
     left = mesh_analysis.load_mesh(left_pelvis_path)
     right = mesh_analysis.load_mesh(right_pelvis_path)
+
+    #calculates the center mass of the left and right pelvis and the subtracts them using numpy.subtract
     rl = np.subtract(find_volume_center.volume_centroid(left), find_volume_center.volume_centroid(right))
+
+    #print(f'this is rl and np sign {np.dot(rl, np.sign(rl[0]))}')
+    #makes sure that rl is facing forward so it can be aligned with the y axis 
     tform2 = alignment.align(np.dot(rl, np.sign(rl[0])), [0, 1, 0])
-    tform = tform2 @ tform
+    tform = tform2 @ tform #Matrix multiplication
+
 
     # find smallest box code
     tform2 = find_smallest_box.find_smallest_box(tform, combined_mesh.faces, combined_mesh.vertices, 0, [0, 1, 0])
@@ -20,6 +34,7 @@ def align_pelvis(left_pelvis_path, right_pelvis_path):
     tform2 = find_smallest_box.find_smallest_box(tform, combined_mesh.faces, combined_mesh.vertices, 1, [0, 1, 0])
     tform = tform2 @ tform
 
+    #returns the pelvis bounds 
     bounding_box = find_smallest_box.find_bounding_box(combined_mesh, tform)
     difference = np.array(np.diff(bounding_box, axis=0))
 
@@ -51,13 +66,16 @@ def align_pelvis(left_pelvis_path, right_pelvis_path):
     # find pubic symphysis
     temp = temp4
     s = [generate_random_points.sample_points_on_mesh(t, 500)[:, 1] for t in temp[:4]]
+    
     s1, s2, s3, s4 = s
+    
     cutoff = aabb[0, 1, 1] * 0.90 + aabb[1, 1, 1] * 0.10
     s = [np.sum(s1 < cutoff), np.sum(s2 < cutoff), np.sum(s3 < cutoff), np.sum(s4 < cutoff)]
 
     # perform quadrant voting
-    im = s.index(max(s))  
-    rotate_about = [int(im == 0), int(im == 1), int(im == 2)]
+    im = s.index(max(s)) #is 3
+   
+    rotate_about = [int(im == 0), int(im == 1), int(im == 2)] # [0 0 0]
     im = np.argmax(quads[:, 1])
 
     rotate_about[0] = rotate_about[0] + (im == 3)
@@ -109,8 +127,9 @@ def align_pelvis(left_pelvis_path, right_pelvis_path):
         condition = (n1[2] / mean_n1) > (n2[2] / mean_n2)
         upside_down += 2 * int(condition)
     
-    # perform clear rotations
+    #perform clear rotations
     rotate_about = np.array(rotate_about)
+
     if np.any(rotate_about >= 2) and (upside_down > 2) != (rotate_about[2] >= 2):
         tform = np.dot(find_smallest_box.rotate_mesh(np.pi, rotate_about / np.linalg.norm(rotate_about)), tform)
     elif np.all(rotate_about == 0) and upside_down <= 2:
@@ -134,7 +153,8 @@ def align_pelvis(left_pelvis_path, right_pelvis_path):
                 tform = np.dot(find_smallest_box.rotate_mesh(np.pi, np.array([1, 0, 0])), tform)
             else:
                 tform = np.dot(find_smallest_box.rotate_mesh(np.pi, np.array([0, 0, 1])), tform)
-    
+
+
     # get correct right and left sections 
     left = left.copy().apply_transform(tform)
     right = right.copy().apply_transform(tform)
@@ -143,14 +163,18 @@ def align_pelvis(left_pelvis_path, right_pelvis_path):
         temp = left
         left = right
         right = temp
+    print(f'this is tform (standardize alignment\n {tform}')
+    tform = np.eye(4)
+    print(f'this is tform after \n {tform}')
 
-    # loop until reasonably aligned
+
     for j in range(100):
         # initialize max_angle
         max_angle = 0
 
         # remove axial plane rotation
         for i in range(100):
+            print("here")
             center1 = np.mean(find_smallest_box.find_bounding_box(left), axis=0)
             center2 = np.mean(find_smallest_box.find_bounding_box(right), axis=0)
             top1 = left.vertices[left.vertices[:, 2] > center1[2]]
@@ -215,8 +239,9 @@ def align_pelvis(left_pelvis_path, right_pelvis_path):
             # find the vertex with the maximum x-coordinate in bot
             im_bot = np.argmax(bot[:, 0])
             rx = bot[im_bot]
-            # calculate the angle using atan2
-            angle = np.arctan2(lx[0] - rx[0], lx[2] - rx[2])
+            # calculate the angle using atan2otated_Pelvis
+            
+            angle = np.arctan2(lx[0] - rx[0], lx[2] - rx[2]) 
             # Update max_angle if necessary
             if abs(angle) > max_angle:
                 max_angle = abs(angle)
@@ -235,6 +260,11 @@ def align_pelvis(left_pelvis_path, right_pelvis_path):
     mesh = merge_parts.pgon_merge(left, right)
     tform = np.dot(translation.translate(-find_volume_center.volume_centroid(mesh)), tform)
 
+
+    print(f'this is form at the end of Standardize alignmnet\n {tform}')
+
     print('Pelvis is now aligned, continuing analysis.')
 
     return tform, combined_mesh.copy()
+
+
