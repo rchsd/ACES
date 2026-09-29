@@ -8,8 +8,7 @@ This repository contains a PyQt-based graphical application for performing autom
 
 ### 1. Clone the Repository
 ```
-git clone https://github.com/3DILab/Matlab-GUI.git
-cd Matlab-GUI
+git clone https://github.com/rchsd/ACES.git
 ```
 
 ### 2. Create and Activate a Virtual Environment
@@ -29,10 +28,11 @@ pip install -r requirements.txt
 
 ## Running the Application
 
-The main application entry point is the full absolute path to aces_main_window.py (for example: C:\Users\YourName\Projects\Matlab-GUI\Core\aces_main_window.py).
+The main application entry point is the full absolute path to aces_main_window.py (for example: C:\GitHub\ACES\Core\aces_main_window.py).
 Run it using:
 ```
-cd "C:\Users\YourName\Projects\Matlab-GUI\Core\aces_main_window.py"
+cd core
+venv\Scripts\Activate
 python aces_main_window.py
 ```
 
@@ -41,13 +41,13 @@ python aces_main_window.py
 ## How to Use the Application
 
 ### 1. Start the Analysis
-When the GUI launches, select:
-**Acetabular Analysis**
+When the GUI with the title "Acetabular Analysis" launches, select:
+**Start**
 
 ### 2. Enter Patient Information
 A modal window will appear prompting for:
 - Sex
-- Age (must be between 8 and 18)
+- Age (must be between 8 and 18)(patients 18+ simply select 18)
 
 Click **Run Analysis**.
 
@@ -55,8 +55,8 @@ Click **Run Analysis**.
 A file browser window will open (defaulting to the user’s C: drive).
 
 Steps:
-1. Navigate to the folder containing the hip STL files.
-2. Label the files clearly (e.g., left.stl, right.stl).
+1. Navigate to the folder containing the hip STL files, filename is usually "0stl".
+2. Look for the files clearly labeled (e.g., pelvisL.stl, pelvisR.stl).
 3. Ctrl + Click to select the left, then right hip in that order.
 4. Click **Open** to start the analysis.
 
@@ -79,29 +79,47 @@ Acetabulums identified.
 ```
 A second image will show the acetabula highlighted in red. Close the window.
 
-### Fossa Surface Selection
+### Fossa Surface Selection (instructions also in window)
 For each hip:
-1. Select at least three points on the fossa.
-2. Click **Finish**.
-3. A preview window will appear — close it.
+1. Select fossa points using the lasso tool, area will turn red.
+2. Close the window, the area will be saved and the next one will appear.
+3. Finish with the second fossa selection.
+4. If the pelvis has a negative 'tilt' or 'right_tilt', the process will have to be repeated again.
 
 ---
 
-## Output Files
+#### Output Files ####
 
-### Excel Output
+## Combined_pelvis.stl ##
+'''
+combined_pelvis.stl 
+'''
+Saved in: C:\GitHub\ACES\Core
+
+
+### Excel Output ##
 ```
 python_coverage.xlsx
 ```
-Saved in:
-```
-Matlab-GUI/Core/
-```
+Saved in: C:\GitHub\ACES\Core
+'''
+
 
 ### Image Outputs
-Seven pelvis images at different orientations.
+Seven pelvis images at different orientations with green vector.
 
+Saved in: C:\GitHub\ACES\Core
 ---
+
+### Edge Case ###
+- There's a chance that the program fails to align the pelvis even after the realignment.
+- Immediately check the images to see if the pelvis was aligned properly.
+- If the images are incorrect, run the program again. 
+
+
+
+
+
 
 ## Creating a Standalone Executable
 Navigate to the Core folder and run:

@@ -93,11 +93,11 @@ def take_snapshots(
     show: bool = False,                      # interactive windows; defaults False for automated saving
     window_size: int = 2048,                 # screenshot size if saving
     normals_prefer: str = "ace",             # 'ace' or 'fossa' for normal-based views
-    draw_arrows: bool = False,                # make arrow drawing optional
+    draw_arrows: bool = True,                # make arrow drawing optional
     base_color: Sequence[float] = (1.00, 0.90, 0.80),  # MATLAB-like bone beige
     arrow_color: Sequence[float] = (0.25, 1.00, 0.00), # MATLAB greenish arrows
     sphere_color: str = "green",             # sphere color (PyVista string or RGB)
-    sphere_opacity: float = 0.5,             # sphere translucency
+    sphere_opacity: float = 0.1,             # sphere translucency
     filename_prefix: Optional[str] = None,   # optional prefix for saved filenames
     save_even_if_show: bool = True,          # save screenshots even when show=True
     use_exe_dir: bool = False,               # PyInstaller: save in executable directory
@@ -167,14 +167,14 @@ def take_snapshots(
     }
 
     # ---- Arrows aligned to supplied normals (optional) ----
-    arrow_length = 0.30 * view_distance
+    arrow_length = 0.04 * view_distance
     def make_arrow(start, direction) -> pv.PolyData:
         return pv.Arrow(
             start=start,
             direction=unitize(direction),
-            tip_length=0.30,
-            tip_radius=0.08,
-            shaft_radius=0.03,
+            tip_length=0.20,
+            tip_radius=0.15,
+            shaft_radius=0.07,
             scale=arrow_length,
         )
 

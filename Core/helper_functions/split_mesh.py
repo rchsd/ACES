@@ -2,8 +2,9 @@ import numpy as np
 import trimesh
 import numpy as np
 import trimesh
+from helper_functions import display_mesh
 
-def pgon_split(mesh, normal, coefficient, vertices=None, faces=None, tol=1e-8):
+def pgon_split(mesh, normal, coefficient, vertices=None, faces=None, tol=1e-12):
     
     normal = np.asarray(normal)
     normal = normal / np.linalg.norm(normal)
@@ -16,7 +17,7 @@ def pgon_split(mesh, normal, coefficient, vertices=None, faces=None, tol=1e-8):
         faces = mesh.faces
  
     dists = vertices @ normal - coefficient
-    rel_tol = tol * (np.abs(coefficient) + tol) #unused calculated variable --- maybe delete?
+    #rel_tol = tol * (np.abs(coefficient) + tol) #unused calculated variable --- maybe delete?
     #dists[np.abs(dists) < rel_tol] = 0
     dists[np.abs(dists / (np.abs(coefficient) + tol)) < tol] = 0
 
@@ -52,11 +53,12 @@ def pgon_split(mesh, normal, coefficient, vertices=None, faces=None, tol=1e-8):
                 crossing_edges.append((i, edge))
 
         num_splits = len(crossing_edges)
-
+        
         if num_splits == 0:
             new_faces.append(v_idx.tolist())
             over_plane_mask.append(np.any(signs > 0))
             original_face_indices.append(face_idx)
+            
 
         elif num_splits == 1:
             i = crossing_edges[0][0]
@@ -68,6 +70,7 @@ def pgon_split(mesh, normal, coefficient, vertices=None, faces=None, tol=1e-8):
             new_faces.append([new_v, vj, vk])
             over_plane_mask.extend([dists[vi] > 0, dists[vj] > 0])
             original_face_indices.extend([face_idx, face_idx])
+            
 
         elif num_splits == 2:
             # Find the edge that was NOT split
@@ -92,6 +95,7 @@ def pgon_split(mesh, normal, coefficient, vertices=None, faces=None, tol=1e-8):
                 dists[vi] > 0
             ])
             original_face_indices.extend([face_idx] * 3)
+            
 
         else:
             # More than 2 intersections on a triangle is invalid
@@ -101,6 +105,7 @@ def pgon_split(mesh, normal, coefficient, vertices=None, faces=None, tol=1e-8):
                                    faces=np.array(new_faces),
                                    process=False)
 
+   
     return refined_mesh, np.array(over_plane_mask), np.array(original_face_indices)
 
 def pgon_split_two(mesh, normal, coefficient, vertices=None, faces=None, tol=1e-8):

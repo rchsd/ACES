@@ -31,7 +31,7 @@ def find_vertex_values(p, b, c, r, s):
     selected[mask[cos_th2 >= cones[0]]] = 2
     selected[mask[cos_th2 >= cones[1]]] = 3
     
-
+    
     # Project bounds points onto plane
     mask2 = np.where(selected[mask] == 2)[0]
    
@@ -85,7 +85,7 @@ def find_vertex_values(p, b, c, r, s):
     faces, _ = pgon_upe.unpaired_edges_faces(f)
     vals[faces] = 0
     """
-      # --- BEGIN INDEX ERROR ENFORCEMENT FIX --------------------------------------------------------------------------------------------
+    #-
     f = p['faces'][p['step'][:, 2], :]
     f = f[p['mask'][p['step'][:, 2]] == s + 2, :]
     
@@ -104,7 +104,7 @@ def find_vertex_values(p, b, c, r, s):
         if faces.size > 0:
             faces = faces.astype(np.int64)
             vals[faces] = 0
-    # --- END INDEX ERROR ENFORCEMENT FIX --------------------------------------------------------------------------------------------------
+    
     return vals
 
 def pgon_inv(pgon):

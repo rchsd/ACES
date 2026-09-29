@@ -1,17 +1,16 @@
 import pyvista as pv
 import numpy as np
 import trimesh
-# function will be used to wrap trimesh object before displaying it to the screen
+# function will be used to wrap trimesh object before displaying it to the screen 
 
 def display_mesh(mesh):
 
     coordinates = mesh.vertices
-    x , y, z = coordinates[0]
-    print(f"this is the coordinates {x}, {y}, {z}")
     
     polydata = pv.wrap(mesh)
-    polydata.rotate_z(45, inplace=True)
-    polydata.rotate_y(5, inplace=True)
+    # polydata.rotate_z(45, inplace=True)
+    # polydata.rotate_y(5, inplace=True)
+    
     plotter = pv.Plotter(
         window_size=[800, 600],       # Width and height in pixels
         border=True,                  # Enable window borders
@@ -32,7 +31,7 @@ def display_mesh(mesh):
         specular_power=20.0,      # Non-metallic highlights
     )
     plotter.add_axes(color = 'white')
-    # Add a text box placeholder in the top-left corner
     
-    #plotter.view_xz()
+    plotter.add_mesh_clip_plane(polydata, color="#EAE3D2", assign_to_axis='z')
+    
     plotter.show()

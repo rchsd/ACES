@@ -107,8 +107,8 @@ def compute_edge_contours(vertices, edges, plane_normals, plane_offsets):
                 t = d0 / (d0 - d1)
                 intersection = p0 + t * (p1 - p0)
                 segments.append([intersection, intersection])  # degenerate segment
-                edge_indices.append(edge_idx)                 #should be outside of the if/elif statements 
-                plane_indices.append(plane_idx)               #its the same two lines for 4 statements ---------- 5/29                              
+                edge_indices.append(edge_idx)                 
+                plane_indices.append(plane_idx)                                           
             elif d0 == 0 and d1 == 0:
                 segments.append([p0, p1])
                 edge_indices.append(edge_idx)#############

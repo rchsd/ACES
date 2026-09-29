@@ -24,7 +24,7 @@ def project_points(mesh, norms, npoints, range_input):
     # Create points on surface
     points, fi = generate_random_points.random_sample(pgon, npoints)
 
-    # --- BEGIN BROADCAST SAFE ENFORCEMENT ---
+
     # Convert range boundaries explicitly to flat scalar floats, 
     # regardless of whether a list, tuple, or NumPy array was passed in.
     r_min = float(np.ravel(range_input)[0])
@@ -32,7 +32,7 @@ def project_points(mesh, norms, npoints, range_input):
     
     # Create distances from surface as a clean, predictable shape
     dists = np.random.rand(npoints, 1) * (r_max - r_min) + r_min
-    # --- END BROADCAST SAFE ENFORCEMENT ---
+  
 
     # Calculate projected points smoothly
     points = points + dists * norms[fi, :]

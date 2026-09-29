@@ -1,9 +1,11 @@
 import sys
+from pathlib import Path
 from PyQt5.QtWidgets import (
     QWidget, QPushButton, QVBoxLayout, QHBoxLayout,
     QLabel, QComboBox, QMessageBox, QPushButton, QFileDialog
 )
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtCore import Qt
 from aces_main_window import ACTIVE_STYLE, HIGHLIGHT_STYLE, COLOR_STYLE, COMBO_BOX
 import run_analysis
 
@@ -14,65 +16,72 @@ class ACES_Dialog_Window(QWidget):
         self.setGeometry(200, 200, 300, 220)
         self.setFixedSize(300, 220)
         self.setStyleSheet('QWidget {background-color: white; }')
+        LOGO1_PATH = Path(__file__).parent / "choco2.png"
+        self.setWindowIcon(QIcon(str(LOGO1_PATH.resolve())))
         
         # Track selections
         self.selected_option = None
         self.dropdown_value = None
 
         # Layouts
-        main_layout = QVBoxLayout()
-        button_layout = QHBoxLayout()
+        self.main_layout = QVBoxLayout()
+        self.button_layout = QHBoxLayout()
 
         # Patient Information Title Label
-        self.title_label =  QLabel("Patient Information:", self)
+        self.title_label =  QLabel("Patient Information", self)
         self.title_label.setFont(QFont('Arial', 15))
         self.title_label.setStyleSheet(COLOR_STYLE)
-        main_layout.addWidget(self.title_label)
+        self.main_layout.addWidget(self.title_label)
         
 
         # Question label for buttons
-        question_label = QLabel("Gender:")
-        question_label.setFont(QFont('Arial', 10))
-        question_label.setStyleSheet(COLOR_STYLE)
-        main_layout.addWidget(question_label)
+        self.question_label = QLabel("Gender:", self)
+        self.question_label.setFont(QFont('Arial', 10))
+        self.question_label.setStyleSheet(COLOR_STYLE)
+        self.main_layout.addWidget(self.question_label)
 
         # Buttons for choices
-        self.button1 = QPushButton("Female")
+        self.button1 = QPushButton("Female", self)
         self.button1.setStyleSheet(HIGHLIGHT_STYLE)
         self.button1.clicked.connect(lambda: self.set_choice(1))
-        button_layout.addWidget(self.button1)
+        self.button1.setCursor(Qt.PointingHandCursor)
+        self.button_layout.addWidget(self.button1)
 
-        self.button2 = QPushButton("Male")
+        self.button2 = QPushButton("Male", self)
         self.button2.setStyleSheet(HIGHLIGHT_STYLE)
         self.button2.clicked.connect(lambda: self.set_choice(2))
-        button_layout.addWidget(self.button2)
+        self.button2.setCursor(Qt.PointingHandCursor)
+        self.button_layout.addWidget(self.button2)
 
-        main_layout.addLayout(button_layout)
+        self.main_layout.addLayout(self.button_layout)
 
 
         # Instruction label for dropdown
-        dropdown_label = QLabel("Age:")
-        dropdown_label.setFont(QFont('Arial', 10))
-        dropdown_label.setStyleSheet(COLOR_STYLE)
-        main_layout.addWidget(dropdown_label)
+        self.dropdown_label = QLabel("Age:", self)
+        self.dropdown_label.setFont(QFont('Arial', 10))
+        self.dropdown_label.setStyleSheet(COLOR_STYLE)
+        self.dropdown_label.setCursor(Qt.PointingHandCursor)
+        self.main_layout.addWidget(self.dropdown_label)
 
         # Dropdown for values 8 to 18
-        self.dropdown = QComboBox()
+        self.dropdown = QComboBox(self)
         self.dropdown.setStyleSheet(COMBO_BOX)
         self.dropdown.addItem("Select a value")  # Placeholder
         for i in range(8, 19):
             self.dropdown.addItem(str(i))
         self.dropdown.currentIndexChanged.connect(self.set_dropdown_value)
-        main_layout.addWidget(self.dropdown)
+        self.dropdown.setCursor(Qt.PointingHandCursor)
+        self.main_layout.addWidget(self.dropdown)
 
         # Continue button
-        self.continue_button = QPushButton("Run Analysis")
+        self.continue_button = QPushButton("Run Analysis", self)
         self.continue_button.setFont(QFont('Arial', 10))
         self.continue_button.setStyleSheet(HIGHLIGHT_STYLE)
         self.continue_button.clicked.connect(self.on_continue)
-        main_layout.addWidget(self.continue_button)
+        self.continue_button.setCursor(Qt.PointingHandCursor)
+        self.main_layout.addWidget(self.continue_button)
 
-        self.setLayout(main_layout)
+        self.setLayout(self.main_layout)
 
     def set_choice(self, choice):
         self.selected_option = choice
@@ -105,3 +114,5 @@ class ACES_Dialog_Window(QWidget):
         if model_names:
             self.close()
             run_analysis.perform_analysis(model_names[0], model_names[1], self.dropdown_value, self.button_value)
+    
+

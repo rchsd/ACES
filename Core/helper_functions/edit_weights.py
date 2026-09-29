@@ -3,6 +3,10 @@ import numpy as np
 import trimesh
 from random import choice
 
+import numpy as np
+import trimesh
+import pyvista as pv
+
 
 def edit_weights_display(pgon: trimesh.Trimesh, w, threshold=0.5):
     #Copy weights
@@ -27,7 +31,7 @@ def edit_weights_display(pgon: trimesh.Trimesh, w, threshold=0.5):
 
     #Fix global color bar range so both meshes share the exact same scale mapping
     color_limits = [float(w.min()), float(w.max())]
-    
+    plotter.set_background(color="darkgrey", top="black")
     #Add Context Background (Thin, Ghosted)
     plotter.add_mesh(
         background_mesh,
@@ -59,8 +63,16 @@ def edit_weights_display(pgon: trimesh.Trimesh, w, threshold=0.5):
         diffuse=0.7,
         specular=0.5,               # Higher specular flash to draw focus
         specular_power=25.0,
-        scalar_bar_args={'title': 'Weights Profile'},
-        name="roi_layer"            # Used for the button
+        #scalar_bar_args={'title': 'Weights Profile'},
+        scalar_bar_args={
+                'title': 'Weights Profile',
+                'color': 'white',          # Sets both Title and Label text to white
+                'title_font_size': 12,     # Custom title sizing
+                'label_font_size': 10,     # Custom numerical ticks sizing
+                'shadow': False,           # Strips the default black dropshadow
+                'font_family': 'arial',  
+            },
+        name="roi_layer"            # Used for the button 
     )
     
     #Add the checkbox widget to the render window

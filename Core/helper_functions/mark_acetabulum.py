@@ -33,6 +33,8 @@ def mark_acetabulum(pgon_struct, centers, radii, params = dict()):
 
     # Select acetabulum
     split = pgon_track_split.track_split(temp_pgon_2, w, np.array([0, 0, 0, 1]), np.cos(np.deg2rad(params['AngleCutoff'])))
+    print(f"this is split in mark ace: {split}\n\n")
     pgon_dict = hole_fill.fill_holes(split)
 
+    print(f"this is pgon_dict: {pgon_dict['mask']} \n\n")
     return pgon_dict

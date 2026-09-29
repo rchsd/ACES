@@ -10,10 +10,23 @@ def compute_mesh_volume(mesh:trimesh, center=None):
     volume = 0.0
     for face in faces:
         v0, v1, v2 = vertices[face] - center
-        vol = np.dot(v0, np.cross(v1, v2)) / 6.0
+        vol = np.dot(v0, np.cross(v1, v2)) / 6.0 
         volume += vol
     return abs(volume)
 
+def compute_mesh_volume_fast(mesh: trimesh.Trimesh, center=None):
+    if center is None:
+        center = np.zeros(3)
+        
+    # Get the vertices for all faces at once: shape (N, 3, 3)
+    v = mesh.vertices[mesh.faces] - center
+    
+    # Vectorized scalar triple product
+    v0, v1, v2 = v[:, 0, :], v[:, 1, :], v[:, 2, :]
+    volumes = np.einsum('ij,ij->i', v0, np.cross(v1, v2)) / 6.0
+    
+    return abs(np.sum(volumes))
+    
 # Build tetrahedra mesh
 def build_pgon(mesh, center):
     tetra_vertices = []

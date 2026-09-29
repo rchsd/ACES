@@ -33,20 +33,12 @@ def prepare_mesh(mesh):
     return mesh
 
 
-"""
-    3D Sticky Lasso Selection Workflow:
-      1) Opens an interactive PyVista viewer with the prepared surface mesh.
-      2) Click directly on the mesh to drop a 3D anchor point.
-      3) Rotate/Zoom freely. The path stays attached to the model surface geometry.
-      4) Press ENTER or SPACE to close the loop and isolate the selection.
-      5) Selected cells turn Red. Press 'c' to clear, 's' to export mid-way.
-"""
 def select_submesh_3d(mesh_or_path, *args, window_size=(1280, 960), export_path=None, **kwargs):
   
     # Load and prepare geometric structures safely
     pv_mesh = pv.read(mesh_or_path) if isinstance(mesh_or_path, str) else mesh_or_path
     pv_mesh = prepare_mesh(pv_mesh)
-
+    
     # Cache centroids and calculate normals for selection math
     raw_faces = pv_mesh.faces.reshape(-1, 4)[:, 1:].astype(np.int64)
     vertices = np.asarray(pv_mesh.points, dtype=float)
@@ -108,7 +100,7 @@ def select_submesh_3d(mesh_or_path, *args, window_size=(1280, 960), export_path=
         position="upper_left", 
         color="black"
     )
-
+    
     # ----------- 3D Drawing Engine
     # Native VTK alternative to get_vector_2d for projecting 3D points to 2D pixels.
     def _world_to_screen(world_pt):
@@ -321,4 +313,4 @@ def select_submesh_3d(mesh_or_path, *args, window_size=(1280, 960), export_path=
         fallback_faces = np.array([], dtype=np.int64)
         trimesh_roi = trimesh.Trimesh(vertices=fallback_vertices, faces=fallback_faces, process=False)
     
-    return trimesh_roi
+    return trimesh_roi, np.array(sorted(state["selected"]), dtype=np.int64)

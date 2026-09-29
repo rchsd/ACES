@@ -91,11 +91,16 @@ def find_bounding_box(mesh, transform = None):
         
     return pelvis.bounds
 
-def rotate_mesh(degrees, axis):
-    radians = np.radians(degrees)
+def rotate_mesh(radians, axis): #------------------------------------------------------------------TEST
     rotation_matrix = trimesh.transformations.rotation_matrix(radians, axis)
     print(f'this is rotate_mesh \n {rotation_matrix}')
     return rotation_matrix
+
+# def rotate_mesh(degrees, axis): 
+#     radians = np.radians(degrees)
+#     rotation_matrix = trimesh.transformations.rotation_matrix(radians, axis)
+#     print(f'this is rotate_mesh \n {rotation_matrix}')
+#     return rotation_matrix
 
 def calculate_rotation_transform(angle, axis=None, about=None):
     """
