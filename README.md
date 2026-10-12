@@ -12,9 +12,9 @@ git clone https://github.com/rchsd/ACES.git
 ```
 
 ### 2. Create and Activate a Virtual Environment
-Python 3.10 or higher is supported. This project was developed using Python 3.13. Please note that Python 3.14 is not currently supported.
+Python 3.10 or higher is supported. This project was developed using Python 3.14.
 ```
-py -3.13 -m venv venv
+py -3.14 -m venv venv
 source venv/bin/activate     # macOS/Linux
 venv\Scripts\Activate        # Windows
 ```
@@ -31,8 +31,8 @@ pip install -r requirements.txt
 The main application entry point is the full absolute path to aces_main_window.py (for example: C:\GitHub\ACES\Core\aces_main_window.py).
 Run it using:
 ```
-cd core
 venv\Scripts\Activate
+cd core
 python aces_main_window.py
 ```
 

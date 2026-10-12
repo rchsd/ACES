@@ -109,7 +109,6 @@ class ACES_Dialog_Window(QWidget):
 
     def getModels(self):
         options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
         model_names, _ = QFileDialog.getOpenFileNames(self, "Open File", "C:\\","STL Files (*.stl)", options=options)
         if model_names:
             self.close()

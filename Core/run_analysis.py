@@ -2,13 +2,14 @@ from helper_functions import *
 import trimesh
 import numpy as np
 from stl import mesh
+import logging
 
 def perform_analysis(pelvis_path_left, pelvis_path_right, patient_age=8, patient_sex=5):
-    print('Starting Analysis')
+    logging.debug('Starting Analysis')
     
     #sends in the left and right side models of the pelvis to be aligned
     tform, pelvis = standardize_alignment.align_pelvis(pelvis_path_left, pelvis_path_right)
-    print(f'this is tform after the alignment: \n\n {tform}')
+    logging.debug(f'this is tform after the alignment: \n\n {tform}')
     rotated_pelvis = pelvis.copy().apply_transform(tform)
     display_mesh.display_mesh(rotated_pelvis)
     try:

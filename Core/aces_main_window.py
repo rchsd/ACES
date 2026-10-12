@@ -8,7 +8,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
 from pathlib import Path
 import aces_window_dialog
-
+import logging
 
 ######### STYLES #############################################################
 #ACTIVE_STYLE = "background-color: lightblue; font-weight: bold; padding: 8px"
@@ -151,6 +151,7 @@ class main_window(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    logging.basicConfig(level=logging.INFO)
     window = main_window()
     window.show()
     sys.exit(app.exec())
