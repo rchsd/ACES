@@ -1,6 +1,6 @@
 # ACES Acetabular Coverage Analysis (Python GUI)
 
-This repository contains a PyQt-based graphical application for performing automated acetabular coverage analysis on pelvic STL models. The tool guides the user through pelvis alignment, acetabulum detection, fossa selection, coverage angle calculations, and automated results export.
+This repository contains a PyQt-based graphical application for performing automated acetabular coverage analysis on pelvic STL models using the Trimesh library. The tool is semi-automatic that guides the user through pelvis alignment, acetabulum detection, fossa selection, coverage angle calculations, and automated results export.
 
 ---
 
@@ -28,11 +28,11 @@ pip install -r requirements.txt
 
 ## Running the Application
 
-The main application entry point is the full absolute path to aces_main_window.py (for example: C:\GitHub\ACES\Core\aces_main_window.py).
+The main application entry point is the full absolute path to aces_main_window.py (for example: C:\...\ACES\Core\aces_main_window.py).
 Run it using:
 ```
 venv\Scripts\Activate
-cd core
+cd Core
 python aces_main_window.py
 ```
 
@@ -88,36 +88,30 @@ For each hip:
 
 ---
 
-#### Output Files ####
+## Output Files
 
-## Combined_pelvis.stl ##
-'''
-combined_pelvis.stl 
-'''
-Saved in: C:\GitHub\ACES\Core
+### STL FILES
+```
+combined_pelvis.stl
+```
+Saved in: C:\...\ACES\Core
 
 
-### Excel Output ##
+### Excel Output
 ```
 python_coverage.xlsx
 ```
-Saved in: C:\GitHub\ACES\Core
-'''
+Saved in: C:\...\ACES\Core
 
 
 ### Image Outputs
-Seven pelvis images at different orientations with green vector.
+Seven pelvis images at different orientations with a green vector and best fitting spheres.
+Saved in: C:\...\ACES\Core\saved_snapshots
 
-Saved in: C:\GitHub\ACES\Core
----
-
-### Edge Case ###
+### Edge Case
 - There's a chance that the program fails to align the pelvis even after the realignment.
 - Immediately check the images to see if the pelvis was aligned properly.
-- If the images are incorrect, run the program again. 
-
-
-
+- If the images are incorrect, run the program again.
 
 
 
@@ -141,3 +135,23 @@ Running this executable launches the same GUI, and all outputs will be saved in 
 
 ## Support
 Open a GitHub Issue for questions or assistance.
+
+---
+
+## Acknowledgements (historical and current contributors to ACES)
+Former (pre-Python) Developers:
+Josh Doan MEng; Engineer
+Byron Beasley Jr, MS[to confirm]; Innovation Engineer
+
+Current Developers:
+Jared Falcon, BS; Innovation Engineer
+Parham Gholami, MS; Innovation Engineer, Lead
+
+Leadership
+Christy Farnsworth, MS; Orthopedic Research Manager
+James D. Bomar, MS; Research Supervisor
+Justin R. Ryan, PhD; Director Webster Foundation 3D Innovations Lab
+Matthew R. Schmitz, MD; Orthopedic Surgeon, Rady Children's Hospital San Diego
+Salil V. Upasani, MD; Orthopedic Surgeon, Rady Children's Hospital San Diego
+
+---

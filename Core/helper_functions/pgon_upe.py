@@ -1,8 +1,6 @@
 from collections import defaultdict
-from typing import List, Tuple
 import numpy as np
 import trimesh
-import scipy.io as sio
 
 def unpaired_edges_faces(faces):
     """
@@ -93,6 +91,3 @@ def unpaired_edges_pgon(mesh):
     boundary_mesh = trimesh.Trimesh(vertices=boundary_vertex_coords, faces=degenerate_faces, process=False)
 
     return boundary_vertex_coords, remapped_edges, boundary_vertex_indices, parent_faces, boundary_mesh
-
-
-

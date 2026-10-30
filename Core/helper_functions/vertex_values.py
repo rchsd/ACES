@@ -5,12 +5,6 @@ from helper_functions import alignment, translation, make_pgon, pgon_pip, pgon_e
 
 # VERTEX_VALUES: Converts selection to vertex values
 def find_vertex_values(p, b, c, r, s):
-    '''c = np.array([
-        [10.9838284169268, 82.8287524476121, -45.2459209906115],
-        [12.6088048838947, -84.6809053873171, -47.9745958443892]
-    ])'''
-
-    #r = [22.3688094698730, 22.3944826476920]
 
     side = s - 1
     v = (b - c[side, :]) / np.linalg.norm(b - c[side, :], axis=1, keepdims=True)
@@ -30,19 +24,18 @@ def find_vertex_values(p, b, c, r, s):
 
     selected[mask[cos_th2 >= cones[0]]] = 2
     selected[mask[cos_th2 >= cones[1]]] = 3
-    
-    
+
     # Project bounds points onto plane
     mask2 = np.where(selected[mask] == 2)[0]
-   
+
     b = 2 * r[side] / cos_th * v + c[side, :]
     q = 2 * r[side] / cos_th2[mask2][:, np.newaxis] * v2[mask2, :] + c[side, :]
-    
+
     # Convert points to 2D
     matrix = np.array([
         [1, 0, 0, 0],
-        [0, 1, 0, 0],  
-        [0, 0, 0, 1]  
+        [0, 1, 0, 0],
+        [0, 0, 0, 1]
     ])
     tform = (matrix @ alignment.align(n, [0, 0, 1])) @ translation.translate(-c[side, :] - r[side] * n)
     temp = make_pgon.transform_and_project(b, tform)
@@ -62,7 +55,6 @@ def find_vertex_values(p, b, c, r, s):
     neg = np.ones_like(selected, dtype=bool)
     neg[edges] = False
 
-    
     # Calculate distance from selection polyhedron
     sel = make_pgon.transform_and_project(b, None, True)
     # Append a new vertex from c[side] to sel['vertices']
@@ -78,33 +70,26 @@ def find_vertex_values(p, b, c, r, s):
     vals[mask] = R.query(p['vertices'][mask, :], k=1)[0]
     vals[vals < 1e-2] = 0
     vals[neg] = -vals[neg]
-    """
-    # Snap edges to zero
+
     f = p['faces'][p['step'][:, 2], :]
     f = f[p['mask'][p['step'][:, 2]] == s + 2, :]
-    faces, _ = pgon_upe.unpaired_edges_faces(f)
-    vals[faces] = 0
-    """
-    #-
-    f = p['faces'][p['step'][:, 2], :]
-    f = f[p['mask'][p['step'][:, 2]] == s + 2, :]
-    
+
     # Run the unpaired edges function
     faces, _ = pgon_upe.unpaired_edges_faces(f)
-    
+
     # Ensure faces is a flat NumPy array
     faces = np.ravel(faces)
-    
+
     # Clean up any NaNs or floating point values resulting from empty/small sample masks
     if faces.size > 0:
         # Strip out any non-finite (NaN or Inf) values that cause casting crashes
         faces = faces[np.isfinite(faces)]
-        
+
         # If we still have valid values, force them to be raw integers so NumPy can index safely
         if faces.size > 0:
             faces = faces.astype(np.int64)
             vals[faces] = 0
-    
+
     return vals
 
 def pgon_inv(pgon):

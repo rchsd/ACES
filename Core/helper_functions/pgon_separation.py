@@ -1,6 +1,6 @@
-import scipy.io as sio
 import numpy as np
 import trimesh
+import logging as log
 from collections import defaultdict
 
 def separate(faces, mask):
@@ -71,29 +71,29 @@ def create_meshes_with_quadrants(mesh, quadrants, isReindexed=True):
 
 def identify_parts(faces):
     parent = {}
-    
+
     def find(v):
         if parent[v] != v:
             parent[v] = find(parent[v])  # Path compression
         return parent[v]
-    
+
     def union(u, v):
         root_u = find(u)
         root_v = find(v)
         if root_u != root_v:
             parent[root_v] = root_u
-    
+
     # Initialize parent for each vertex
     for face in faces:
         for v in face:
             if v not in parent:
                 parent[v] = v
-    
+
     # Union faces based on connectivity
     for face in faces:
         for i in range(1, len(face)):
             union(face[0], face[i])
-    
+
     # Map each vertex to a group ID
     group_map = {}
     group_id = 0
@@ -102,7 +102,7 @@ def identify_parts(faces):
         if root not in group_map:
             group_map[root] = group_id
             group_id += 1
-    
+
     # Assign group IDs to faces
     face_groups = [group_map[find(face[0])] for face in faces]
     return face_groups
@@ -110,32 +110,30 @@ def identify_parts(faces):
 def create_submeshes(mesh, transform=None):
     if transform is not None and transform.any():
         mesh.apply_transform(transform)
-    
+
     faces = mesh.faces
     vertices = mesh.vertices
     mask = identify_parts(faces)
     separated_faces = separate(faces, mask)
     submeshes = []
-    
+
     for group in separated_faces:
         # Sort unique indices to ensure consistent ordering
         unique_indices = sorted(set(i for face in group for i in face))
         index_map = {old: new for new, old in enumerate(unique_indices)}
-        
+
         # Create new faces using the index map
         new_faces = np.array([[index_map[i] for i in face] for face in group], dtype=np.uint32)
         new_vertices = vertices[unique_indices].astype(np.float64)
-        
+
         # Create submesh with consistent indexing
         submesh = trimesh.Trimesh(vertices=new_vertices, faces=new_faces, process=False)
         submeshes.append(submesh)
-    
+
     return submeshes
 
 def pgon_mask(mesh, mask):
     # Ensure mask is a boolean array
-    
-    #new_mesh = trimesh.Trimesh(vertices=mesh.vertices, faces=mesh.faces) #test
     mask = np.asarray(mask, dtype=bool).flatten()
 
     # Verify that the mask length matches the number of faces
@@ -143,11 +141,10 @@ def pgon_mask(mesh, mask):
         raise ValueError("The length of the mask must match the number of faces in the mesh.")
 
     # Select faces based on the mask
-    #selected_faces = new_mesh.faces[mask] #test
     selected_faces = mesh.faces[mask]
     # Check if any faces are selected
     if selected_faces.size == 0:
-        print("No faces selected by the mask.")
+        log.warning("No faces selected by the mask.")
         return None
 
     # Create a new mesh with the selected faces
@@ -162,36 +159,36 @@ def pgon_mask_index(mesh, mask_indices):
     Extracts a subset of faces from a mesh using face indices,
     reindexes the vertices to include only those used, and returns
     both the new mesh and a mapping of original vertex indices used.
-    
+
     Parameters:
         mesh (trimesh.Trimesh): The input mesh.
         mask_indices (array-like): Indices of faces to extract.
-    
+
     Returns:
         selected_mesh (trimesh.Trimesh): The new mesh with reindexed vertices.
         original_vertex_indices (np.ndarray): Mapping of new vertices to original indices.
     """
     # Ensure mask is a flat array of valid indices
     mask_indices = np.asarray(mask_indices).flatten()
-    
+
     # Validate face indices
     if np.any(mask_indices >= len(mesh.faces)) or np.any(mask_indices < 0):
         raise ValueError("Some face indices are out of bounds.")
-    
+
     # Select faces
     selected_faces = mesh.faces[mask_indices]
-    
+
     # Find unique vertex indices used by selected faces
     unique_vertex_indices, inverse_indices = np.unique(selected_faces, return_inverse=True)
-    
+
     # Reindex faces to match new vertex array
     reindexed_faces = inverse_indices.reshape(selected_faces.shape)
-    
+
     # Extract corresponding vertices
     new_vertices = mesh.vertices[unique_vertex_indices]
-    
+
     # Create new mesh
     selected_mesh = trimesh.Trimesh(vertices=new_vertices, faces=reindexed_faces, process=False)
-    
+
     # Return mesh and mapping of new vertex indices to original indices
     return selected_mesh, unique_vertex_indices

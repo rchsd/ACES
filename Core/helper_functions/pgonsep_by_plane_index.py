@@ -22,6 +22,4 @@ def separate_by_plane(mesh_data, plane_indices):
             'vertices': vertices
         }
 
-
-    num_groups = len(separated)
     return separated

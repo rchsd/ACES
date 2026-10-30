@@ -94,10 +94,10 @@ def take_snapshots(
     window_size: int = 2048,                 # screenshot size if saving
     normals_prefer: str = "ace",             # 'ace' or 'fossa' for normal-based views
     draw_arrows: bool = True,                # make arrow drawing optional
-    base_color: Sequence[float] = (1.00, 0.90, 0.80),  # MATLAB-like bone beige
-    arrow_color: Sequence[float] = (0.25, 1.00, 0.00), # MATLAB greenish arrows
+    base_color: Sequence[float] = (1.00, 0.90, 0.80),  # bone beige
+    arrow_color: Sequence[float] = (0.25, 1.00, 0.00), # greenish arrows
     sphere_color: str = "green",             # sphere color (PyVista string or RGB)
-    sphere_opacity: float = 0.1,             # sphere translucency
+    sphere_opacity: float = 0.05,             # sphere translucency
     filename_prefix: Optional[str] = None,   # optional prefix for saved filenames
     save_even_if_show: bool = True,          # save screenshots even when show=True
     use_exe_dir: bool = False,               # PyInstaller: save in executable directory
@@ -153,7 +153,7 @@ def take_snapshots(
 
     # ---- Camera up vectors ----
     up_default = np.array([0.0, 0.0, 1.0], dtype=float)
-    up_bottom  = np.array([1.0, 0.0, 0.0], dtype=float)  # match MATLAB bottom 'up'
+    up_bottom  = np.array([1.0, 0.0, 0.0], dtype=float)
 
     # ---- Define views (exclude top) ----
     views = {
@@ -208,10 +208,10 @@ def take_snapshots(
         plotter.add_mesh(
             pv_mesh,
             color=tuple(base_color),
-            smooth_shading=False,  # use False to avoid intense specular peaks
-            ambient=0.30,          # more ambient reduces harsh shadows
-            diffuse=0.60,          # main illumination
-            specular=0.00,         # eliminate shiny highlights
+            smooth_shading=False,
+            ambient=0.30,
+            diffuse=0.60,
+            specular=0.00,
         )
 
         # Optional arrows

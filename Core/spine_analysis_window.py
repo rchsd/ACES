@@ -1,3 +1,5 @@
+from operator import index
+
 import spine_analysis
 from functools import partial
 from pathlib import Path
@@ -6,7 +8,7 @@ from PyQt5.QtWidgets import QWidget, QPushButton, QComboBox, QVBoxLayout, QCheck
 class spine_analysis_window(QWidget):
 
     displayViewIndex = 0
-    
+
     def __init__(self):
         super().__init__()
 
@@ -38,7 +40,7 @@ class spine_analysis_window(QWidget):
 
         # Add checkboxes to layout
         layout.addWidget(self.toggleSnapshotWithDiscs)
-        
+
         for i in range(18):
             if i > 0:
                 spineDisc[i] = spineDisc[i] + str(i)
@@ -72,66 +74,16 @@ class spine_analysis_window(QWidget):
             spine_analysis.custom_spine_position = 'Right'
         elif index is 4:
             spine_analysis.custom_spine_position = 'Superior'
-        elif index is 4: # maybe its 5? -------- 5/29
+        elif index is 5:
             spine_analysis.custom_spine_position = 'Inferior'
 
     def toggleSnapshotWithDiscs_changed(self, state):
         if state is 1:
-            if state == 2:  # 2 means checked
+            if state != 2:  # 2 means checked
                 print("Checkbox 1 is checked")
         else:
             print("Checkbox 1 is unchecked")
 
     def vertebralDiscBoxes_changed(self, index, state):
-        # Can/will be cleaned up ------ 5/29 
-        if index is 1:
-            i = 1 if state == 2 else 0
-            spine_analysis.alphas[index-1] = i
-        elif index is 2:
-            i = 1 if state == 2 else 0
-            spine_analysis.alphas[index-1] = i
-        elif index is 3:
-            i = 1 if state == 2 else 0
-            spine_analysis.alphas[index-1] = i
-        elif index is 4:
-            i = 1 if state == 2 else 0
-            spine_analysis.alphas[index-1] = i
-        elif index is 5:
-            i = 1 if state == 2 else 0
-            spine_analysis.alphas[index-1] = i
-        elif index is 6:
-            i = 1 if state == 2 else 0
-            spine_analysis.alphas[index-1] = i
-        elif index is 7:
-            i = 1 if state == 2 else 0
-            spine_analysis.alphas[index-1] = i
-        elif index is 8:
-            i = 1 if state == 2 else 0
-            spine_analysis.alphas[index-1] = i
-        elif index is 9:
-            i = 1 if state == 2 else 0
-            spine_analysis.alphas[index-1] = i
-        elif index is 10:
-            i = 1 if state == 2 else 0
-            spine_analysis.alphas[index-1] = i
-        elif index is 11:
-            i = 1 if state == 2 else 0
-            spine_analysis.alphas[index-1] = i
-        elif index is 12:
-            i = 1 if state == 2 else 0
-            spine_analysis.alphas[index-1] = i
-        elif index is 13:
-            i = 1 if state == 2 else 0
-            spine_analysis.alphas[index-1] = i
-        elif index is 14:
-            i = 1 if state == 2 else 0
-            spine_analysis.alphas[index-1] = i
-        elif index is 15:
-            i = 1 if state == 2 else 0
-            spine_analysis.alphas[index-1] = i
-        elif index is 16:
-            i = 1 if state == 2 else 0
-            spine_analysis.alphas[index-1] = i
-        elif index is 17:
-            i = 1 if state == 2 else 0
-            spine_analysis.alphas[index-1] = i
+        if 1 <= index <= 17:
+            spine_analysis.alphas[index - 1] = 1 if state == 2 else 0

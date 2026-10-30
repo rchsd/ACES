@@ -65,7 +65,7 @@ def deduplicate_segments(segments):
         'faces': np.array(faces, dtype=int),
         'vertices': np.array(unique_vertices)
     }
-    
+
 def compute_edge_contours(vertices, edges, plane_normals, plane_offsets):
     """
     Intersect edges with multiple planes and return mesh-like data.
@@ -103,24 +103,20 @@ def compute_edge_contours(vertices, edges, plane_normals, plane_offsets):
             d1 = np.dot(p1 - origin, normal)
 
             if d0 * d1 < 0:
-                # Edge crosses the plane
                 t = d0 / (d0 - d1)
                 intersection = p0 + t * (p1 - p0)
-                segments.append([intersection, intersection])  # degenerate segment
-                edge_indices.append(edge_idx)                 
-                plane_indices.append(plane_idx)                                           
+                segments.append([intersection, intersection])
             elif d0 == 0 and d1 == 0:
                 segments.append([p0, p1])
-                edge_indices.append(edge_idx)#############
-                plane_indices.append(plane_idx)#############
             elif d0 == 0:
                 segments.append([p0, p0])
-                edge_indices.append(edge_idx)##############
-                plane_indices.append(plane_idx)############
             elif d1 == 0:
                 segments.append([p1, p1])
-                edge_indices.append(edge_idx)##############
-                plane_indices.append(plane_idx)#############
+            else:
+                continue # Skip appending indices if no condition is met
+
+            edge_indices.append(edge_idx)
+            plane_indices.append(plane_idx)
 
     mesh_data = deduplicate_segments(segments)
     return mesh_data, np.array(edge_indices), np.array(plane_indices)

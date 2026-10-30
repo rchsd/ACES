@@ -1,6 +1,5 @@
 import numpy as np
 import trimesh
-from scipy.spatial.transform import Rotation as R
 
 def find_smallest_box(tform, faces, vertices, angles_selection, axis):
     """
@@ -20,7 +19,7 @@ def find_smallest_box(tform, faces, vertices, angles_selection, axis):
 
     # Select angles based on the mode
     if angles_selection == 0:
-        angles = np.arange(0, 18) * np.pi / 9  # 0 to 2π in 18 steps 
+        angles = np.arange(0, 18) * np.pi / 9  # 0 to 2π in 18 steps
     else:
         angles = np.arange(-5, 6) * np.pi / 45  # -5π/45 to 5π/45
 
@@ -37,44 +36,23 @@ def find_smallest_box(tform, faces, vertices, angles_selection, axis):
     original_center = pelvis.centroid
 
     for i, angle in enumerate(angles):
-        # # Rotation matrix using scipy
-        # rotation = R.from_rotvec(angle * np.array(axis))
-
-        # # Rotate around the centroid
-        # T1 = trimesh.transformations.translation_matrix(-original_center)
-        # R_mat = trimesh.transformations.rotation_matrix(angle, axis)
-        # T2 = trimesh.transformations.translation_matrix(original_center)
-        # #full_transform = T2 @ R_mat @ T1
-        # full_transform = R_mat
-
-        # # Apply transformation
-        # transformed_mesh = pelvis.copy()
-        # transformed_mesh.apply_transform(full_transform)
-
-        # # Compute bounding box volume
-        # bounds = transformed_mesh.bounds
-        # aabb_size = np.prod(bounds[1] - bounds[0])
-        # box_sizes[i] = aabb_size
-
-        # # Store transformation
-        # transformations.append(full_transform)
-        #----
+        #Rotate around the centroid
         T1 = trimesh.transformations.translation_matrix(-original_center)
         R_mat = trimesh.transformations.rotation_matrix(angle, axis)
         T2 = trimesh.transformations.translation_matrix(original_center)
         full_transform = T2 @ R_mat @ T1
 
-        # Extract 3x3 rotation and 3x1 translation vectors
+        #Extract 3x3 rotation and 3x1 translation vectors
         rotation_3x3 = full_transform[:3, :3]
         translation_3x1 = full_transform[:3, 3]
 
-        # Rotate vertices directly via matrix multiplication
+        #Rotate vertices directly via matrix multiplication
         rotated_vertices = pelvis.vertices @ rotation_3x3.T + translation_3x1
-        
-        #Axis Aligned BB min/max bounds calculation 
+
+        #Axis Aligned BB min/max bounds calculation
         bbox_min = rotated_vertices.min(axis=0)
         bbox_max = rotated_vertices.max(axis=0)
-        
+
         box_sizes[i] = np.prod(bbox_max - bbox_min)
         transformations.append(full_transform)
 
@@ -88,19 +66,13 @@ def find_bounding_box(mesh, transform = None):
     pelvis = trimesh.Trimesh(faces=mesh.faces, vertices=mesh.vertices)
     if transform is not None:
         pelvis.apply_transform(transform)
-        
+
     return pelvis.bounds
 
-def rotate_mesh(radians, axis): #------------------------------------------------------------------TEST
+def rotate_mesh(radians, axis):
     rotation_matrix = trimesh.transformations.rotation_matrix(radians, axis)
-    print(f'this is rotate_mesh \n {rotation_matrix}')
     return rotation_matrix
 
-# def rotate_mesh(degrees, axis): 
-#     radians = np.radians(degrees)
-#     rotation_matrix = trimesh.transformations.rotation_matrix(radians, axis)
-#     print(f'this is rotate_mesh \n {rotation_matrix}')
-#     return rotation_matrix
 
 def calculate_rotation_transform(angle, axis=None, about=None):
     """

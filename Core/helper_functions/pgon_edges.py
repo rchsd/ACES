@@ -1,5 +1,4 @@
 import numpy as np
-import scipy.io as sio
 
 def index_by_edges(faces: np.ndarray):
     """

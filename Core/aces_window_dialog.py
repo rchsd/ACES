@@ -1,4 +1,3 @@
-import sys
 from pathlib import Path
 from PyQt5.QtWidgets import (
     QWidget, QPushButton, QVBoxLayout, QHBoxLayout,
@@ -18,7 +17,7 @@ class ACES_Dialog_Window(QWidget):
         self.setStyleSheet('QWidget {background-color: white; }')
         LOGO1_PATH = Path(__file__).parent / "choco2.png"
         self.setWindowIcon(QIcon(str(LOGO1_PATH.resolve())))
-        
+
         # Track selections
         self.selected_option = None
         self.dropdown_value = None
@@ -32,7 +31,7 @@ class ACES_Dialog_Window(QWidget):
         self.title_label.setFont(QFont('Arial', 15))
         self.title_label.setStyleSheet(COLOR_STYLE)
         self.main_layout.addWidget(self.title_label)
-        
+
 
         # Question label for buttons
         self.question_label = QLabel("Gender:", self)
@@ -113,5 +112,3 @@ class ACES_Dialog_Window(QWidget):
         if model_names:
             self.close()
             run_analysis.perform_analysis(model_names[0], model_names[1], self.dropdown_value, self.button_value)
-    
-

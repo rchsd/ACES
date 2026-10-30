@@ -1,12 +1,11 @@
 import numpy as np
-import scipy.io as sio
 from helper_functions import parse_inputs, pgon_separation, separate, find_barys_and_norms, edit_weights
 from helper_functions import pgon_track_split, hole_fill, unitize
 
 def mark_acetabulum(pgon_struct, centers, radii, params = dict()):
     params = parse_inputs.parse_inputs(params)
-    # revert to original step if already split pgon passed in
 
+    # revert to original step if already split pgon passed in
     # returns dictionary of mesh, step and mask
     temp_pgon = pgon_separation.pgon_mask(pgon_struct['mesh'], pgon_struct['step'])
     temp_pgon_2 = separate.separate(pgon_struct, temp_pgon, centers, radii)
@@ -22,7 +21,7 @@ def mark_acetabulum(pgon_struct, centers, radii, params = dict()):
     dw = dw - params['DistanceCutoff']
     dw[dw < 0] = 0
     dw = np.exp(-dw)
-    
+
     # Calculate normal weights
     nw = np.squeeze(np.sum(unitize.unitize(rvecs, axis=1) * vnorms[:, :, None], axis=1))
 
@@ -33,8 +32,7 @@ def mark_acetabulum(pgon_struct, centers, radii, params = dict()):
 
     # Select acetabulum
     split = pgon_track_split.track_split(temp_pgon_2, w, np.array([0, 0, 0, 1]), np.cos(np.deg2rad(params['AngleCutoff'])))
-    print(f"this is split in mark ace: {split}\n\n")
+
     pgon_dict = hole_fill.fill_holes(split)
 
-    print(f"this is pgon_dict: {pgon_dict['mask']} \n\n")
     return pgon_dict

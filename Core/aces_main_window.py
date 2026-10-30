@@ -1,6 +1,6 @@
 import sys
 import os
-# Block the Qt warning messages from printing to the console
+# block the Qt warning messages from printing to the console
 os.environ["QT_LOGGING_RULES"] = "*.warning=false"
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QPushButton, QLabel)
 from PyQt5.QtGui import QFont, QIcon
@@ -11,14 +11,13 @@ import aces_window_dialog
 import logging
 
 ######### STYLES #############################################################
-#ACTIVE_STYLE = "background-color: lightblue; font-weight: bold; padding: 8px"
-COLOR_STYLE = "color: #0064a4; font-weight: bold; border-radius: 20px;" 
+COLOR_STYLE = "color: #0064a4; font-weight: bold; border-radius: 20px;"
 HIGHLIGHT_STYLE = """
                     QPushButton {
                     background-color: #0064a4;
                     color: white;
                     padding: 8px;
-                   
+
                     border: 2px solid #0064a4;
                     border-radius: 20px;
                     font-weight: 800;
@@ -26,10 +25,9 @@ HIGHLIGHT_STYLE = """
                     QPushButton:hover {
                     background-color: white;
                     color: #0064a4;
-                    border: 2px solid #0064a4;                                
+                    border: 2px solid #0064a4;
                    }
                  """
-# Active/Selected State: White background, Blue text (Preserves capsule structure)
 ACTIVE_STYLE = """
     QPushButton {
         background-color: white;
@@ -45,8 +43,6 @@ ACTIVE_STYLE = """
         border: 2px solid #005286;
     }
 """
-
-# Completely Styled ComboBox (Includes Dropdown & Popup List fixes)
 COMBO_BOX = """
     QComboBox {
         background-color: #0064a4;
@@ -59,7 +55,7 @@ COMBO_BOX = """
     }
     QComboBox:hover {
         background-color: white;
-        color: #0064a4;                                
+        color: #0064a4;
     }
     QComboBox::drop-down {
         border: none;
@@ -74,7 +70,7 @@ COMBO_BOX = """
     }
 """
 
-class main_window(QMainWindow):
+class MainWindow(QMainWindow):
 
     def __init__(self):
          super().__init__()
@@ -82,24 +78,22 @@ class main_window(QMainWindow):
          self.setGeometry(700, 300, 500, 500)
          self.setFixedSize(500, 500)
          self.initUI()
-         self.isWindowOpen = False
-         self.check = None
-         
+
 
     def initUI(self):
 
         #Window/Icon
-        self.setStyleSheet('QMainWindow {background-color: #c4e8ff; }')#a4d8f9
-        self.setWindowTitle('Acetabular Analysis')
-        ICON_PATH = Path(__file__).parent / "choco2.png"
+        self.setStyleSheet('QMainWindow {background-color: #c4e8ff; }')
+        self.setWindowTitle('RCH ACES Analysis')
+        ICON_PATH = Path(__file__).parent/ "images"/ "choco2.png"
         self.setWindowIcon(QIcon(str(ICON_PATH.resolve())))
 
+
         #CHOCO LOGO
-        LOGO2_PATH = Path(__file__).parent / "rch-choco.png"
+        LOGO2_PATH = Path(__file__).parent / "images" / "rch-choco.png"
         self.logo_label = QLabel(self)
         self.logo_label.setContentsMargins(0, 0, 0, 0)
-        
-        self.logo_label.setGeometry(170, 30, 200, 200) 
+        self.logo_label.setGeometry(170, 30, 200, 200)
         self.logo_label.setAlignment(Qt.AlignCenter)
         if LOGO2_PATH.exists():
             self.logo_pixmap = QPixmap(str(LOGO2_PATH.resolve()))
@@ -107,16 +101,21 @@ class main_window(QMainWindow):
             self.logo_label.setPixmap(self.scaled_pixmap)
         else:
             self.logo_label.setText("LOGO") # Safe visual fallback
-            self.logo_label.setStyleSheet("font-size: 32px;") 
+            self.logo_label.setStyleSheet("font-size: 32px;")
 
-        #Label/Title
-        self.title_label = QLabel('Acetabular Analysis', self)
-        self.title_label.setFont(QFont('Arial', 30))
+
+        self.title_label = QLabel("Rady Children's Health", self)
+        self.title_label.setFont(QFont('Arial', 9))
         self.title_label.setStyleSheet(COLOR_STYLE)
-        #Make sure the label resizes to fit text
+        self.title_label.setGeometry(0, 190, 500, 50)
+        self.title_label.setAlignment(Qt.AlignCenter)
+        #Label/Title
+        self.title_label = QLabel('ACES', self)
+        self.title_label.setFont(QFont('Arial', 45))
+        self.title_label.setStyleSheet(COLOR_STYLE)
         self.title_label.setGeometry(0, 220, 500, 50)
         self.title_label.setAlignment(Qt.AlignCenter)
-        
+
         #Button
         self.start_button = QPushButton('START', self)
         self.start_button.setStyleSheet(HIGHLIGHT_STYLE)
@@ -130,9 +129,8 @@ class main_window(QMainWindow):
         self.exit_button.setGeometry(200, 360, 100, 50)
         self.exit_button.clicked.connect(QApplication.instance().quit)
         self.exit_button.setCursor(Qt.PointingHandCursor)
-        
-        
-        #Other 
+
+        #Other
         self.statusBar()
         self.show()
 
@@ -142,7 +140,6 @@ class main_window(QMainWindow):
         self.show_hip_selection_window()
 
     def resizeEvent(self, event):
-        #self.btn.move(self.rect().center()-self.btn.rect().topLeft())
         QMainWindow.resizeEvent(self, event)
 
     def show_hip_selection_window(self):
@@ -152,6 +149,6 @@ class main_window(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     logging.basicConfig(level=logging.INFO)
-    window = main_window()
+    window = MainWindow()
     window.show()
     sys.exit(app.exec())
