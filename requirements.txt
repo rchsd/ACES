@@ -12,3 +12,4 @@ Shapely==2.2.0
 stl==0.0.3
 trimesh==4.10.1
 vtk==9.7.1
+pyinstaller
