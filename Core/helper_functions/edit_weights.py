@@ -1,30 +1,86 @@
 import pyvista as pv
 import numpy as np
 import trimesh
-from random import choice
+
 
 def edit_weights_display(pgon: trimesh.Trimesh, w, threshold=0.5):
-    # Copy weights
+    #Copy weights
     k = w.copy()
 
-    # Wrap mesh for PyVista
+    #Wrap mesh for PyVista
     mesh = pv.wrap(pgon)
 
-    # Instead of NaNs, keep all values and use alpha blending
-    opacity = np.where(w > threshold, 1.0, 0.2)  # ROI fully opaque, others semi-transparent
+    #Explicitly attach the weights array to the mesh data repository
+    mesh.point_data['weight_scalars'] = w
 
-    # Create plotter
+    #Extract the ROI (values above threshold)
+    #Using a float cast on max avoids clipping boundary errors
+    roi_mesh = mesh.threshold([threshold, float(w.max())], scalars='weight_scalars')
+
+    #Extract the context background (values below or equal to threshold)
+    background_mesh = mesh.threshold([float(w.min()), threshold], scalars='weight_scalars')
+
+    #Create plotter
     plotter = pv.Plotter()
+    plotter.enable_depth_peeling()  #Ensures background doesn't clip/occlude the foreground
+
+    #Fix global color bar range so both meshes share the exact same scale mapping
+    color_limits = [float(w.min()), float(w.max())]
+    plotter.set_background(color="darkgrey", top="black")
+    #Add Context Background (Thin, Ghosted)
     plotter.add_mesh(
-        mesh,
-        scalars=w,                # Use original weights for smooth interpolation
-        cmap='coolwarm',          # Similar to MATLAB colormap
-        interpolate_before_map=True,  # Enables smooth color interpolation
-        opacity=opacity,          # Highlight ROI visually
-        show_edges=False
+        background_mesh,
+        scalars='weight_scalars',
+        cmap='coolwarm',
+        clim=color_limits,
+        opacity=0.15,
+        show_edges=False,
+        smooth_shading=True,
+        lighting=True,
+        ambient=0.4,
+        diffuse=0.4,
+        specular=0.0,
+        show_scalar_bar=False,
+        name = "pelvis_layer"
     )
 
-    # Add a light for shading (similar to MATLAB's light)
+    #Add Highlighted ROI (Fully Solid & Specular Organic Tissue)
+    plotter.add_mesh(
+        roi_mesh,
+        scalars='weight_scalars',
+        cmap='coolwarm',
+        clim=color_limits,
+        opacity=1.0,
+        show_edges=False,
+        smooth_shading=True,
+        lighting=True,
+        ambient=0.2,
+        diffuse=0.7,
+        specular=0.5,
+        specular_power=25.0,
+        scalar_bar_args={
+                'title': 'Weights Profile',
+                'color': 'white',
+                'title_font_size': 12,
+                'label_font_size': 10,
+                'shadow': False,
+                'font_family': 'arial',
+                },
+        name="roi_layer"
+    )
+
+    #Add the checkbox widget to the render window
+    plotter.add_checkbox_button_widget(
+        callback=lambda state: plotter.actors["pelvis_layer"].SetVisibility(state),
+        value=True,
+        color_on='blue',
+        color_off='grey',
+        background_color='white',
+        size=30,
+        position=(10, 10)
+    )
+
+    #Add light for clinical shading depth
     light = pv.Light(position=(1, 1, 1), focal_point=(0, 0, 0), color='white', intensity=1.5)
     plotter.add_light(light)
 

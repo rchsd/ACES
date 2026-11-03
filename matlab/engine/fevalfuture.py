@@ -16,11 +16,10 @@ from matlab.engine import pythonengine
 from matlab.engine import RejectedExecutionError
 from matlab.engine import TimeoutError
 from matlab.engine import BaseFuture
-import time
 import weakref
 
 try:
-    long
+    long = int
 except NameError:
     long = int
 
@@ -31,7 +30,7 @@ class FevalFuture(BaseFuture):
     statement.  The FevalFuture object should be only created by MatlabEngine
     after submitting a MATLAB command for evaluation.
     """
-    
+
     def __init__(self, eng, handle, nout, stdout, stderr):
         self._engine = weakref.ref(eng)
         self._future = handle
@@ -40,7 +39,7 @@ class FevalFuture(BaseFuture):
         self._err = stderr
         self._retrieved = False
         self._result = None
-        
+
     def result(self, timeout=None):
         """
         Get the result of a MATLAB statement.
@@ -62,9 +61,9 @@ class FevalFuture(BaseFuture):
             MatlabExecutionError - if the MATLAB statement fails in execution.
             TypeError - if the data type of return value is not supported.
             RejectedExecutionError  - an error occurs if the engine is terminated.
-        """ 
+        """
         self.__validate_engine()
-        
+
         if self._retrieved:
             return self._result
 
@@ -89,30 +88,30 @@ class FevalFuture(BaseFuture):
                 print(pythonengine.getMessage('MatlabFunctionCancelled'))
         except:
             raise
-    
+
     def cancel(self):
         """
         Cancel the execution of an evaluation of a MATLAB statement.
-    
-        Returns 
+
+        Returns
             bool - True if the corresponding MATLAB statement can be cancelled;
             False otherwise.
 
-        Raises 
+        Raises
             RejectedExecutionError  - an error occurs if the engine is terminated.
         """
         self.__validate_engine()
         return pythonengine.cancelFEval(self._future)
-    
+
     def cancelled(self):
         """
         Obtain the cancellation status of the asynchronous execution of a MATLAB
         command.
-    
-        Returns 
+
+        Returns
             bool - True if the execution is cancelled; False otherwise.
 
-        Raises 
+        Raises
             RejectedExecutionError  - an error occurs if the engine is terminated.
         """
         self.__validate_engine()
@@ -123,23 +122,23 @@ class FevalFuture(BaseFuture):
         Obtain the completion status of the asynchronous invocation of a MATLAB
         command.
 
-        Returns 
+        Returns
             bool - True if the execution is finished; False otherwise.  It
             returns True even if there is an error generated from the MATLAB
             statement or it is cancelled.
 
-        Raises 
+        Raises
             RejectedExecutionError - an error occurs if the engine is terminated.
         """
         self.__validate_engine()
         return pythonengine.isDoneFEval(self._future)
-    
+
     def __del__(self):
         if self._future is not None:
             pythonengine.destroyFEvalResult(self._future)
             self._future = None
             self._result = None
-            
+
     def __validate_engine(self):
         if self._engine() is None or not self._engine()._check_matlab():
-            raise RejectedExecutionError(pythonengine.getMessage('MatlabTerminated'))  
+            raise RejectedExecutionError(pythonengine.getMessage('MatlabTerminated'))

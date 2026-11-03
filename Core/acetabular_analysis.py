@@ -1,7 +1,6 @@
 import matlab.engine
 import find_centroid as fc
-import write_mesh as wm
-import os
+
 
 eng = matlab.engine.start_matlab()
 model_list = None

@@ -4,7 +4,7 @@ from helper_functions import pgon_separation, find_barys_and_norms, unitize
 
 def load_new_patient(pgon_struct):
     metadata = []
-    attributes = pgon_struct['mask'] # attributes is equivalent to mask in splitread matlab function
+    attributes = pgon_struct['mask']
     pgon_struct['mask'] = (attributes >> 8) + 1
     pgon_struct['step'] = (attributes[:, None] & (1 << np.arange(7, -1, -1))) != 0
 
@@ -25,7 +25,7 @@ def load_new_patient(pgon_struct):
     ]
 
     is_vec = unitize.unitize(
-    unitize.unitize(np.diff(orts.vertices[orts.faces[0, [2, 1]]], axis=0)[0]) + 
+    unitize.unitize(np.diff(orts.vertices[orts.faces[0, [2, 1]]], axis=0)[0]) +
     unitize.unitize(np.diff(orts.vertices[orts.faces[1, [2, 1]]], axis=0)[0]))
     rl_vec = unitize.unitize(np.diff(centers, axis=0)[0])
     pa_vec = np.cross(rl_vec, is_vec)

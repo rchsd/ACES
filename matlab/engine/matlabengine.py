@@ -9,9 +9,7 @@ a computational engine using the MatlabEngine class.
 from matlab.engine import pythonengine
 from matlab.engine import FutureResult
 from matlab.engine import RejectedExecutionError
-from matlab.engine import MatlabExecutionError
 import weakref
-import shlex
 from matlab.engine import enginehelper
 
 try:
@@ -51,7 +49,7 @@ class MatlabFunc(object):
         _stderr = kwargs.pop('stderr', None)
 
         background = enginehelper._get_async_or_background_argument(kwargs)
-        
+
         _sIO_info = '{0}.{1}'.format(sIO.__name__, sIO.StringIO.__name__);
         if (_stdout is not None) and (not isinstance(_stdout, sIO.StringIO)):
             _stdout_info = '{0}.{1}'.format(_stdout.__class__.__module__, _stdout.__class__.__name__);
@@ -72,8 +70,8 @@ class MatlabFunc(object):
 
     def __validate_engine(self):
         if self._engine() is None or not self._engine()._check_matlab():
-            raise RejectedExecutionError(pythonengine.getMessage('MatlabTerminated'))  
-                                
+            raise RejectedExecutionError(pythonengine.getMessage('MatlabTerminated'))
+
 class MatlabWorkSpace(object):
     """
         ['<matlabvar>']
@@ -123,10 +121,10 @@ class MatlabWorkSpace(object):
     def __setitem__(self,attr,value):
         self.__validate_engine()
         self.__validate_identity(attr)
-       
+
         _method=MatlabFunc(self._engine(), "assignin")
         return  _method("base", attr, value, nargout=0)
-        
+
     def __repr__(self):
         _method = MatlabFunc(self._engine(), "whos")
         _method(nargout=0)
@@ -144,16 +142,16 @@ class MatlabWorkSpace(object):
             raise TypeError(pythonengine.getMessage('VarNameMustBeStr',  type(attr).__name__))
         if not pythonengine.validateIdentity(attr):
             raise ValueError(pythonengine.getMessage('VarNameNotValid'))
-      
+
 class MatlabEngine(object):
     """
-    By default, the MATLAB Engine starts a MATLAB instance in a separate 
-    process without the desktop on the local machine.  The MATLAB version 
+    By default, the MATLAB Engine starts a MATLAB instance in a separate
+    process without the desktop on the local machine.  The MATLAB version
     used by the engine application is the version of MATLAB specified in PATH.
 
-    The MATLAB Engine supports calling MATLAB functions directly. MATLAB 
-    functions are dynamically added to a MatlabEngine object as callable 
-    attributes.  The function name <matlabfunc> is a replaceable MATLAB 
+    The MATLAB Engine supports calling MATLAB functions directly. MATLAB
+    functions are dynamically added to a MatlabEngine object as callable
+    attributes.  The function name <matlabfunc> is a replaceable MATLAB
     function name (for example, sqrt). The function signature is the same as in
     MATLAB, with optional named arguments nargout, async|background, stdout, and stderr.
 
@@ -170,8 +168,8 @@ class MatlabEngine(object):
         or asynchronous.  While a synchronous function call returns
         the result after it finishes executing, an asynchronous
         function call is performed in the background and returns a FutureResult
-        immediately.  This FutureResult object can be used to retrieve the 
-        actual result later.  If there are any output or error messages 
+        immediately.  This FutureResult object can be used to retrieve the
+        actual result later.  If there are any output or error messages
         generated from <matlabfunc>, by default they will be redirected to the
         standard output or standard error of the Python console.
 
@@ -242,12 +240,12 @@ class MatlabEngine(object):
     def __getattr__(self,name):
         """Dynamic attribute of MatlabEngine"""
         return MatlabFunc(self, name)
-    
+
     def __setattr__(self, kw, value):
         raise AttributeError(pythonengine.getMessage('AttrCannotBeAddedToM'))
 
     def __del__(self):
         self.exit()
-        
+
     def _check_matlab(self):
          return "_matlab" in self.__dict__

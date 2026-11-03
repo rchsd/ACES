@@ -1,21 +1,10 @@
 import networkx as nx
 import numpy as np
 import trimesh
-from collections import defaultdict, deque
+
 
 def find_parts(polygon:dict=None, method='vertex', mesh=None, max_angle=None):
-    """
-    Identify connected parts of a polygon mesh using different algorithms.
-
-    Parameters:
-    - polygon: dict with 'faces' (Nx2 or Nx3 array), optionally 'normals' and 'neighbors'
-    - method: 'vertex' or 'edge'
-    - max_angle: optional angle threshold (in radians) for edge-based connectivity
-    - mesh: optional trimesh.Trimesh object
-
-    Returns:
-    - List of part labels for each face
-    """
+    #Identify connected parts of a polygon mesh using different algorithms.
     # If a trimesh object is provided, extract necessary data
     if mesh is not None:
         polygon = {
@@ -25,12 +14,9 @@ def find_parts(polygon:dict=None, method='vertex', mesh=None, max_angle=None):
         }
 
         # Build neighbor list from face adjacency
-        for a, b in mesh.face_adjacency:
-            polygon['neighbors'][a].append(b)
-            polygon['neighbors'][b].append(a)
-
-    #if polygon is None or 'faces' not in polygon:
-        #raise ValueError("Either 'polygon' with 'faces' or a 'trimesh' object must be provided.")
+        for face_a, face_b in mesh.face_adjacency:
+            polygon['neighbors'][face_a].append(face_b)
+            polygon['neighbors'][face_b].append(face_a)
 
     faces = polygon['faces']
 
@@ -66,20 +52,20 @@ def find_parts(polygon:dict=None, method='vertex', mesh=None, max_angle=None):
         limit = -np.cos(max_angle) if max_angle is not None else -1.0
         ipart = 0
 
-        for f in range(n_faces):
-            if processed[f]:
+        for face_index in range(n_faces):
+            if processed[face_index]:
                 continue
 
-            stack = [f]
-            processed[f] = True
-            parts[f] = ipart
+            stack = [face_index]
+            processed[face_index] = True
+            parts[face_index] = ipart
 
             while stack:
-                g = stack.pop()
-                for neighbor in neighbors[g]:
+                current_face = stack.pop()
+                for neighbor in neighbors[current_face]:
                     if neighbor is None or processed[neighbor]:
                         continue
-                    dot = np.dot(normals[g], normals[neighbor])
+                    dot = np.dot(normals[current_face], normals[neighbor])
                     if dot >= limit:
                         processed[neighbor] = True
                         parts[neighbor] = ipart
@@ -93,29 +79,10 @@ def find_parts(polygon:dict=None, method='vertex', mesh=None, max_angle=None):
         raise ValueError("Unknown method. Use 'vertex' or 'edge'.")
 
 def find_parts_edges(edges):
-    """
-    Treat each edge as its own part (like MATLAB pgonparts with disconnected edges).
-    
-    Parameters:
-    - edges: (n_edges x 2) array of vertex indices
-    
-    Returns:
-    - part_indices: array of part index for each edge
-    """
     return np.arange(len(edges)), [{'nfaces': 1, 'ncncts': 1, 'cstate': 1} for _ in range(len(edges))]
 
-    
-def max_part_area(mesh, parts):
-    """
-    Compute the maximum area of connected parts in a mesh.
 
-    Parameters:
-    - mesh: trimesh.Trimesh object
-    - parts: list of part labels for each face
-
-    Returns:
-    - Maximum area among all parts
-    """
+def max_part_areas(mesh, parts):
     parts = np.array(parts)
     unique_parts = np.unique(parts)
     face_areas = mesh.area_faces
@@ -123,8 +90,27 @@ def max_part_area(mesh, parts):
     part_areas = [face_areas[parts == label].sum() for label in unique_parts]
     return max(part_areas)
 
-def compute_part_volumes(mesh, face_labels):
+def max_part_area(mesh, parts):
+    # Force parts to be a numpy array
+    parts = np.array(parts)
 
+    # If the parts array is empty, there are no areas to compute.
+    # Return 0.0 immediately to prevent max() from crashing.
+    if parts.size == 0:
+        return 0.0
+
+    unique_parts = np.unique(parts)
+    face_areas = mesh.area_faces
+
+    part_areas = [face_areas[parts == label].sum() for label in unique_parts]
+
+    # Second safety layer in case part_areas list generation failed
+    if not part_areas:
+        return 0.0
+
+    return max(part_areas)
+
+def compute_part_volumes(mesh, face_labels):
     face_labels = np.array(face_labels)
     unique_labels = np.unique(face_labels)
     volumes = []
@@ -139,9 +125,6 @@ def compute_part_volumes(mesh, face_labels):
 
 
 def compute_part_centroids(mesh, face_labels):
-    import numpy as np
-    import trimesh
-
     face_labels = np.array(face_labels)
     unique_labels = np.unique(face_labels)
     centroids = []
@@ -155,19 +138,19 @@ def compute_part_centroids(mesh, face_labels):
     return np.array(centroids)
 
 def volume_centroid(mesh):
-    # Step 1: Compute bounding box center as offset
+    # Compute bounding box center as offset
     offset = mesh.bounding_box.centroid
 
-    # Step 2: Center the mesh vertices by subtracting the offset
+    # Center the mesh vertices by subtracting the offset
     centered_vertices = mesh.vertices - offset
 
-    # Step 3: Create a new mesh with centered vertices
+    # Create a new mesh with centered vertices
     centered_mesh = trimesh.Trimesh(vertices=centered_vertices, faces=mesh.faces, process=False)
 
-    # Step 4: Compute volume-weighted centroid of the centered mesh
+    # Compute volume-weighted centroid of the centered mesh
     centered_centroid = centered_mesh.center_mass
 
-    # Step 5: Translate the centroid back to original location using offset
+    # Translate the centroid back to original location using offset
     final_centroid = centered_centroid + offset
 
     return final_centroid

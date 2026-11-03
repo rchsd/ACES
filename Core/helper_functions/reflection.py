@@ -1,5 +1,4 @@
 import numpy as np
-import trimesh
 
 def reflection(vector):
     if np.array_equal(vector, np.array([1, 0, 0])):  # Reflection across the X-axis

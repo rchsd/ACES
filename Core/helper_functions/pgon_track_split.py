@@ -1,7 +1,7 @@
 import numpy as np
 import trimesh
 from helper_functions import split_mesh
-import scipy.io as sio
+
 
 def track_split(pgon, verts, plane, coef):
     # Ensure 'step' exists and is valid
@@ -17,10 +17,15 @@ def track_split(pgon, verts, plane, coef):
     temp, mask, orig = split_mesh.pgon_split(None, plane, coef, stacked_verts, pgon['faces'][work_step])
     temp.vertices = np.round(temp.vertices, 4)
 
-    # Ensure 'mask' exists and is valid
-    if 'mask' not in pgon or pgon['mask'].shape[0] != pgon['faces'].shape[0]:
-        pgon['mask'] = np.zeros((pgon['faces'].shape[0],), dtype=int)
 
+    if 'mask' not in pgon:
+        pgon['mask'] = np.ones((pgon['faces'].shape[0],), dtype=int)
+    elif pgon['mask'].shape[0] != pgon['faces'].shape[0]:
+        raise ValueError(
+            f"mask length {pgon['mask'].shape[0]} does not match face count. "
+            f"{pgon['faces'].shape[0]} - upstream labelling is inconsistent. "
+            f"mask is missing {pgon['faces'].shape[0] - pgon['mask'].shape[0]} faces."
+        )
     # Locate split faces
     orig_unique, ii = np.unique(orig, return_inverse=True)
     counts = np.bincount(ii)

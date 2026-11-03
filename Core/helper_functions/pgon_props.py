@@ -2,7 +2,7 @@ import trimesh
 import numpy as np
 
 # Implements Scalar Triple Product
-def compute_mesh_volume(mesh:trimesh, center=None):
+def compute_mesh_volume_old(mesh:trimesh, center=None):
     faces = mesh.faces
     vertices = mesh.vertices
     if center is None:
@@ -14,12 +14,25 @@ def compute_mesh_volume(mesh:trimesh, center=None):
         volume += vol
     return abs(volume)
 
+def compute_mesh_volume(mesh: trimesh.Trimesh, center=None):
+    if center is None:
+        center = np.zeros(3)
+
+    # Get the vertices for all faces at once: shape (N, 3, 3)
+    v = mesh.vertices[mesh.faces] - center
+
+    # Vectorized scalar triple product
+    v0, v1, v2 = v[:, 0, :], v[:, 1, :], v[:, 2, :]
+    volumes = np.einsum('ij,ij->i', v0, np.cross(v1, v2)) / 6.0
+
+    return abs(np.sum(volumes))
+
 # Build tetrahedra mesh
 def build_pgon(mesh, center):
     tetra_vertices = []
     tetra_faces = []
     for idx, face in enumerate(mesh.faces):
-        v0, v1, v2 = mesh.vertices[face] - center  
+        v0, v1, v2 = mesh.vertices[face] - center
         base_index = len(tetra_vertices)
         tetra_vertices.extend([v0, v1, v2, np.zeros(3)])
         tetra_faces.extend([

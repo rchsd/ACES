@@ -2,6 +2,7 @@ from helper_functions import split_read, mark_acetabulum, pgon_separation, find_
 from helper_functions import pgon_track_split, unitize, parse_inputs, split_write, project_points, grid_occupancy
 from helper_functions import calculate_distances, filter_faces, generate_random_points, sphere_regression_with_weights
 import numpy as np
+import logging as log
 
 def ui_037(rotated_pelvis):
     file = {'mesh': rotated_pelvis}
@@ -10,15 +11,15 @@ def ui_037(rotated_pelvis):
     for current_index in range(1, 3):
         pgon_dict = step_2(pgon_dict, centers, radii, current_index)
     pgon = step_3(pgon_dict, centers, radii)
-    
+
     return pgon
-    
+
 def step_0(pgon):
     pgon_struct = split_read.split_read(pgon)
     return pgon_struct
-    
+
 def step_1(rotated_pelvis, pgon_dict):
-    print('Locating acetabulums.')
+    log.info('Locating acetabulums.')
     centers, radii = [], []
     try:
         for k in range(20):
@@ -26,18 +27,18 @@ def step_1(rotated_pelvis, pgon_dict):
                 centers, radii = locate_acetabulum(rotated_pelvis)
                 break
             except Exception as e:
-                print('failed, trying again...')
+                log.warning(f'WARNING, trying again: {e}')
                 if k != 19:
                     continue
             centers, radii = locate_acetabulum(rotated_pelvis)
     except Exception as ex:
-        print('none')
+        log.exception(f'Acetabulums were NOT able to be identified: {ex}')
         return None
-    
+
     # mesh is a dict that contains vertices, faces, steps, and mesh
     pgon_dict = mark_acetabulum.mark_acetabulum(pgon_dict, centers, radii)
 
-    print('Acetabulums identified.')
+    log.info('Acetabulums identified.')
 
     return pgon_dict, centers, radii
 
@@ -64,18 +65,11 @@ def step_1_load(pgon_dict):
 
 # locates fossa
 def step_2(pgon_struct, centers, radii, side):
-    bounds = np.zeros((0, 3))
+    log.info('Locating fossa')
     index = side - 1
 
-    # Get correct side of polygon
-    temp = pgon_separation.pgon_mask(pgon_struct['mesh'], pgon_struct['step'][:,2])
-    mask = pgon_struct['mask'][pgon_struct['step'][:,2]]
-    temp_2 = pgon_separation.pgon_mask(temp, np.mod(mask, 2) == np.mod(side, 2))
-    mask = mask[np.mod(mask, 2) == np.mod(side, 2)] > 2
-    next = None
-
     # Get bounds from GUI, made placeholder values
-    if side == 1:     
+    if side == 1:
         bounds = [
             [1.61130533155253, 62.2104774804963, -59.9403544387100],
             [-2.98932152246617, 65.0650606157165, -51.6403794430619],
@@ -90,7 +84,6 @@ def step_2(pgon_struct, centers, radii, side):
             [21.5039262916537, 60.9578688263805, -56.3143169343964],
             [1.61130533155253, 62.2104774804963, -59.9403544387100]]
 
-        next = 1
     else:
         bounds = [
             [25.3045585876297, -63.5475473763193, -58.5582828041084],
@@ -107,7 +100,6 @@ def step_2(pgon_struct, centers, radii, side):
             [3.02803482928811, -64.2295630281545, -58.8743715723273],
             [5.52932169182047, -62.9618628548538, -63.0824055430105],
             [25.3045585876297, -63.5475473763193, -58.5582828041084]]
-        next = 2
 
     # Get whether or not each side exists
     exists = [
@@ -152,7 +144,7 @@ def step_2(pgon_struct, centers, radii, side):
 
 # SET_CENTERS: Creates triangles to represent acetabulum center
 def step_3(pgon, centers, radii):
-    print('Finding acetabulum centers.')
+    log.info('Finding acetabulum centers.')
 
     # Create vectors
     rl = unitize.unitize(np.diff(centers, axis=0))
@@ -168,9 +160,9 @@ def step_3(pgon, centers, radii):
 
     # Create vertices
     cpgon['vertices'] = np.zeros((6, 3))
-    rl_stacked = np.vstack([rl, i_s])  # shape (2, 3) 
+    rl_stacked = np.vstack([rl, i_s])  # shape (2, 3)
     pa_stacked = np.vstack([pa, i_s])
-    radii = radii.reshape(2,)  
+    radii = radii.reshape(2,)
     cpgon['vertices'][0, :] = centers[0, :] + radii[0] * rl
     cpgon['vertices'][1, :] = centers[0, :] + radii[0] * np.dot(dn, rl_stacked)
     cpgon['vertices'][2, :] = centers[0, :] + radii[0] * np.dot(up, rl_stacked)
@@ -217,21 +209,46 @@ def locate_acetabulum(mesh, params = dict()):
     # Locate pair of grid spaces that are highly occupied and far apart
     m1 = count_selected @ count_selected.T
     m2 = calculate_distances.calculate_pairwise_distances(grid_selected)
-    r = np.unravel_index(np.argmax(m1 * m2), m1.shape)
+
+    # Constrain to an anatomically plausible pair. The iliac fossa are large
+    # concavities that also attract the projected normals, and they sit high on
+    # the iliac wings - so require both cells in the lower part of the pelvis.
+    gy, gz = grid_selected[:, 1], grid_selected[:, 2]
+    zlo, zhi = mesh.bounds[0, 2], mesh.bounds[1, 2]
+    zcut = zlo + 0.55 * (zhi - zlo)
+
+    low = (gz[:, None] < zcut) & (gz[None, :] < zcut)
+    opposite = (np.sign(gy)[:, None] * np.sign(gy)[None, :]) < 0
+    plausible = (m2 > 100) & (m2 < 220)
+
+    score = m1 * m2
+    score[~(low & opposite & plausible)] = 0
+    if not score.any():
+        log.warning("[locate] WARNING: no plausible acetabular pair found; using unconstrained pick.")
+        score = m1 * m2
+
+    r = np.unravel_index(np.argmax(score), m1.shape)
+
+    log.debug(f"[locate] z range {zlo:.1f} to {zhi:.1f}, cutoff {zcut:.1f}")
+    log.debug(f"[locate] candidate z {gz.round(1)}")
+    log.debug(f"[locate] chosen {r}, z {gz[list(r)].round(1)}, separation {m2[r]:.1f} mm")
+
 
     # Get preliminary centers and radii
     centers = grid_selected[r, :]
     r = np.array(r).flatten()
     radii = np.tile(np.mean(dists[np.isin(reidx, ic[r])]), 2)
 
-    # Refine centers    
+    # Refine centers
     # Update grid size and range
     grid_size = params['GridSize'] / params['GridAdjustmentFactor']
     adjustment = np.array([-1, 1]) * np.sqrt(5 * grid_size ** 2) / 2
     radius_range = radii + adjustment
 
+
     # Loop through centers
     for c in range(0, 2):
+
         # Filter faces
         mask = filter_faces.filter_faces(barys, norms, centers[c, :], radius_range[1], 45)
         pgon = pgon_separation.pgon_mask(mesh, mask)
@@ -244,7 +261,7 @@ def locate_acetabulum(mesh, params = dict()):
         r = np.argmax(count)
         new_grid = grid[r, :]
         centers[c, :] = new_grid
-        radii[c] = np.mean(dists[reidx == r]); 
+        radii[c] = np.mean(dists[reidx == r]);
 
     # Calculate centers using spherefit
     for i in range(params['FitCycles']):
@@ -258,7 +275,7 @@ def locate_acetabulum(mesh, params = dict()):
             points, fi =  generate_random_points.sample_points_on_mesh(pgon, params['SamplePoints'], True)
 
             # Perform spherical regressions using different weights
-            for j in range(params['WeightCycles']):  
+            for j in range(params['WeightCycles']):
                 # Calculate radial vectors
                 rvecs = centers[c, :] - points
                 mags = np.linalg.norm(rvecs, axis=1)
@@ -277,6 +294,7 @@ def locate_acetabulum(mesh, params = dict()):
     centers = np.array(centers)
     radii = np.array(radii)
     ic = np.lexsort(centers.T[::-1])
-    centers = centers[ic]                         
+    centers = centers[ic]
     radii = radii[ic]
+
     return centers, radii

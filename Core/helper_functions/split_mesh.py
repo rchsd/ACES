@@ -1,19 +1,19 @@
 import numpy as np
 import trimesh
 
-def pgon_split(mesh, normal, coefficient, vertices=None, faces=None, tol=1e-8):
+def pgon_split(mesh, normal, coefficient, vertices=None, faces=None, tol=1e-12):
+
     normal = np.asarray(normal)
     normal = normal / np.linalg.norm(normal)
+
     if mesh is None:
-        vertices=vertices
-        faces=faces
+        vertices=np.asarray(vertices)
+        faces=np.asarray(faces)
     else:
         vertices = mesh.vertices
         faces = mesh.faces
 
     dists = vertices @ normal - coefficient
-    rel_tol = tol * (np.abs(coefficient) + tol)
-    #dists[np.abs(dists) < rel_tol] = 0
     dists[np.abs(dists / (np.abs(coefficient) + tol)) < tol] = 0
 
     new_vertices = vertices.tolist()
@@ -54,6 +54,7 @@ def pgon_split(mesh, normal, coefficient, vertices=None, faces=None, tol=1e-8):
             over_plane_mask.append(np.any(signs > 0))
             original_face_indices.append(face_idx)
 
+
         elif num_splits == 1:
             i = crossing_edges[0][0]
             j = (i + 1) % 3
@@ -64,6 +65,7 @@ def pgon_split(mesh, normal, coefficient, vertices=None, faces=None, tol=1e-8):
             new_faces.append([new_v, vj, vk])
             over_plane_mask.extend([dists[vi] > 0, dists[vj] > 0])
             original_face_indices.extend([face_idx, face_idx])
+
 
         elif num_splits == 2:
             # Find the edge that was NOT split
@@ -89,6 +91,7 @@ def pgon_split(mesh, normal, coefficient, vertices=None, faces=None, tol=1e-8):
             ])
             original_face_indices.extend([face_idx] * 3)
 
+
         else:
             # More than 2 intersections on a triangle is invalid
             continue
@@ -96,6 +99,7 @@ def pgon_split(mesh, normal, coefficient, vertices=None, faces=None, tol=1e-8):
     refined_mesh = trimesh.Trimesh(vertices=np.array(new_vertices),
                                    faces=np.array(new_faces),
                                    process=False)
+
 
     return refined_mesh, np.array(over_plane_mask), np.array(original_face_indices)
 

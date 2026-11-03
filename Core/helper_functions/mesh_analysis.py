@@ -1,4 +1,3 @@
-import numpy as np
 import trimesh
 
 def analyze_mesh(mesh_file_path, transform = []):
@@ -7,7 +6,7 @@ def analyze_mesh(mesh_file_path, transform = []):
 
     if len(transform) != 0:
         mesh_copy.apply_transform(transform)
-    
+
     centroid_of_volume = mesh_copy.center_mass
 
     return mesh_copy.volume, centroid_of_volume, mesh_copy.faces, mesh_copy.vertices, mesh_copy

@@ -1,18 +1,12 @@
 import math
-import csv
 from helper_functions import parse_spreadsheet
+import logging as log
 
-def format_and_export_to_csv(result, filename='coverage.csv', patient_age=8, patient_sex=5):
-    print('Formatting data for spreadsheet.')
+def format_and_export_to_csv(result, filename='python_coverage.csv', patient_age=8, patient_sex=5):
+    log.info('Formatting data for spreadsheet.')
     _, _, row_general = print_general(result)
     _, _, _, row_supine = print_supine_coverage(result)
-    parse_spreadsheet.format_and_export_to_excel(row_general, row_supine, 'python_coverage.xlsx', 8, patient_age, patient_sex)
-
-    '''with open(filename, mode='w', newline='') as file:
-        header_1, header_2, row_general = print_general(result)
-        row_header_1, row_header_2, row_header_3, row_supine = print_supine_coverage(result)
-        writer = csv.writer(file)
-        writer.writerows([header_1, header_2, row_general, [], [], [], row_header_1, row_header_2, row_header_3, row_supine])'''
+    parse_spreadsheet.format_and_export_to_excel(row_general, row_supine,'python_coverage.xlsx', 8, patient_age, patient_sex)
 
 def print_general(result):
     rw = 4 * math.pi * result['right_radius'] ** 2
@@ -72,12 +66,6 @@ def print_supine_coverage(result):
                           'S', 'SA', 'A', 'IA', 'I', 'IP', 'P', 'SP',
                           'S', 'SA', 'A', 'IA', 'I', 'IP', 'P', 'SP',
                           'S', 'SA', 'A', 'IA', 'I', 'IP', 'P', 'SP']
-    
-    row = [result['right_total_supine_coverage'] - result['right_fossa_supine_coverage'], result['right_fossa_supine_coverage'], result['right_total_supine_coverage'],
-           result['left_total_supine_coverage'] - result['left_fossa_supine_coverage'], result['left_fossa_supine_coverage'], result['left_total_supine_coverage'],
-           (result['right_total_supine_coverage'] + result['left_total_supine_coverage'] - result['right_fossa_supine_coverage'] - result['left_fossa_supine_coverage']) / 2,
-           (result['right_fossa_supine_coverage'] + result['left_fossa_supine_coverage']) / 2, 
-           (result['right_total_supine_coverage'] + result['left_total_supine_coverage']) / 2]
 
     # Result row
     right_total = result['right_total_supine_coverage']
