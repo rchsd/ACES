@@ -66,3 +66,15 @@ jobs:
 
       - name: Make files executable (Linux/Mac)
         run: chmod +x app-* || true
+
+      - name: Create GitHub Release
+              uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64
+              with:
+                tag_name: ${{ github.event.inputs.version }}
+                name: Release ${{ github.event.inputs.version }}
+                draft: false
+                prerelease: false
+                files: |
+                  app-linux
+                  app-windows.exe
+                  app-macos
