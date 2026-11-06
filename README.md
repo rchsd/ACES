@@ -2,8 +2,6 @@
 
 This repository contains a PyQt-based graphical application for performing automated acetabular coverage analysis on pelvic STL models using the Trimesh library. The tool is semi-automatic that guides the user through pelvis alignment, acetabulum detection, fossa selection, coverage angle calculations, and automated results export.
 
----
-
 ## Installation
 
 ### 1. Clone the Repository
@@ -24,8 +22,6 @@ venv\Scripts\Activate        # Windows
 pip install -r requirements.txt
 ```
 
----
-
 ## Running the Application
 
 The main application entry point is the full absolute path to aces_main_window.py (for example: C:\...\ACES\Core\aces_main_window.py).
@@ -35,8 +31,6 @@ venv\Scripts\Activate
 cd Core
 python aces_main_window.py
 ```
-
----
 
 ## How to Use the Application
 
@@ -59,8 +53,6 @@ Steps:
 2. Look for the files clearly labeled (e.g., pelvisL.stl, pelvisR.stl).
 3. Ctrl + Click to select the left, then right hip in that order.
 4. Click **Open** to start the analysis.
-
----
 
 ## Analysis Workflow
 
@@ -85,8 +77,6 @@ For each hip:
 2. Close the window, the area will be saved and the next one will appear.
 3. Finish with the second fossa selection.
 4. If the pelvis has a negative 'tilt' or 'right_tilt', the process will have to be repeated again.
-
----
 
 ## Output Files
 
@@ -131,27 +121,26 @@ Core/
 
 Running this executable launches the same GUI, and all outputs will be saved in the same folder as the .exe.
 
----
 
 ## Support
 Open a GitHub Issue for questions or assistance.
 
----
 
 ## Acknowledgements (historical and current contributors to ACES)
-Former (pre-Python) Developers:
-Josh Doan MEng; Engineer
-Byron Beasley Jr, MS[to confirm]; Innovation Engineer
+#### Former (pre-Python) Developers:
 
-Current Developers:
-Jared Falcon, BS; Innovation Engineer
-Parham Gholami, MS; Innovation Engineer, Lead
+- Josh Doan MEng; Engineer
+- Byron Beasley Jr, MS; Innovation Engineer
 
-Leadership
-Christy Farnsworth, MS; Orthopedic Research Manager
-James D. Bomar, MS; Research Supervisor
-Justin R. Ryan, PhD; Director Webster Foundation 3D Innovations Lab
-Matthew R. Schmitz, MD; Orthopedic Surgeon, Rady Children's Hospital San Diego
-Salil V. Upasani, MD; Orthopedic Surgeon, Rady Children's Hospital San Diego
+#### Current Developers:
 
----
+- Jared Falcon, BS; Innovation Engineer
+- Parham Gholami, MS; Innovation Engineer, Lead
+
+#### Leadership
+
+- Christy Farnsworth, MS; Orthopedic Research Manager
+- James D. Bomar, MS; Research Supervisor
+- Justin R. Ryan, PhD; Director Webster Foundation 3D Innovations Lab
+- Matthew R. Schmitz, MD; Orthopedic Surgeon, Rady Children's Hospital San Diego
+- Salil V. Upasani, MD; Orthopedic Surgeon, Rady Children's Hospital San Diego
