@@ -127,20 +127,20 @@ Open a GitHub Issue for questions or assistance.
 
 
 ## Acknowledgements (historical and current contributors to ACES)
-#### Former (pre-Python) Developers:
+#### Former Developers:
 
-- Josh Doan MEng; Engineer
+- Josh Doan MEng; Engineer (pre-Python)
 - Byron Beasley Jr, MS; Innovation Engineer
 
 #### Current Developers:
 
-- Jared Falcon, BS; Innovation Engineer
+- Jared Falcon, BS; Innovation Engineer (Current Primary Developer)
 - Parham Gholami, MS; Innovation Engineer, Lead
 
 #### Leadership
 
 - Christy Farnsworth, MS; Orthopedic Research Manager
 - James D. Bomar, MS; Research Supervisor
-- Justin R. Ryan, PhD; Director Webster Foundation 3D Innovations Lab
+- Justin R. Ryan, PhD; Director Helen and Will Webster Foundation 3D Innovations Lab
 - Matthew R. Schmitz, MD; Orthopedic Surgeon, Rady Children's Hospital San Diego
 - Salil V. Upasani, MD; Orthopedic Surgeon, Rady Children's Hospital San Diego
